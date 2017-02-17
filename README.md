@@ -162,7 +162,7 @@ Boards are an early predecessor of today's internet forums. It's the place peopl
 
 3...TCP/IP setup
 
-This configuration step will configure your Commodore 64 ethernet hardware, including IP addresses, driver and memory location of the cartridge. The example below shows a typical LAN setup using a RRnet or 64NIC+ cartridge at memory address $de08. Both cartridges use the cs8900a.eth driver. ETH64 network devices may use the lan91c96.eth driver along with its appropriate memory address. 
+This configuration step will configure your Commodore 64 ethernet hardware, including IP addresses, driver and memory location of the cartridge. The example below shows a typical LAN setup using a RRnet or TFE cartridge at memory address $de08. Both cartridges use the cs8900a.eth driver. ETH64 network devices may use the lan91c96.eth driver along with its appropriate memory address. 
 
 NOTE: do not prefix your memory address with the '$' sign. E.g. if your ethernet cartridge resides at $de08 just enter 'de08' when being prompted for the memory address.
 
