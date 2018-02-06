@@ -1,0 +1,28 @@
+Contiki BBS ToDo list:
+
+-switch user accounts to dir/file model
+
+-support PETSCII, ANSI, 22col,40col,80col
+
+-change menu to single char commands
+	-board -> "s" for subs
+	-blist -> "s" (combine with board command)
+	-read  -> "r" read last msg
+	-post  -> "w" post a msg
+	-help  -> "?" (remove because there is already a "?" command)
+	-quit  -> "q"
+	-exit  -> "q" (combine with quit)
+
+-commands to add:
+	"+" -> next sub
+	"-" -> previous sub
+
+
+-change posts to individual prg files, not a big rel file
+
+-add headers for each sub
+
+-add library section (art, news, movies, info)
+
+-add a file transfer section
+
