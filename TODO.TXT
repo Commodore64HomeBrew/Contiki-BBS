@@ -20,9 +20,14 @@ Contiki BBS ToDo list:
 
 -change posts to individual prg files, not a big rel file
 
+-improve editor: 
+	-force new line at 40 or specific col #
+	-add edit ("/e") command
+
 -add headers for each sub
 
 -add library section (art, news, movies, info)
 
 -add a file transfer section
 
+https://10.200.201.12:443
