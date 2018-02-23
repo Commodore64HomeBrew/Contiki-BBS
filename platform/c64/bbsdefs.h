@@ -20,7 +20,7 @@
 #define BBS_MAX_MSGLINES        6
 #define BBS_MAX_USERS         500
 
-#define BBS_BANNER_BUFFER    1024
+#define BBS_BANNER_BUFFER    2048
 #define BBS_BANNER_LOGIN     "login.txt"
 #define BBS_BANNER_LOGOUT    "logout.txt"
 #define BBS_BANNER_MENU      "menu.txt"

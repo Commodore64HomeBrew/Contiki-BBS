@@ -115,7 +115,7 @@ void bbs_banner(unsigned char szBannerFile[15])
             buffer[i] = '\n';
      }
   }
- 
+  log_message("banner:", buffer);
   shell_output_str(NULL, "", buffer);
   
   if (buffer != NULL)
@@ -772,6 +772,9 @@ shell_start(void)
     log_message("[bbs] *busy*","");
   } else {
     bbs_locked=1;
+
+    shell_prompt("\n\rPETSCII (p) or ASCII (a): ");
+
     bbs_banner(BBS_BANNER_LOGIN);
     shell_output_str(NULL, "\n\rContiki BBS " , BBS_STRING_VERSION);
 

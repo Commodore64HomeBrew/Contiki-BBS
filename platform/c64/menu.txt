@@ -1,9 +1,0 @@
-                                        
-         ** m a i n   m e n u **        
-                                        
-      'BOARD' ........ SELECT BOARD     
-     'BLIST' ........ LIST BOARDS       
-    'POST' ........ WRITE NEW MSG.      
-   'HELP' ........ DISPLAY HELP         
-  'QUIT' ........ EXIT BBS (LOGOUT)     
-                                        
