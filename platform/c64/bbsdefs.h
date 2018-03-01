@@ -20,7 +20,7 @@
 #define BBS_MAX_MSGLINES        6
 #define BBS_MAX_USERS         500
 
-#define BBS_BANNER_BUFFER    2048
+#define BBS_BANNER_BUFFER    1024
 #define BBS_BANNER_LOGIN     "login.txt"
 #define BBS_BANNER_LOGOUT    "logout.txt"
 #define BBS_BANNER_MENU      "menu.txt"
@@ -35,7 +35,7 @@
 #define BBS_STRING_BOARDINFO "-id- -------board------- -acl- -msgs-"
 #define BBS_STRING_LINEMAX "  enter message (max. 40 chars per line)"
 #define BBS_STRING_EDITHDR "---------+---------+---------+---------+" 
-#define BBS_STRING_VERSION "0.2.7.1"
+#define BBS_STRING_VERSION "0.3.0"
 
 typedef struct {
   unsigned short board_no;  
@@ -60,6 +60,7 @@ typedef struct {
   unsigned short bbs_status;
   unsigned short bbs_msg_id;
   unsigned short bbs_board_id;
+  unsigned short bbs_encoding;
   /*char  bbs_name[20];
   char  bbs_sysop[20];*/
   char  bbs_prompt[20];
