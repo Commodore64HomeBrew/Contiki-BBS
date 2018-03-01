@@ -193,7 +193,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
        switch (bbs_status.bbs_status) {
 
 	 case 0: {
-		if(strcmp(input->data1, 'a')){
+		if(! strcmp(input->data1, "a")){
 			bbs_status.bbs_encoding=1;
 		}
 		else{
@@ -210,6 +210,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
                        bbs_status.bbs_status=2;
                     } else {
                        shell_output_str(&bbs_login_command, "login failed.", "");
+		       bbs_status.bbs_status=0;
                        bbs_unlock();
                     }
                     break;
