@@ -32,10 +32,10 @@ unsigned short bbs_locked=0;
 PROCESS(shell_process, "Shell");
 PROCESS(shell_server_process, "Shell server");
 PROCESS(bbs_version_process, "version");
-SHELL_COMMAND(bbs_version_command, "version", "version: show version and copyright", 
+SHELL_COMMAND(bbs_version_command, "v", "v : show version and copyright", 
               &bbs_version_process);
 PROCESS(help_command_process, "help");
-SHELL_COMMAND(help_command, "help", "help   : shows this help",
+SHELL_COMMAND(help_command, "h", "h : shows this help",
 	      &help_command_process);
 SHELL_COMMAND(question_command, "?", "?      : shows this help",
 	      &help_command_process);
@@ -46,9 +46,9 @@ PROCESS(shell_kill_process, "kill");
 SHELL_COMMAND(kill_command, "kill", "kill <command> : stop a specific command",
 	      &shell_kill_process);
 PROCESS(shell_exit_process, "exit");
-SHELL_COMMAND(exit_command, "exit", "exit   : exit bbs",
+SHELL_COMMAND(exit_command, "g", "e : exit bbs",
 	      &shell_exit_process);
-SHELL_COMMAND(quit_command, "quit", "quit   : exit bbs",
+SHELL_COMMAND(quit_command, "q", "q : exit bbs",
 	      &shell_exit_process);
 PROCESS(bbs_login_process, "login");
 SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
@@ -179,17 +179,18 @@ PROCESS_THREAD(bbs_login_process, ev, data)
   struct shell_input *input;
 
   PROCESS_BEGIN();
-
+  log_message("[debug] bbs_login_process","");
   while(1) {
 
     PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input || ev == PROCESS_EVENT_TIMER);
 
-    if (ev == PROCESS_EVENT_TIMER)
+    if (ev == PROCESS_EVENT_TIMER) {
        bbs_unlock(); 
-
+       log_message("[debug] bbs_unlock","");
+    }
     if (ev == shell_event_input) {
        input = data;
-
+       log_message("[debug] shell_event_input","");
        switch (bbs_status.bbs_status) {
 
 	 case 0: {
@@ -266,7 +267,7 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
   char szBuff[20];
 
   PROCESS_BEGIN();
-
+  log_message("[debug] bbs_timer_process","");
   if (bbs_status.bbs_status==3)
      etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);
   else
@@ -620,7 +621,7 @@ PROCESS_THREAD(shell_process, ev, data)
   int ret;
 
   PROCESS_BEGIN();
-
+  log_message("[debug] shell_process","");
   /* Let the system start up before showing the prompt. */
   PROCESS_PAUSE();
   
@@ -665,7 +666,7 @@ PROCESS_THREAD(shell_server_process, ev, data)
   struct shell_command *c;
   static struct etimer session_timer;
   PROCESS_BEGIN();
-
+  log_message("[debug] shell_server_process","");
   etimer_set(&session_timer, CLOCK_SECOND * 10);
   while(1) {
     PROCESS_WAIT_EVENT();
@@ -725,7 +726,7 @@ shell_init(void)
   process_start(&shell_server_process, NULL);
 
   front_process = &bbs_login_process;
-
+  log_message("[debug] shell_init","");
   bbs_status.bbs_status=0;
 }
 /*---------------------------------------------------------------------------*/

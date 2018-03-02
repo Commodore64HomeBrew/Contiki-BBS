@@ -60,10 +60,10 @@ typedef struct {
   unsigned short bbs_status;
   unsigned short bbs_msg_id;
   unsigned short bbs_board_id;
-  unsigned short bbs_encoding;
   /*char  bbs_name[20];
   char  bbs_sysop[20];*/
   char  bbs_prompt[20];
+  char  bbs_encoding;
 } BBS_STATUS_REC;
 
 #endif /* __BBSDEFS_H_ */

@@ -18,7 +18,7 @@ extern BBS_STATUS_REC bbs_status;
 /*extern char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];*/
 
 PROCESS(bbs_post_process, "post");
-SHELL_COMMAND(bbs_post_command, "post", "post   : post a new message", &bbs_post_process);
+SHELL_COMMAND(bbs_post_command, "p", "p : post a new message", &bbs_post_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_post_process, ev, data)
 {

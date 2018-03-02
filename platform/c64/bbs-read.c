@@ -18,7 +18,7 @@ extern BBS_STATUS_REC bbs_status;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(bbs_read_process, "read");
-SHELL_COMMAND(bbs_read_command, "read", "read   : read a message", &bbs_read_process);
+SHELL_COMMAND(bbs_read_command, "r", "r : read a message", &bbs_read_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_read_process, ev, data)
 {

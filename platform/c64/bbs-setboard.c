@@ -20,7 +20,7 @@ extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
 
 PROCESS(bbs_setboard_process, "board");
-SHELL_COMMAND(bbs_setboard_command, "board", "board  : select active board", &bbs_setboard_process);
+SHELL_COMMAND(bbs_setboard_command, "s", "s  : select active board", &bbs_setboard_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_setboard_process, ev, data)
 {

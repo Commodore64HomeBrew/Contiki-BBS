@@ -17,7 +17,7 @@ extern BBS_STATUS_REC bbs_status;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(bbs_blist_process, "blist");
-SHELL_COMMAND(bbs_blist_command, "blist", "blist  : list message boards", &bbs_blist_process);
+SHELL_COMMAND(bbs_blist_command, "l", "l : list message boards", &bbs_blist_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_blist_process, ev, data)
 {
