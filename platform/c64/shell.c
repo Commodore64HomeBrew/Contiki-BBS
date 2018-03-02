@@ -179,22 +179,20 @@ PROCESS_THREAD(bbs_login_process, ev, data)
   struct shell_input *input;
 
   PROCESS_BEGIN();
-  log_message("[debug] bbs_login_process","");
+
   while(1) {
 
     PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input || ev == PROCESS_EVENT_TIMER);
 
     if (ev == PROCESS_EVENT_TIMER) {
        bbs_unlock(); 
-       log_message("[debug] bbs_unlock","");
     }
     if (ev == shell_event_input) {
        input = data;
-       log_message("[debug] shell_event_input","");
        switch (bbs_status.bbs_status) {
 
 	 case 0: {
-		if(! strcmp(input->data1, "a")){
+		if(strcmp(input->data1, "a")){
 			bbs_status.bbs_encoding=1;
 		}
 		else{
@@ -222,8 +220,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
                        process_exit(&bbs_timer_process);
                        bbs_status.bbs_status=3;
                        log_message("[bbs] *login* ", bbs_user.user_name);  
-                       bbs_banner(BBS_BANNER_MENU);
-                       shell_prompt(bbs_status.bbs_prompt);
+                       //bbs_banner(BBS_BANNER_MENU);
+                       shell_prompt("> ");
                        process_start(&bbs_timer_process, NULL);
                        front_process=&shell_process;
                     } else {
@@ -267,8 +265,7 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
   char szBuff[20];
 
   PROCESS_BEGIN();
-  log_message("[debug] bbs_timer_process","");
-  if (bbs_status.bbs_status==3)
+  if (bbs_status.bbs_status>1)
      etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);
   else
      etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_login);
@@ -278,20 +275,20 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
      PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&bbs_session_timer));
 
      if (ev == PROCESS_EVENT_TIMER) {
-        if (bbs_status.bbs_status==3)
+        if (bbs_status.bbs_status>1)
            process_post(PROCESS_BROADCAST, PROCESS_EVENT_TIMER, NULL);
         else
            process_post(&bbs_login_process, PROCESS_EVENT_TIMER, NULL);
 
         sprintf(szBuff, "session timeout.");
         shell_output_str(NULL, szBuff, "");
-        if (bbs_status.bbs_status==3)
+        if (bbs_status.bbs_status>1)
            etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);
         else
            etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_login);
      } else {
        if (ev == shell_event_input) 
-         if (bbs_status.bbs_status==3)
+         if (bbs_status.bbs_status>1)
             etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);
          else
             etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_login);
@@ -368,7 +365,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  bbs_banner(BBS_BANNER_LOGOUT);
+  //bbs_banner(BBS_BANNER_LOGOUT);
 
   log_message("[bbs] *logout* ", bbs_user.user_name);  
   bbs_status.bbs_status=0;
@@ -621,7 +618,7 @@ PROCESS_THREAD(shell_process, ev, data)
   int ret;
 
   PROCESS_BEGIN();
-  log_message("[debug] shell_process","");
+
   /* Let the system start up before showing the prompt. */
   PROCESS_PAUSE();
   
@@ -650,9 +647,9 @@ PROCESS_THREAD(shell_process, ev, data)
     if (ev == PROCESS_EVENT_TIMER)
        bbs_unlock();
 
-    if(bbs_status.bbs_status==3) {
+    if(bbs_status.bbs_status>1) {
       /*etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);*/
-      shell_prompt(bbs_status.bbs_prompt);
+      shell_prompt("> ");
     }
 
   }
@@ -666,7 +663,7 @@ PROCESS_THREAD(shell_server_process, ev, data)
   struct shell_command *c;
   static struct etimer session_timer;
   PROCESS_BEGIN();
-  log_message("[debug] shell_server_process","");
+
   etimer_set(&session_timer, CLOCK_SECOND * 10);
   while(1) {
     PROCESS_WAIT_EVENT();
@@ -726,7 +723,7 @@ shell_init(void)
   process_start(&shell_server_process, NULL);
 
   front_process = &bbs_login_process;
-  log_message("[debug] shell_init","");
+
   bbs_status.bbs_status=0;
 }
 /*---------------------------------------------------------------------------*/
@@ -779,14 +776,14 @@ shell_start(void)
   bbs_status.bbs_msg_id=1;
   process_start(&bbs_timer_process, NULL);*/
   bbs_lock();
-
+  
   if(bbs_locked == 1) {
     shell_exit(); 
     log_message("[bbs] *busy*","");
   } else {
     bbs_locked=1;
 
-    bbs_banner(BBS_BANNER_LOGIN);
+    //bbs_banner(BBS_BANNER_LOGIN);
     shell_output_str(NULL, "\n\rContiki BBS " , BBS_STRING_VERSION);
 
     shell_prompt("\n\rpetscii (p) or ascii (a): ");

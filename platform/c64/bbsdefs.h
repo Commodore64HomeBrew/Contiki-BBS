@@ -63,7 +63,7 @@ typedef struct {
   /*char  bbs_name[20];
   char  bbs_sysop[20];*/
   char  bbs_prompt[20];
-  char  bbs_encoding;
+  unsigned short bbs_encoding;
 } BBS_STATUS_REC;
 
 #endif /* __BBSDEFS_H_ */
