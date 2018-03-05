@@ -24,6 +24,7 @@
 #define BBS_BANNER_LOGIN     "login.txt"
 #define BBS_BANNER_LOGOUT    "logout.txt"
 #define BBS_BANNER_MENU      "menu.txt"
+#define BBS_BANNER_SUBS      "subs.seq"
 
 #define BBS_LINE_WIDTH         40
 #define BBS_TIMEOUT_SEC       360
@@ -38,11 +39,11 @@
 #define BBS_STRING_VERSION "0.3.0"
 
 typedef struct {
-  unsigned short board_no;  
-  unsigned short max_boards;
+  unsigned char board_no;  
+  unsigned char max_boards;
   unsigned short board_max;
   unsigned short board_ptr;
-  unsigned short access_req;
+  unsigned char access_req;
   char  board_name[20];
 } BBS_BOARD_REC;
 
@@ -50,20 +51,20 @@ typedef struct {
   unsigned short user_no;  
   char  user_name[15];
   char  user_pwd[15];
-  unsigned short  access_req;
+  unsigned char  access_req;
 } BBS_USER_REC;
 
 typedef struct {
-  unsigned short board_drive;  
+  unsigned char board_drive;  
   unsigned short bbs_timeout_login;
   unsigned short bbs_timeout_session;
-  unsigned short bbs_status;
-  unsigned short bbs_msg_id;
-  unsigned short bbs_board_id;
+  unsigned char bbs_status;
+  unsigned char bbs_msg_id;
+  unsigned char bbs_board_id;
   /*char  bbs_name[20];
   char  bbs_sysop[20];*/
   char  bbs_prompt[20];
-  unsigned short bbs_encoding;
+  unsigned char bbs_encoding;
 } BBS_STATUS_REC;
 
 #endif /* __BBSDEFS_H_ */

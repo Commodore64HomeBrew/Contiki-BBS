@@ -21,15 +21,16 @@ SHELL_COMMAND(bbs_blist_command, "l", "l : list message boards", &bbs_blist_proc
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_blist_process, ev, data)
 {
-  short bbs_board_id=1;
-  char szBuff[BBS_LINE_WIDTH];
-  ST_FILE file;
-  BBS_BOARD_REC board;
+  //short bbs_board_id=1;
+  //char szBuff[BBS_LINE_WIDTH];
+  //ST_FILE file;
+  //BBS_BOARD_REC board;
 
   PROCESS_BEGIN();
-
+    bbs_banner(BBS_BANNER_SUBS);
+    shell_prompt("\n\rboard list");
      /* load BBS config */
-     strcpy(file.szFileName, BBS_BOARDCFG_FILE);
+/*     strcpy(file.szFileName, BBS_BOARDCFG_FILE);
      file.ucDeviceNo=bbs_status.board_drive;
      ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_board_id);
 
@@ -41,13 +42,13 @@ PROCESS_THREAD(bbs_blist_process, ev, data)
         memset(&board, 0x00, sizeof(BBS_BOARD_REC));
         ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_board_id);
 
-        /*sprintf(szBuff, " %02d  %-20s  %03d", board.board_no, board.board_name, board.board_ptr);*/
+        //sprintf(szBuff, " %02d  %-20s  %03d", board.board_no, board.board_name, board.board_ptr);
         sprintf(szBuff, " %2d  %-20s %3d  %3d", board.board_no, board.board_name, board.access_req, board.board_ptr);
         shell_output_str(&bbs_blist_command, szBuff, "");
 
         bbs_board_id++;
      } while (bbs_board_id <= board.max_boards);
-
+*/
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/

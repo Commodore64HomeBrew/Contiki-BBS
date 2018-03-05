@@ -25,16 +25,16 @@ SHELL_COMMAND(bbs_setboard_command, "s", "s  : select active board", &bbs_setboa
 PROCESS_THREAD(bbs_setboard_process, ev, data)
 {
 
-  struct shell_input *input;
-  char szBuff[BBS_LINE_WIDTH];
-  unsigned short num;
-  ST_FILE file;
-  BBS_BOARD_REC board;
+  //struct shell_input *input;
+  //char szBuff[BBS_LINE_WIDTH];
+  //unsigned short num;
+  //ST_FILE file;
+  //BBS_BOARD_REC board;
 
   PROCESS_BEGIN();
-
+  shell_prompt("\n\rselect board");
   /* read board data */
-  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
+/*  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
   file.ucDeviceNo=8;
   ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
 
@@ -45,9 +45,9 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
-
+*/
   /* read new board data */
-  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
+/*  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
   file.ucDeviceNo=8;
   ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), num);
 
@@ -60,7 +60,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
       } else {
          shell_prompt("insufficient access rights.\n");
       }
-  }
+  }*/
   PROCESS_EXIT();
    
   PROCESS_END();

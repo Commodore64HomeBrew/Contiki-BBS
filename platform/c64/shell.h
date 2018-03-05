@@ -86,6 +86,9 @@ struct shell_command {
   struct shell_command *child;
 };
 
+void bbs_banner(unsigned char szBannerFile[15]);
+
+
 /**
  * \name       Shell back-end API
  *

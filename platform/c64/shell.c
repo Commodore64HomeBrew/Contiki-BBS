@@ -70,16 +70,23 @@ short bbs_filesize(char *filename)
 /*---------------------------------------------------------------------------*/
 static void bbs_init(void) 
 {
-   ST_FILE file;
+   //ST_FILE file;
 
   /* read BBS base configuration */
-   strcpy(file.szFileName, BBS_CFG_FILE);  
+/*   strcpy(file.szFileName, BBS_CFG_FILE);  
    file.ucDeviceNo = 8;
    ssReadRELFile(&file, &bbs_status, sizeof(bbs_status), 1);
+*/
+  /* set BBS parameters */
+  bbs_status.bbs_board_id=1;
+  bbs_status.bbs_msg_id=1;
 
-   /* set BBS parameters */
-   bbs_status.bbs_board_id=1;
-   bbs_status.bbs_msg_id=1;
+  bbs_status.board_drive=8;  
+  bbs_status.bbs_timeout_login=60;
+  bbs_status.bbs_timeout_session=120;
+  bbs_status.bbs_status=0;
+  strcpy(bbs_status.bbs_prompt, "> ");
+  bbs_status.bbs_encoding=0;
 }
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char szBannerFile[15]) 
@@ -114,7 +121,7 @@ void bbs_banner(unsigned char szBannerFile[15])
             buffer[i] = '\n';
      }
   }
-  log_message("banner:", buffer);
+  //log_message("banner:", buffer);
   shell_output_str(NULL, "", buffer);
   
   if (buffer != NULL)
@@ -150,7 +157,7 @@ void bbs_unlock(void)
 /*---------------------------------------------------------------------------*/
 int bbs_get_user(char *data)
 {
-  int user_count,count=1;
+  /*int user_count,count=1;
   ST_FILE file;
 
   strcpy(file.szFileName, "user.idx");
@@ -172,6 +179,10 @@ int bbs_get_user(char *data)
   } while (count <= user_count); 
 
   return 0;
+*/
+  strcpy(bbs_user.user_name, data);
+  return 1;
+
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_login_process, ev, data)
@@ -188,48 +199,48 @@ PROCESS_THREAD(bbs_login_process, ev, data)
        bbs_unlock(); 
     }
     if (ev == shell_event_input) {
-       input = data;
-       switch (bbs_status.bbs_status) {
+      input = data;
+      switch (bbs_status.bbs_status) {
 
-	 case 0: {
-		if(strcmp(input->data1, "a")){
-			bbs_status.bbs_encoding=1;
-		}
-		else{
-			bbs_status.bbs_encoding=0;
-		}
-                shell_prompt("login: ");
-		bbs_status.bbs_status=1;
-		break;
-         }
+          case 0: {
+            if(strcmp(input->data1, "a")){
+              bbs_status.bbs_encoding=1;
+            }
+            else{
+              bbs_status.bbs_encoding=0;
+            }
+            shell_prompt("login: ");
+            bbs_status.bbs_status=1;
+            break;
+          }
 
-         case 1: {
-                    if ((bbs_get_user(input->data1) != 0)) {
-                       shell_prompt("password: ");
-                       bbs_status.bbs_status=2;
-                    } else {
-                       shell_output_str(&bbs_login_command, "login failed.", "");
-		       bbs_status.bbs_status=0;
-                       bbs_unlock();
-                    }
-                    break;
-         }
+          case 1: {
+            if ((bbs_get_user(input->data1) != 0)) {
+              shell_prompt("password: ");
+              bbs_status.bbs_status=2;
+            } else {
+              shell_output_str(&bbs_login_command, "login failed.", "");
+              bbs_status.bbs_status=0;
+              bbs_unlock();
+            }
+            break;
+          }
 
-         case 2: {
-                    if(! strcmp(input->data1, bbs_user.user_pwd)) {
-                       process_exit(&bbs_timer_process);
-                       bbs_status.bbs_status=3;
-                       log_message("[bbs] *login* ", bbs_user.user_name);  
-                       //bbs_banner(BBS_BANNER_MENU);
-                       shell_prompt("> ");
-                       process_start(&bbs_timer_process, NULL);
-                       front_process=&shell_process;
-                    } else {
-                       shell_output_str(&bbs_login_command, "login failed.", "");
-                       bbs_unlock();
-                    }
-                    break;
-         }
+          case 2: {
+            //if(! strcmp(input->data1, bbs_user.user_pwd)) {
+              process_exit(&bbs_timer_process);
+              bbs_status.bbs_status=3;
+              log_message("[bbs] *login* ", bbs_user.user_name);  
+              bbs_banner(BBS_BANNER_MENU);
+              shell_prompt(bbs_status.bbs_prompt);
+              process_start(&bbs_timer_process, NULL);
+              front_process=&shell_process;
+            /*} else {
+              shell_output_str(&bbs_login_command, "login failed.", "");
+              bbs_unlock();
+            }*/
+            break;
+          }
        }
     }
   } /* end ... while */
@@ -365,7 +376,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  //bbs_banner(BBS_BANNER_LOGOUT);
+  bbs_banner(BBS_BANNER_LOGOUT);
 
   log_message("[bbs] *logout* ", bbs_user.user_name);  
   bbs_status.bbs_status=0;
@@ -649,7 +660,7 @@ PROCESS_THREAD(shell_process, ev, data)
 
     if(bbs_status.bbs_status>1) {
       /*etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);*/
-      shell_prompt("> ");
+      shell_prompt(bbs_status.bbs_prompt);
     }
 
   }
@@ -783,7 +794,7 @@ shell_start(void)
   } else {
     bbs_locked=1;
 
-    //bbs_banner(BBS_BANNER_LOGIN);
+    bbs_banner(BBS_BANNER_LOGIN);
     shell_output_str(NULL, "\n\rContiki BBS " , BBS_STRING_VERSION);
 
     shell_prompt("\n\rpetscii (p) or ascii (a): ");
