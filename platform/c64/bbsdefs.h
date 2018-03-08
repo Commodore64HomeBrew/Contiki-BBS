@@ -8,7 +8,10 @@
 #ifndef __BBSDEFS_H_
 #define __BBSDEFS_H_
 
-#define BBS_COPYRIGHT_STRING "\n\r          Contiki BBS 0.2.7.1 \n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
+#define BBS_COPYRIGHT_STRING "\n\r          Contiki BBS 0.3.0 \n\r     (c) 2018-> by K. Casteels\n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
+
+#define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
+#define BBS_TELNET_PORT      3121
 
 #define BBS_LOCKMODE_OFF        0
 #define BBS_LOCKMODE_ON         1
@@ -20,11 +23,17 @@
 #define BBS_MAX_MSGLINES        6
 #define BBS_MAX_USERS         500
 
-#define BBS_BANNER_BUFFER    1024
-#define BBS_BANNER_LOGIN     "login.txt"
-#define BBS_BANNER_LOGOUT    "logout.txt"
-#define BBS_BANNER_MENU      "menu.txt"
-#define BBS_BANNER_SUBS      "subs.seq"
+#define BBS_BANNER_BUFFER    2048
+#define BBS_BANNER_LOGIN_a     "login-a"
+#define BBS_BANNER_LOGIN_p     "login-p"
+#define BBS_BANNER_LOGOUT_a    "logout-a"
+#define BBS_BANNER_LOGOUT_p    "logout-p"
+#define BBS_BANNER_LOGO_a      "logo-a"
+#define BBS_BANNER_LOGO_p      "logo-p"
+#define BBS_BANNER_MENU_a      "menu-a"
+#define BBS_BANNER_MENU_p      "menu-p"
+#define BBS_BANNER_SUBS_a      "subs-a"
+#define BBS_BANNER_SUBS_p      "subs-p"
 
 #define BBS_LINE_WIDTH         40
 #define BBS_TIMEOUT_SEC       360

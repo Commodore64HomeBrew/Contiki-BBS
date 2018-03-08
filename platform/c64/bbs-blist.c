@@ -27,7 +27,12 @@ PROCESS_THREAD(bbs_blist_process, ev, data)
   //BBS_BOARD_REC board;
 
   PROCESS_BEGIN();
-    bbs_banner(BBS_BANNER_SUBS);
+      if(bbs_status.bbs_encoding==1){
+      	bbs_banner(BBS_BANNER_SUBS_a);
+      }
+      else{
+	bbs_banner(BBS_BANNER_SUBS_p);
+      }
     shell_prompt("\n\rboard list");
      /* load BBS config */
 /*     strcpy(file.szFileName, BBS_BOARDCFG_FILE);

@@ -86,7 +86,7 @@ static void bbs_init(void)
   bbs_status.bbs_timeout_session=120;
   bbs_status.bbs_status=0;
   strcpy(bbs_status.bbs_prompt, "> ");
-  bbs_status.bbs_encoding=0;
+  bbs_status.bbs_encoding=1;
 }
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char szBannerFile[15]) 
@@ -203,13 +203,16 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       switch (bbs_status.bbs_status) {
 
           case 0: {
-            if(strcmp(input->data1, "a")){
+            if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
+		log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=1;
+		bbs_banner(BBS_BANNER_LOGIN_a);
             }
             else{
               bbs_status.bbs_encoding=0;
+		bbs_banner(BBS_BANNER_LOGIN_p);
             }
-            shell_prompt("login: ");
+            shell_prompt("handle: ");
             bbs_status.bbs_status=1;
             break;
           }
@@ -230,8 +233,13 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             //if(! strcmp(input->data1, bbs_user.user_pwd)) {
               process_exit(&bbs_timer_process);
               bbs_status.bbs_status=3;
-              log_message("[bbs] *login* ", bbs_user.user_name);  
-              bbs_banner(BBS_BANNER_MENU);
+              log_message("[bbs] *login* ", bbs_user.user_name);
+	      if(bbs_status.bbs_encoding==1){
+              	bbs_banner(BBS_BANNER_LOGO_a);
+	      }
+	      else{
+		bbs_banner(BBS_BANNER_LOGO_p);
+              }
               shell_prompt(bbs_status.bbs_prompt);
               process_start(&bbs_timer_process, NULL);
               front_process=&shell_process;
@@ -376,9 +384,15 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  bbs_banner(BBS_BANNER_LOGOUT);
+	if(bbs_status.bbs_encoding==1){
+	bbs_banner(BBS_BANNER_LOGOUT_a);
+	}
+	else{
+	bbs_banner(BBS_BANNER_LOGOUT_p);
+	}
 
-  log_message("[bbs] *logout* ", bbs_user.user_name);  
+  log_message("[bbs] *logout* ", bbs_user.user_name);
+  bbs_status.bbs_encoding=1;
   bbs_status.bbs_status=0;
   bbs_locked=0;
   shell_exit();
@@ -794,11 +808,10 @@ shell_start(void)
   } else {
     bbs_locked=1;
 
-    bbs_banner(BBS_BANNER_LOGIN);
-    shell_output_str(NULL, "\n\rContiki BBS " , BBS_STRING_VERSION);
+    shell_output_str(NULL, "", BBS_NAME);
 
-    shell_prompt("\n\rpetscii (p) or ascii (a): ");
-    //shell_prompt("\n\rlogin: ");
+    shell_prompt("\n\rPETSCII(P) OR ASCII(A): ");
+
     front_process=&bbs_login_process;
   } 
 

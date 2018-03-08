@@ -20,7 +20,7 @@ extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
 
 PROCESS(bbs_setboard_process, "board");
-SHELL_COMMAND(bbs_setboard_command, "s", "s  : select active board", &bbs_setboard_process);
+SHELL_COMMAND(bbs_setboard_command, "s", "s : select active board", &bbs_setboard_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_setboard_process, ev, data)
 {
@@ -32,7 +32,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   //BBS_BOARD_REC board;
 
   PROCESS_BEGIN();
-  shell_prompt("\n\rselect board");
+  shell_prompt("\n\rselect board\n\r");
   /* read board data */
 /*  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
   file.ucDeviceNo=8;
