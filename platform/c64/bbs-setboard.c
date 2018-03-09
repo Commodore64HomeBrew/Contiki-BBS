@@ -25,14 +25,60 @@ SHELL_COMMAND(bbs_setboard_command, "s", "s : select active board", &bbs_setboar
 PROCESS_THREAD(bbs_setboard_process, ev, data)
 {
 
-  //struct shell_input *input;
+  struct shell_input *input;
   //char szBuff[BBS_LINE_WIDTH];
-  //unsigned short num;
+  unsigned short num;
   //ST_FILE file;
   //BBS_BOARD_REC board;
 
   PROCESS_BEGIN();
-  shell_prompt("\n\rselect board\n\r");
+
+  if(bbs_status.bbs_encoding==1){
+    bbs_banner(BBS_BANNER_SUBS_a);
+  }
+  else{
+    bbs_banner(BBS_BANNER_SUBS_p);
+  }
+  /*memset(szBuff, 0, sizeof(szBuff));
+  sprintf(szBuff, "(%s (%d, acl: %d) Choose board # (1-%d, 0=quit)? ", board.board_name, board.board_no, board.access_req, board.max_boards);
+  shell_prompt(szBuff);
+  */
+
+  shell_prompt("Select board (1-8):");
+  PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+  input = data;
+  num = atoi(input->data1);
+
+  switch (num) {
+
+    case 1: {bbs_banner("sp-1");}
+    case 2: {bbs_banner("sp-2");}
+    case 3: {bbs_banner("sp-3");}
+    case 4: {bbs_banner("sp-4");}
+    case 5: {bbs_banner("sp-5");}
+    case 6: {bbs_banner("sp-6");}
+    case 7: {bbs_banner("sp-7");}
+    case 8: {bbs_banner("sp-8");}
+
+  }
+
+
+/*
+
+  if(! strcmp(input->data1, "1"){bbs_banner("sp-1");}
+  else if(! strcmp(input->data1, "2"){bbs_banner("sp-1");}
+
+  num = int(input->data1);
+
+  if( num>0 && num <= BBS_MAX_BOARDS ){
+
+    strcat(BBS_SUB_PRE_p , &c);
+    bbs_banner();
+  }
+
+*/
+
+
   /* read board data */
 /*  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
   file.ucDeviceNo=8;
@@ -66,8 +112,74 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
+
+
+PROCESS(bbs_nextboard_process, "next");
+SHELL_COMMAND(bbs_nextboard_command, "+", "+ : next sub board", &bbs_nextboard_process);
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(bbs_nextboard_process, ev, data)
+{
+
+  PROCESS_BEGIN();
+
+  if(bbs_status.bbs_board_id < BBS_MAX_BOARDS){
+
+    ++bbs_status.bbs_board_id;
+    switch (bbs_status.bbs_board_id) {
+
+      case 1: {bbs_banner("sp-1");}
+      case 2: {bbs_banner("sp-2");}
+      case 3: {bbs_banner("sp-3");}
+      case 4: {bbs_banner("sp-4");}
+      case 5: {bbs_banner("sp-5");}
+      case 6: {bbs_banner("sp-6");}
+      case 7: {bbs_banner("sp-7");}
+      case 8: {bbs_banner("sp-8");}
+
+    }
+  }
+
+  PROCESS_EXIT();
+   
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
+
+PROCESS(bbs_prevboard_process, "previous");
+SHELL_COMMAND(bbs_prevboard_command, "-", "- : previous sub board", &bbs_prevboard_process);
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(bbs_prevboard_process, ev, data)
+{
+
+  PROCESS_BEGIN();
+
+  if(bbs_status.bbs_board_id > 1){
+
+    --bbs_status.bbs_board_id;
+    switch (bbs_status.bbs_board_id) {
+
+      case 1: {bbs_banner("sp-1");}
+      case 2: {bbs_banner("sp-2");}
+      case 3: {bbs_banner("sp-3");}
+      case 4: {bbs_banner("sp-4");}
+      case 5: {bbs_banner("sp-5");}
+      case 6: {bbs_banner("sp-6");}
+      case 7: {bbs_banner("sp-7");}
+      case 8: {bbs_banner("sp-8");}
+
+    }
+  }
+
+  PROCESS_EXIT();
+   
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
+
 void
 bbs_setboard_init(void)
 {
   shell_register_command(&bbs_setboard_command);
+  shell_register_command(&bbs_nextboard_command);
+  shell_register_command(&bbs_prevboard_command);
 }

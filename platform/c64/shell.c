@@ -206,13 +206,13 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
           case 0: {
             if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
-		log_message("[debug] encoding: ", input->data1);
+		          log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=1;
-		bbs_banner(BBS_BANNER_LOGIN_a);
+		          bbs_banner(BBS_BANNER_LOGIN_a);
             }
             else{
               bbs_status.bbs_encoding=0;
-		bbs_banner(BBS_BANNER_LOGIN_p);
+		          bbs_banner(BBS_BANNER_LOGIN_p);
             }
             shell_prompt("handle: ");
             bbs_status.bbs_status=1;
@@ -735,11 +735,12 @@ shell_init(void)
   bbs_splash(BBS_MODE_CONSOLE);
 
   bbs_init();
-  bbs_page_init(); 
-  bbs_blist_init(); 
-  bbs_read_init();
   bbs_setboard_init();
+  //bbs_blist_init(); 
+  bbs_read_init();
   bbs_post_init();
+  bbs_page_init(); 
+
 
   shell_event_input = process_alloc_event();
   

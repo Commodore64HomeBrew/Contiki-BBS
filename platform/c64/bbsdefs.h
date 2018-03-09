@@ -19,25 +19,33 @@
 #define BBS_MODE_SHELL          0
 #define BBS_MODE_CONSOLE        1
 
-#define BBS_MAX_BOARDS         20
+#define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        6
-#define BBS_MAX_USERS         500
-
-#define BBS_BANNER_BUFFER    2048
-#define BBS_BANNER_LOGIN_a     "login-a"
-#define BBS_BANNER_LOGIN_p     "login-p"
-#define BBS_BANNER_LOGOUT_a    "logout-a"
-#define BBS_BANNER_LOGOUT_p    "logout-p"
-#define BBS_BANNER_LOGO_a      "logo-a"
-#define BBS_BANNER_LOGO_p      "logo-p"
-#define BBS_BANNER_MENU_a      "menu-a"
-#define BBS_BANNER_MENU_p      "menu-p"
-#define BBS_BANNER_SUBS_a      "subs-a"
-#define BBS_BANNER_SUBS_p      "subs-p"
 
 #define BBS_LINE_WIDTH         40
 #define BBS_TIMEOUT_SEC       360
 #define BBS_LOGIN_TIMEOUT_SEC  60
+
+#define BBS_BANNER_BUFFER    2048
+#define BBS_BANNER_LOGIN_a     "login-a"
+#define BBS_BANNER_LOGIN_p     "login-p"
+
+#define BBS_BANNER_LOGOUT_a    "logout-a"
+#define BBS_BANNER_LOGOUT_p    "logout-p"
+
+#define BBS_BANNER_LOGO_a      "logo-a"
+#define BBS_BANNER_LOGO_p      "logo-p"
+
+#define BBS_BANNER_MENU_a      "menu-a"
+#define BBS_BANNER_MENU_p      "menu-p"
+
+#define BBS_BANNER_SUBS_a      "subs-a"
+#define BBS_BANNER_SUBS_p      "subs-p"
+
+#define BBS_PREFIX_SUB_a       "sa-"
+#define BBS_PREFIX_SUB_p       "sp-"
+
+
 
 #define BBS_CFG_FILE "bbs.cfg"
 #define BBS_BOARDCFG_FILE "board.cfg"
@@ -70,10 +78,10 @@ typedef struct {
   unsigned char bbs_status;
   unsigned char bbs_msg_id;
   unsigned char bbs_board_id;
+  unsigned char bbs_encoding;
   /*char  bbs_name[20];
   char  bbs_sysop[20];*/
   char  bbs_prompt[20];
-  unsigned char bbs_encoding;
 } BBS_STATUS_REC;
 
 #endif /* __BBSDEFS_H_ */
