@@ -33,7 +33,7 @@ PROCESS_THREAD(bbs_blist_process, ev, data)
       else{
 	bbs_banner(BBS_BANNER_SUBS_p);
       }
-    shell_prompt("\n\rboard list");
+    shell_prompt("\n\rboard list\n\r");
      /* load BBS config */
 /*     strcpy(file.szFileName, BBS_BOARDCFG_FILE);
      file.ucDeviceNo=bbs_status.board_drive;

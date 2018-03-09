@@ -15,7 +15,7 @@
 #include <string.h>
 
 PROCESS(bbs_page_process, "page");
-SHELL_COMMAND(bbs_page_command, "page", "page   : page sysop", &bbs_page_process);
+SHELL_COMMAND(bbs_page_command, "z", "z : page sysop", &bbs_page_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_page_process, ev, data)
 {

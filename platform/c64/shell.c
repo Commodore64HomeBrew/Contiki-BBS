@@ -35,9 +35,7 @@ PROCESS(bbs_version_process, "version");
 SHELL_COMMAND(bbs_version_command, "v", "v : show version and copyright", 
               &bbs_version_process);
 PROCESS(help_command_process, "help");
-SHELL_COMMAND(help_command, "h", "h : shows this help",
-	      &help_command_process);
-SHELL_COMMAND(question_command, "?", "?      : shows this help",
+SHELL_COMMAND(help_command, "?", "? : shows this help",
 	      &help_command_process);
 PROCESS(shell_killall_process, "killall");
 SHELL_COMMAND(killall_command, "killall", "killall : stop all running commands",
@@ -46,8 +44,6 @@ PROCESS(shell_kill_process, "kill");
 SHELL_COMMAND(kill_command, "kill", "kill <command> : stop a specific command",
 	      &shell_kill_process);
 PROCESS(shell_exit_process, "exit");
-SHELL_COMMAND(exit_command, "g", "e : exit bbs",
-	      &shell_exit_process);
 SHELL_COMMAND(quit_command, "q", "q : exit bbs",
 	      &shell_exit_process);
 PROCESS(bbs_login_process, "login");
@@ -91,9 +87,13 @@ static void bbs_init(void)
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char szBannerFile[15]) 
 {
+  //unsigned char encoding;
   unsigned char *buffer;
   unsigned short fsize=0;
   unsigned short i=0, siRet=0, len=0;
+
+  //encoding=bbs_status.bbs_encoding;
+  //bbs_status.bbs_encoding=0;
 
   fsize=bbs_filesize(szBannerFile);
 
@@ -116,16 +116,18 @@ void bbs_banner(unsigned char szBannerFile[15])
      len = cbm_read(10, buffer, fsize);
      cbm_close(10);
 
-     for (i=0; i<len; i++) {
+     /*for (i=0; i<len; i++) {
          if (buffer[i] == '\r')
             buffer[i] = '\n';
-     }
+     }*/
   }
-  //log_message("banner:", buffer);
-  shell_output_str(NULL, "", buffer);
+
+  shell_output_str(NULL, "\n\r", buffer);
   
   if (buffer != NULL)
      free(buffer);
+
+  //bbs_status.bbs_encoding=encoding;
 }
 /*---------------------------------------------------------------------------*/
 void bbs_splash(unsigned short mode) 
@@ -722,8 +724,6 @@ shell_init(void)
   /* register BBS processes */
   list_init(commands);
   shell_register_command(&help_command);
-  shell_register_command(&question_command);
-  shell_register_command(&exit_command);
   shell_register_command(&quit_command);
   shell_register_command(&bbs_version_command);
 
