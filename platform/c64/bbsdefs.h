@@ -11,7 +11,7 @@
 #define BBS_COPYRIGHT_STRING "\n\r          Contiki BBS 0.3.0 \n\r     (c) 2018-> by K. Casteels\n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
 
 #define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
-#define BBS_TELNET_PORT      3121
+#define BBS_TELNET_PORT      2200
 
 #define BBS_LOCKMODE_OFF        0
 #define BBS_LOCKMODE_ON         1
@@ -44,8 +44,6 @@
 
 #define BBS_PREFIX_SUB_a       "sa-"
 #define BBS_PREFIX_SUB_p       "sp-"
-
-
 
 #define BBS_CFG_FILE "bbs.cfg"
 #define BBS_BOARDCFG_FILE "board.cfg"

@@ -28,6 +28,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   struct shell_input *input;
   //char szBuff[BBS_LINE_WIDTH];
   unsigned short num;
+  char file[12];
   //ST_FILE file;
   //BBS_BOARD_REC board;
 
@@ -44,24 +45,17 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   shell_prompt(szBuff);
   */
 
-  shell_prompt("Select board (1-8):");
+  shell_prompt("select board (1-8):");
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
 
-  switch (num) {
+  shell_output_str(NULL,"\x93", "\x0e");
 
-    case 1: {bbs_banner("sp-1");}
-    case 2: {bbs_banner("sp-2");}
-    case 3: {bbs_banner("sp-3");}
-    case 4: {bbs_banner("sp-4");}
-    case 5: {bbs_banner("sp-5");}
-    case 6: {bbs_banner("sp-6");}
-    case 7: {bbs_banner("sp-7");}
-    case 8: {bbs_banner("sp-8");}
-
+  if(num>0 && num <=BBS_MAX_BOARDS){
+    sprintf(file, "%s%d",BBS_PREFIX_SUB_p,num);
+    bbs_banner(file);
   }
-
 
 /*
 
@@ -119,24 +113,16 @@ SHELL_COMMAND(bbs_nextboard_command, "+", "+ : next sub board", &bbs_nextboard_p
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_nextboard_process, ev, data)
 {
+  char file[12];
 
   PROCESS_BEGIN();
 
   if(bbs_status.bbs_board_id < BBS_MAX_BOARDS){
 
     ++bbs_status.bbs_board_id;
-    switch (bbs_status.bbs_board_id) {
+    sprintf(file, "%s%d",BBS_PREFIX_SUB_p,bbs_status.bbs_board_id);
+    bbs_banner(file);
 
-      case 1: {bbs_banner("sp-1");}
-      case 2: {bbs_banner("sp-2");}
-      case 3: {bbs_banner("sp-3");}
-      case 4: {bbs_banner("sp-4");}
-      case 5: {bbs_banner("sp-5");}
-      case 6: {bbs_banner("sp-6");}
-      case 7: {bbs_banner("sp-7");}
-      case 8: {bbs_banner("sp-8");}
-
-    }
   }
 
   PROCESS_EXIT();
@@ -150,24 +136,15 @@ SHELL_COMMAND(bbs_prevboard_command, "-", "- : previous sub board", &bbs_prevboa
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_prevboard_process, ev, data)
 {
-
+  char file[12];
   PROCESS_BEGIN();
 
   if(bbs_status.bbs_board_id > 1){
 
     --bbs_status.bbs_board_id;
-    switch (bbs_status.bbs_board_id) {
+    sprintf(file, "%s%d",BBS_PREFIX_SUB_p,bbs_status.bbs_board_id);
+    bbs_banner(file);
 
-      case 1: {bbs_banner("sp-1");}
-      case 2: {bbs_banner("sp-2");}
-      case 3: {bbs_banner("sp-3");}
-      case 4: {bbs_banner("sp-4");}
-      case 5: {bbs_banner("sp-5");}
-      case 6: {bbs_banner("sp-6");}
-      case 7: {bbs_banner("sp-7");}
-      case 8: {bbs_banner("sp-8");}
-
-    }
   }
 
   PROCESS_EXIT();

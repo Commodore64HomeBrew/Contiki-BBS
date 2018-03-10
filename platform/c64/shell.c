@@ -797,6 +797,7 @@ shell_set_time(unsigned long seconds)
 void
 shell_start(void)
 {
+  char lower[] = "\x0e\n\r";
   /* set BBS parameters */
   /*bbs_status.bbs_board_id=1;
   bbs_status.bbs_msg_id=1;
@@ -809,7 +810,7 @@ shell_start(void)
   } else {
     bbs_locked=1;
 
-    shell_output_str(NULL, "", BBS_NAME);
+    shell_output_str(NULL, lower, BBS_NAME);
 
     shell_prompt("\n\rPETSCII(P) OR ASCII(A): ");
 
