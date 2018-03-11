@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-
+/*
 int ssInitRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecCount)
 {
   char command[40];
@@ -98,7 +98,7 @@ int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, uns
        
   return siRet;
 }
-
+*/
 /*int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize)
 {
   int siRet=0;

@@ -31,14 +31,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   BBS_BOARD_REC board;
 
   /* read board data */
-  if (disk_access) {
+/*  if (disk_access) {
      strcpy(file.szFileName, BBS_BOARDCFG_FILE);
      file.ucDeviceNo=bbs_status.board_drive;
      ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
      disk_access=0;
   }
-
-  PROCESS_BEGIN();
+*/  PROCESS_BEGIN();
 
   shell_output_str(&bbs_post_command, "on empty line: /abt=abort /s=save\r\nlns:6, chrs:39", "");
   shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");      
@@ -66,11 +65,11 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
       /* write post */
       sprintf(file.szFileName, "board%d.msg", bbs_status.bbs_board_id);
-      ssWriteRELFile(&file, &bbs_logbuf, sizeof(bbs_logbuf), board.board_ptr);
+ //     ssWriteRELFile(&file, &bbs_logbuf, sizeof(bbs_logbuf), board.board_ptr);
 
       /* write board data */
       strcpy(file.szFileName, BBS_BOARDCFG_FILE);
-      ssWriteRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
+ //     ssWriteRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
 
       memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
       linecount=0;
