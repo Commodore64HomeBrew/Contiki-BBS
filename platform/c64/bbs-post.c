@@ -39,6 +39,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   }
 */  PROCESS_BEGIN();
 
+  shell_output_str(NULL,PETSCII_LOWER, "");
   shell_output_str(&bbs_post_command, "on empty line: /abt=abort /s=save\r\nlns:6, chrs:39", "");
   shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");      
 

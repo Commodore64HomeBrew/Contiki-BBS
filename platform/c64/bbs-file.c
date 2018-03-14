@@ -125,6 +125,12 @@ int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, uns
   return siRet;
 }
 
+//10 open 5,<dn>,5,"<filename>,s,r": rem open seq file to read 
+//20 get#5,t$: rem read one byte of the seq 
+//30 print asc(t$+chr$(0)): rem display the byte in ASCII code 
+//40 if st<>64 then goto 20: rem check for end of file mark 
+//50 close 5: rem close the seq file
+
 int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
 {
   int siRet=0;

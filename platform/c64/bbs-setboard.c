@@ -50,9 +50,9 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   input = data;
   num = atoi(input->data1);
 
-  shell_output_str(NULL,"\x93", "\x0e");
 
   if(num>0 && num <=BBS_MAX_BOARDS){
+    bbs_status.bbs_board_id = num;
     sprintf(file, "%s%d",BBS_PREFIX_SUB_p,num);
     bbs_banner(file);
   }

@@ -53,6 +53,9 @@
 #define BBS_STRING_EDITHDR "---------+---------+---------+---------+" 
 #define BBS_STRING_VERSION "0.3.0"
 
+#define PETSCII_LOWER           "\x0e"
+#define PETSCII_CLRSCN          "\x93"
+
 typedef struct {
   unsigned char board_no;  
   unsigned char max_boards;

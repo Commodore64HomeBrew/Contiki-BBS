@@ -26,6 +26,7 @@ PROCESS_THREAD(bbs_page_process, ev, data)
 
   PROCESS_BEGIN();
 
+  shell_output_str(NULL,PETSCII_LOWER, "");
   shell_output_str(&bbs_page_command, "*paging sysop (/q on empty line to quit)", "");
   shell_output_str(&bbs_page_command, BBS_STRING_EDITHDR, "");      
 
