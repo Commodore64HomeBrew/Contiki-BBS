@@ -29,6 +29,7 @@ int ssWriteRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, un
 int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecNo);
 /*int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize);
 int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);*/
+int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);
 int siFileExists(ST_FILE *pstFile);
 unsigned char ucCheckDeviceNo(unsigned char *ucDeviceNo);
 int siDriveStatus(ST_FILE *pstFile);

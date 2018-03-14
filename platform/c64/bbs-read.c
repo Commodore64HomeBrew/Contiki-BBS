@@ -29,13 +29,19 @@ PROCESS_THREAD(bbs_read_process, ev, data)
   BBS_BOARD_REC board;
 
   /* read board data */
-  strcpy(file.szFileName, "board.cfg");
+  //strcpy(file.szFileName, "board.cfg");
   file.ucDeviceNo=bbs_status.board_drive;
   //ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
   memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
 
   PROCESS_BEGIN();
 
+
+  sprintf(file.szFileName, "alienterror");
+  ssStreamSEQFile(&file, bbs_logbuf, sizeof(bbs_logbuf));
+  
+  PROCESS_EXIT();
+/*
   sprintf(bbs_logbuf[0], "(%s, %d msgs.) msg# (0=quit)? ", board.board_name, board.board_ptr);
   shell_prompt(bbs_logbuf[0]); 
 
@@ -65,8 +71,8 @@ PROCESS_THREAD(bbs_read_process, ev, data)
        linecount=0;
        PROCESS_EXIT();
     }
-  } /* end ... while */ 
-
+  } 
+*/
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/

@@ -5,6 +5,7 @@
  *         (c) 2009-2015 by Niels Haedecke <n.haedecke@unitybox.de>
  */
 
+#include "shell.h"
 #include "bbs-file.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,12 +126,6 @@ int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, uns
   return siRet;
 }
 
-//10 open 5,<dn>,5,"<filename>,s,r": rem open seq file to read 
-//20 get#5,t$: rem read one byte of the seq 
-//30 print asc(t$+chr$(0)): rem display the byte in ASCII code 
-//40 if st<>64 then goto 20: rem check for end of file mark 
-//50 close 5: rem close the seq file
-
 int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
 {
   int siRet=0;
@@ -155,6 +150,37 @@ int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
 
   return siRet;    
 }*/
+
+int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
+{
+  int i;
+  int siRet=0;
+  char szTmp[15];
+  char in[1];
+
+  memset(pvBuffer, 0, uiBuffSize);
+ 
+  strcpy(szTmp, pstFile->szFileName);
+  strcat(szTmp, ",s,r");
+   
+  siRet = cbm_open(10, pstFile->ucDeviceNo, 10, szTmp);
+ 
+  if (! siRet)
+  {
+    for(i=0;i<uiBuffSize;i++){
+      cbm_read(10, in, 1);
+      shell_default_output(in, 1, "", 0);
+      //buf_append(&buf, in, 1);
+    }  
+  } else {
+    cbm_close(10);
+    return siRet;
+  }
+
+  cbm_close(10);
+
+  return siRet;    
+}
 
 int siDriveStatus(ST_FILE *pstFile)
 {
