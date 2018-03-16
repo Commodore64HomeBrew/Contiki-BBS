@@ -67,8 +67,8 @@ typedef struct {
 
 typedef struct {
   unsigned short user_no;  
-  char  user_name[15];
-  char  user_pwd[15];
+  char  user_name[14];
+  char  user_pwd[14];
   unsigned char  access_req;
 } BBS_USER_REC;
 
@@ -80,9 +80,10 @@ typedef struct {
   unsigned char bbs_msg_id;
   unsigned char bbs_board_id;
   unsigned char bbs_encoding;
-  /*char  bbs_name[20];
-  char  bbs_sysop[20];*/
-  char  bbs_prompt[20];
+  /*char bbs_name[20];
+  char bbs_sysop[20];*/
+  char bbs_last_caller[14];
+  char bbs_prompt[10];
 } BBS_STATUS_REC;
 
 #endif /* __BBSDEFS_H_ */

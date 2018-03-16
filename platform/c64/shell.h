@@ -69,7 +69,7 @@
 #define __SHELL_H__
 
 #include "sys/process.h"
-
+#include "bbs-file.h"
 /**
  * \brief      Holds a information about a shell command
  *
@@ -337,6 +337,7 @@ unsigned long shell_strtolong(const char *str, const char **retstr);
 unsigned long shell_time(void);
 void shell_set_time(unsigned long seconds);
 
+int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);
 /**
  * @}
  */

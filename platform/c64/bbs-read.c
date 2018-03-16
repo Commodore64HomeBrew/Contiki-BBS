@@ -9,6 +9,7 @@
 #include "contiki.h"
 #include "shell.h"
 #include "bbs-read.h"
+#include "telnetd.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,10 +24,10 @@ SHELL_COMMAND(bbs_read_command, "r", "r : read a message", &bbs_read_process);
 PROCESS_THREAD(bbs_read_process, ev, data)
 {
   static short linecount=0;
-  struct shell_input *input;
+  //struct shell_input *input;
   static char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];
   ST_FILE file;
-  BBS_BOARD_REC board;
+  //BBS_BOARD_REC board;
 
   /* read board data */
   //strcpy(file.szFileName, "board.cfg");
@@ -38,6 +39,7 @@ PROCESS_THREAD(bbs_read_process, ev, data)
 
 
   sprintf(file.szFileName, "alienterror");
+
   ssStreamSEQFile(&file, bbs_logbuf, sizeof(bbs_logbuf));
   
   PROCESS_EXIT();

@@ -169,7 +169,7 @@ int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
   {
     for(i=0;i<uiBuffSize;i++){
       cbm_read(10, in, 1);
-      shell_default_output(in, 1, "", 0);
+      shell_output_str(NULL, in, "");
       //buf_append(&buf, in, 1);
     }  
   } else {

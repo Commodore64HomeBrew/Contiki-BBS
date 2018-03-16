@@ -150,6 +150,7 @@ void bbs_unlock(void)
   log_message("[bbs] ", "*session timeout*");
 
   bbs_locked=0;
+  bbs_status.bbs_encoding=1;
   bbs_status.bbs_status=0;
   bbs_status.bbs_board_id=1;
   bbs_status.bbs_msg_id=1;
@@ -206,13 +207,13 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
           case 0: {
             if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
-		          log_message("[debug] encoding: ", input->data1);
+              log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=1;
-		          bbs_banner(BBS_BANNER_LOGIN_a);
+              bbs_banner(BBS_BANNER_LOGIN_a);
             }
             else{
               bbs_status.bbs_encoding=0;
-		          bbs_banner(BBS_BANNER_LOGIN_p);
+              bbs_banner(BBS_BANNER_LOGIN_p);
             }
             shell_prompt("handle: ");
             bbs_status.bbs_status=1;
@@ -221,9 +222,18 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
           case 1: {
             if ((bbs_get_user(input->data1) != 0)) {
-              shell_prompt("password: ");
-              bbs_status.bbs_status=2;
-            } else {
+
+              if((int)strlen(input->data1)>14){
+                 shell_output_str(NULL, "\r\nhandle can't be longer than 14 characters\n\r", "");
+	         shell_prompt("handle: ");
+                 bbs_status.bbs_status=1;
+              }
+              else{
+                 shell_prompt("password: ");
+                 bbs_status.bbs_status=2;
+              }
+            } 
+            else {
               shell_output_str(&bbs_login_command, "login failed.", "");
               bbs_status.bbs_status=0;
               bbs_unlock();
@@ -242,6 +252,9 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 	      else{
 		bbs_banner(BBS_BANNER_LOGO_p);
               }
+              shell_output_str(NULL, "\r\nlast caller: ", bbs_status.bbs_last_caller);
+              strcpy(bbs_status.bbs_last_caller, bbs_user.user_name);
+              strcpy(bbs_status.bbs_prompt, "> ");
               shell_prompt(bbs_status.bbs_prompt);
               process_start(&bbs_timer_process, NULL);
               front_process=&shell_process;
@@ -598,7 +611,7 @@ shell_output_str(struct shell_command *c, char *text1, const char *text2)
   }
 }
 /*---------------------------------------------------------------------------*/
-void
+/*void
 shell_output(struct shell_command *c,
 	     void *data1, int len1,
 	     const void *data2, int len2)
@@ -608,7 +621,7 @@ shell_output(struct shell_command *c,
   } else {
     shell_default_output(data1, len1, data2, len2);
   }
-}
+}*/
 /*---------------------------------------------------------------------------*/
 void
 shell_unregister_command(struct shell_command *c)
@@ -797,7 +810,6 @@ shell_set_time(unsigned long seconds)
 void
 shell_start(void)
 {
-  char lower[] = "\x0e\n\r";
   /* set BBS parameters */
   /*bbs_status.bbs_board_id=1;
   bbs_status.bbs_msg_id=1;
@@ -810,9 +822,9 @@ shell_start(void)
   } else {
     bbs_locked=1;
 
-    shell_output_str(NULL, lower, BBS_NAME);
+    shell_output_str(NULL, PETSCII_LOWER, BBS_NAME);
 
-    shell_prompt("\n\rPETSCII(P) OR ASCII(A): ");
+    shell_prompt("\n\rpetscii(p) OR ascii(a): ");
 
     front_process=&bbs_login_process;
   } 
@@ -829,6 +841,7 @@ shell_stop(void)
 
    /* set BBS parameters */
    bbs_locked=0;
+   bbs_status.bbs_encoding=1;
    bbs_status.bbs_status=0;
    bbs_status.bbs_board_id=1;
    bbs_status.bbs_msg_id=1;
