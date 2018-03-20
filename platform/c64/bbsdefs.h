@@ -23,8 +23,8 @@
 #define BBS_MAX_MSGLINES        6
 
 #define BBS_LINE_WIDTH         40
-#define BBS_TIMEOUT_SEC       360
-#define BBS_LOGIN_TIMEOUT_SEC  60
+#define BBS_TIMEOUT_SEC       200
+#define BBS_LOGIN_TIMEOUT_SEC  200
 
 #define BBS_BANNER_BUFFER    2048
 #define BBS_BANNER_LOGIN_a     "login-a"
@@ -55,6 +55,8 @@
 
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_CLRSCN          "\x93"
+#define PETSCII_WHITE           "\x05"
+
 
 typedef struct {
   unsigned char board_no;  
@@ -77,7 +79,7 @@ typedef struct {
   unsigned short bbs_timeout_login;
   unsigned short bbs_timeout_session;
   unsigned char bbs_status;
-  unsigned char bbs_msg_id;
+  short bbs_msg_id[BBS_MAX_BOARDS];
   unsigned char bbs_board_id;
   unsigned char bbs_encoding;
   /*char bbs_name[20];

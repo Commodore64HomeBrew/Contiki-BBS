@@ -23,9 +23,13 @@ SHELL_COMMAND(bbs_read_command, "r", "r : read a message", &bbs_read_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_read_process, ev, data)
 {
+
+  struct shell_input *input;
+  char message[40];
+  unsigned short num;
   static short linecount=0;
   //struct shell_input *input;
-  static char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];
+  //static char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];
   ST_FILE file;
   //BBS_BOARD_REC board;
 
@@ -33,15 +37,27 @@ PROCESS_THREAD(bbs_read_process, ev, data)
   //strcpy(file.szFileName, "board.cfg");
   file.ucDeviceNo=bbs_status.board_drive;
   //ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
-  memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
+  //memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
 
   PROCESS_BEGIN();
 
+  shell_output_str(NULL,PETSCII_LOWER, "");
+  shell_output_str(NULL,PETSCII_WHITE, "");
+  sprintf(message, "\n\rselect msg (1-%d): ", bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
+  shell_prompt(message);
 
-  sprintf(file.szFileName, "alienterror");
 
-  ssStreamSEQFile(&file, bbs_logbuf, sizeof(bbs_logbuf));
-  
+  PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+  input = data;
+  num = atoi(input->data1);
+
+
+  if(num>0 && num <= bbs_status.bbs_msg_id[bbs_status.bbs_board_id]){
+    sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, num);
+    bbs_banner(file.szFileName);
+  }
+
+
   PROCESS_EXIT();
 /*
   sprintf(bbs_logbuf[0], "(%s, %d msgs.) msg# (0=quit)? ", board.board_name, board.board_ptr);

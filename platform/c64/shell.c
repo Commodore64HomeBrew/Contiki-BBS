@@ -75,7 +75,14 @@ static void bbs_init(void)
 */
   /* set BBS parameters */
   bbs_status.bbs_board_id=1;
-  bbs_status.bbs_msg_id=1;
+  bbs_status.bbs_msg_id[0]=0;
+  bbs_status.bbs_msg_id[1]=0;
+  bbs_status.bbs_msg_id[2]=0;
+  bbs_status.bbs_msg_id[3]=0;
+  bbs_status.bbs_msg_id[4]=0;
+  bbs_status.bbs_msg_id[5]=0;
+  bbs_status.bbs_msg_id[6]=0;
+  bbs_status.bbs_msg_id[7]=0;
 
   bbs_status.board_drive=8;  
   bbs_status.bbs_timeout_login=60;
@@ -141,7 +148,7 @@ void bbs_splash(unsigned short mode)
 void bbs_lock(void)
 {
   bbs_status.bbs_board_id=1;
-  bbs_status.bbs_msg_id=1;
+  //bbs_status.bbs_msg_id=1;
   process_start(&bbs_timer_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
@@ -153,7 +160,7 @@ void bbs_unlock(void)
   bbs_status.bbs_encoding=1;
   bbs_status.bbs_status=0;
   bbs_status.bbs_board_id=1;
-  bbs_status.bbs_msg_id=1;
+  //bbs_status.bbs_msg_id=1;
   process_exit(&bbs_timer_process);
   shell_exit();
 }
@@ -199,6 +206,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input || ev == PROCESS_EVENT_TIMER);
 
     if (ev == PROCESS_EVENT_TIMER) {
+       //log_message("[bbs] *unlock0* ", "");
        bbs_unlock(); 
     }
     if (ev == shell_event_input) {
@@ -236,6 +244,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             else {
               shell_output_str(&bbs_login_command, "login failed.", "");
               bbs_status.bbs_status=0;
+              //log_message("[bbs] *unlock1* ", "");
               bbs_unlock();
             }
             break;
@@ -685,6 +694,7 @@ PROCESS_THREAD(shell_process, ev, data)
     }
 
     if (ev == PROCESS_EVENT_TIMER)
+       //log_message("[bbs] *unlock2* ", "");
        bbs_unlock();
 
     if(bbs_status.bbs_status>1) {
@@ -844,7 +854,7 @@ shell_stop(void)
    bbs_status.bbs_encoding=1;
    bbs_status.bbs_status=0;
    bbs_status.bbs_board_id=1;
-   bbs_status.bbs_msg_id=1;
+   //bbs_status.bbs_msg_id=1;
    killall();
 }
 /*---------------------------------------------------------------------------*/

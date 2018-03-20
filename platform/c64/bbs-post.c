@@ -15,6 +15,7 @@
 #include <string.h>
 
 extern BBS_STATUS_REC bbs_status;
+extern BBS_USER_REC bbs_user;
 /*extern char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];*/
 
 PROCESS(bbs_post_process, "post");
@@ -26,9 +27,10 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   static short linecount=0;
   static short disk_access=1;
   struct shell_input *input;
-  static char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];
+  //static char bbs_logbuf[BBS_MAX_MSGLINES*BBS_LINE_WIDTH];
+  char bbs_logbuf[1024];
   ST_FILE file;
-  BBS_BOARD_REC board;
+  //BBS_BOARD_REC board;
 
   /* read board data */
 /*  if (disk_access) {
@@ -39,9 +41,10 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   }
 */  PROCESS_BEGIN();
 
-  shell_output_str(NULL,PETSCII_LOWER, "");
-  shell_output_str(&bbs_post_command, "on empty line: /abt=abort /s=save\r\nlns:6, chrs:39", "");
-  shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");      
+  shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
+  shell_output_str(&bbs_post_command, "on empty line: /a=abort /s=save\r\n", "");
+  shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
+  sprintf(bbs_logbuf,"\n\rmsg from: %s\n\r", bbs_user.user_name);
 
   PROCESS_PAUSE();
 
@@ -50,7 +53,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
     input = data;
 
-    if (! strcmp(input->data1, "/abt") ) {
+    if (! strcmp(input->data1, "/a") ) {
        linecount=0;
        disk_access=1;
        PROCESS_EXIT();
@@ -58,19 +61,12 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
     if (! strcmp(input->data1,"/s") || linecount >= BBS_MAX_MSGLINES) {
 
-      if (board.board_ptr < board.board_max) {
-         board.board_ptr += 1;
-         } else {
-           board.board_ptr = 1;
-      }
-
       /* write post */
-      sprintf(file.szFileName, "board%d.msg", bbs_status.bbs_board_id);
- //     ssWriteRELFile(&file, &bbs_logbuf, sizeof(bbs_logbuf), board.board_ptr);
+      ++bbs_status.bbs_msg_id[bbs_status.bbs_board_id];
 
-      /* write board data */
-      strcpy(file.szFileName, BBS_BOARDCFG_FILE);
- //     ssWriteRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
+      sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
+      
+      cbm_save (file.szFileName, bbs_status.board_drive, &bbs_logbuf, sizeof(bbs_logbuf));
 
       memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
       linecount=0;
@@ -79,11 +75,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
       PROCESS_EXIT();
     }
 
-    if (linecount <= BBS_MAX_MSGLINES) {
+    strcat(bbs_logbuf, input->data1);
+    //log_message("[bbs] *post* ", bbs_logbuf);
+    /*if (linecount <= BBS_MAX_MSGLINES) {
        disk_access=0;
        strncpy(bbs_logbuf[linecount], input->data1, BBS_LINE_WIDTH);
        linecount++;
-    }
+    }*/
  } /* end ... while */
 
  PROCESS_END();

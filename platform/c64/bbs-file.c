@@ -107,13 +107,15 @@ int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, uns
   
   strcpy(szTmp,"@:");
   strcat(szTmp, pstFile->szFileName);  
-  (ssMode != 0) ? strcat(szTmp, ",s,a") : strcat(szTmp, ",s,w");
-   
+  //(ssMode != 0) ? strcat(szTmp, ",s,a") : strcat(szTmp, ",s,w");
+  strcat(szTmp, ",s,w");
   siRet = cbm_open(10, pstFile->ucDeviceNo, 10, szTmp);
-    
+  log_message("[bbs] *szTmp* ", szTmp);
+  
   if (! siRet)
   {
-     if (pvBuffer != NULL) {       
+     if (pvBuffer != NULL) {
+        log_message("[bbs] *write* ", pvBuffer);     
         cbm_write(10, pvBuffer, uiBuffSize);   
      }
   } else {
@@ -124,8 +126,8 @@ int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, uns
   cbm_close(10);
     
   return siRet;
-}
-
+}*/
+/*
 int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
 {
   int siRet=0;
@@ -149,9 +151,9 @@ int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
   cbm_close(10);
 
   return siRet;    
-}*/
-
-int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
+}
+*/
+/*int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
 {
   int i;
   int siRet=0;
@@ -180,7 +182,35 @@ int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
   cbm_close(10);
 
   return siRet;    
+}*/
+
+/*int ssWritePRGFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
+{
+  int siRet=0;
+  char szTmp[15];
+  
+  strcpy(szTmp,"@:");
+  strcat(szTmp, pstFile->szFileName);
+  strcat(szTmp, ",p,w");
+  //(ssMode != 0) ? strcat(szTmp, ",s,a") : strcat(szTmp, ",s,w");
+   
+  siRet = cbm_open(10, pstFile->ucDeviceNo, 10, szTmp);
+    
+  if (! siRet)
+  {
+     if (pvBuffer != NULL) {       
+        cbm_write(10, pvBuffer, uiBuffSize);   
+     }
+  } else {
+    cbm_close(10);
+    return siRet;
+  }
+
+  cbm_close(10);
+    
+  return siRet;
 }
+*/
 
 int siDriveStatus(ST_FILE *pstFile)
 {

@@ -24,12 +24,13 @@ typedef struct
 	unsigned char ucDeviceNo;
 } ST_FILE;
 
-int ssInitRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecCount);
-int ssWriteRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecNo);
-int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecNo);
-/*int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize);
-int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);*/
+//int ssInitRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecCount);
+//int ssWriteRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecNo);
+//int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecNo);
+int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize);
+//int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);*/
 int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);
+//int ssWritePRGFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);
 int siFileExists(ST_FILE *pstFile);
 unsigned char ucCheckDeviceNo(unsigned char *ucDeviceNo);
 int siDriveStatus(ST_FILE *pstFile);

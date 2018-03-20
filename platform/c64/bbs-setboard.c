@@ -19,6 +19,18 @@
 extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
 
+void bbs_sub_banner()
+{
+  unsigned char message[40];
+  unsigned char file[12];
+
+  sprintf(file, "%s%d",BBS_PREFIX_SUB_p,bbs_status.bbs_board_id);
+  bbs_banner(file);
+  sprintf(message, "\n\rtotal msgs: %d\n\n", bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
+  shell_output_str(NULL, message, "");
+}
+
+
 PROCESS(bbs_setboard_process, "board");
 SHELL_COMMAND(bbs_setboard_command, "s", "s : select active board", &bbs_setboard_process);
 /*---------------------------------------------------------------------------*/
@@ -28,7 +40,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   struct shell_input *input;
   //char szBuff[BBS_LINE_WIDTH];
   unsigned short num;
-  char file[12];
+  unsigned char message[40];
   //ST_FILE file;
   //BBS_BOARD_REC board;
 
@@ -45,16 +57,20 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   shell_prompt(szBuff);
   */
 
-  shell_prompt("select board (1-8):");
+  shell_output_str(NULL,"", PETSCII_WHITE);
+  sprintf(message, "\n\rselect board (1-%d):", BBS_MAX_BOARDS);
+
+  shell_prompt(message);
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
 
 
   if(num>0 && num <=BBS_MAX_BOARDS){
+
     bbs_status.bbs_board_id = num;
-    sprintf(file, "%s%d",BBS_PREFIX_SUB_p,num);
-    bbs_banner(file);
+    shell_output_str(NULL,"", PETSCII_CLRSCN);
+    bbs_sub_banner();
   }
 
 /*
@@ -113,16 +129,13 @@ SHELL_COMMAND(bbs_nextboard_command, "+", "+ : next sub board", &bbs_nextboard_p
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_nextboard_process, ev, data)
 {
-  char file[12];
-
   PROCESS_BEGIN();
 
   if(bbs_status.bbs_board_id < BBS_MAX_BOARDS){
 
     ++bbs_status.bbs_board_id;
-    sprintf(file, "%s%d",BBS_PREFIX_SUB_p,bbs_status.bbs_board_id);
-    bbs_banner(file);
 
+    bbs_sub_banner();
   }
 
   PROCESS_EXIT();
@@ -136,15 +149,13 @@ SHELL_COMMAND(bbs_prevboard_command, "-", "- : previous sub board", &bbs_prevboa
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_prevboard_process, ev, data)
 {
-  char file[12];
   PROCESS_BEGIN();
 
   if(bbs_status.bbs_board_id > 1){
 
     --bbs_status.bbs_board_id;
-    sprintf(file, "%s%d",BBS_PREFIX_SUB_p,bbs_status.bbs_board_id);
-    bbs_banner(file);
 
+    bbs_sub_banner();
   }
 
   PROCESS_EXIT();
