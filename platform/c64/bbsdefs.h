@@ -22,9 +22,12 @@
 #define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        6
 
+#define BBS_BOARD_DRIVE         8
+#define BBS_SUBS_DRIVE          8
+
 #define BBS_LINE_WIDTH         40
-#define BBS_TIMEOUT_SEC       200
-#define BBS_LOGIN_TIMEOUT_SEC  200
+#define BBS_TIMEOUT_SEC       600
+#define BBS_LOGIN_TIMEOUT_SEC  60
 
 #define BBS_BANNER_BUFFER    2048
 #define BBS_BANNER_LOGIN_a     "login-a"
@@ -75,7 +78,8 @@ typedef struct {
 } BBS_USER_REC;
 
 typedef struct {
-  unsigned char board_drive;  
+  unsigned char board_drive;
+  unsigned char subs_drive;
   unsigned short bbs_timeout_login;
   unsigned short bbs_timeout_session;
   unsigned char bbs_status;

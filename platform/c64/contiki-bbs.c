@@ -52,7 +52,7 @@
 #include "telnetd.h"
 #include "shell.h"
 
-char telnetd_reject_text[] = "Contiki BBS is busy, please try again later.";
+char telnetd_reject_text[] = "centronian bbs is busy, please try again later.";
 
 /*---------------------------------------------------------------------------*/
 PROCESS(shell_init_process, "Shell init process");

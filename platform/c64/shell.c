@@ -50,12 +50,12 @@ PROCESS(bbs_login_process, "login");
 SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
 PROCESS(bbs_timer_process, "timer");
 /*---------------------------------------------------------------------------*/
-short bbs_filesize(char *filename)
+short bbs_filesize(char *filename, unsigned char drive)
 {
     struct cbm_dirent dirent;
     unsigned short fsize=0;
 
-    if (cbm_opendir(1,bbs_status.board_drive)==0) {
+    if (cbm_opendir(1, drive)==0) {
         while (!cbm_readdir(1, &dirent))
             if (strstr(dirent.name, filename)) 
                fsize=dirent.size;
@@ -84,15 +84,16 @@ static void bbs_init(void)
   bbs_status.bbs_msg_id[6]=0;
   bbs_status.bbs_msg_id[7]=0;
 
-  bbs_status.board_drive=8;  
-  bbs_status.bbs_timeout_login=60;
-  bbs_status.bbs_timeout_session=120;
+  bbs_status.board_drive=BBS_BOARD_DRIVE;
+  bbs_status.subs_drive=BBS_SUBS_DRIVE;
+  bbs_status.bbs_timeout_login=BBS_LOGIN_TIMEOUT_SEC;
+  bbs_status.bbs_timeout_session=BBS_TIMEOUT_SEC;
   bbs_status.bbs_status=0;
   strcpy(bbs_status.bbs_prompt, "> ");
   bbs_status.bbs_encoding=1;
 }
 /*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char szBannerFile[15]) 
+void bbs_banner(unsigned char szBannerFile[15], unsigned char drive) 
 {
   //unsigned char encoding;
   unsigned char *buffer;
@@ -102,7 +103,7 @@ void bbs_banner(unsigned char szBannerFile[15])
   //encoding=bbs_status.bbs_encoding;
   //bbs_status.bbs_encoding=0;
 
-  fsize=bbs_filesize(szBannerFile);
+  fsize=bbs_filesize(szBannerFile, drive);
 
   if (fsize == 0) {
     shell_output_str(NULL, "", "error: file size\n\r");
@@ -160,7 +161,6 @@ void bbs_unlock(void)
   bbs_status.bbs_encoding=1;
   bbs_status.bbs_status=0;
   bbs_status.bbs_board_id=1;
-  //bbs_status.bbs_msg_id=1;
   process_exit(&bbs_timer_process);
   shell_exit();
 }
@@ -206,8 +206,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input || ev == PROCESS_EVENT_TIMER);
 
     if (ev == PROCESS_EVENT_TIMER) {
-       //log_message("[bbs] *unlock0* ", "");
-       bbs_unlock(); 
+       bbs_unlock();
+       log_message("[bbs] *unlock0* ", "");
     }
     if (ev == shell_event_input) {
       input = data;
@@ -217,11 +217,11 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=1;
-              bbs_banner(BBS_BANNER_LOGIN_a);
+              bbs_banner(BBS_BANNER_LOGIN_a, bbs_status.board_drive);
             }
             else{
               bbs_status.bbs_encoding=0;
-              bbs_banner(BBS_BANNER_LOGIN_p);
+              bbs_banner(BBS_BANNER_LOGIN_p, bbs_status.board_drive);
             }
             shell_prompt("handle: ");
             bbs_status.bbs_status=1;
@@ -244,8 +244,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             else {
               shell_output_str(&bbs_login_command, "login failed.", "");
               bbs_status.bbs_status=0;
-              //log_message("[bbs] *unlock1* ", "");
               bbs_unlock();
+              log_message("[bbs] *unlock1* ", "");
             }
             break;
           }
@@ -256,10 +256,10 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               bbs_status.bbs_status=3;
               log_message("[bbs] *login* ", bbs_user.user_name);
 	      if(bbs_status.bbs_encoding==1){
-              	bbs_banner(BBS_BANNER_LOGO_a);
+              	bbs_banner(BBS_BANNER_LOGO_a, bbs_status.board_drive);
 	      }
 	      else{
-		bbs_banner(BBS_BANNER_LOGO_p);
+		bbs_banner(BBS_BANNER_LOGO_p, bbs_status.board_drive);
               }
               shell_output_str(NULL, "\r\nlast caller: ", bbs_status.bbs_last_caller);
               strcpy(bbs_status.bbs_last_caller, bbs_user.user_name);
@@ -409,17 +409,15 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   PROCESS_BEGIN();
 
 	if(bbs_status.bbs_encoding==1){
-	bbs_banner(BBS_BANNER_LOGOUT_a);
+	bbs_banner(BBS_BANNER_LOGOUT_a, bbs_status.board_drive);
 	}
 	else{
-	bbs_banner(BBS_BANNER_LOGOUT_p);
+	bbs_banner(BBS_BANNER_LOGOUT_p, bbs_status.board_drive);
 	}
 
   log_message("[bbs] *logout* ", bbs_user.user_name);
-  bbs_status.bbs_encoding=1;
-  bbs_status.bbs_status=0;
-  bbs_locked=0;
-  shell_exit();
+  bbs_unlock();
+  log_message("[bbs] *unlock2* ", "");
 
   PROCESS_END();
 }
@@ -693,10 +691,10 @@ PROCESS_THREAD(shell_process, ev, data)
       front_process = &shell_process;
     }
 
-    if (ev == PROCESS_EVENT_TIMER)
-       //log_message("[bbs] *unlock2* ", "");
+    if (ev == PROCESS_EVENT_TIMER){
        bbs_unlock();
-
+       log_message("[bbs] *unlock3* ", "");
+    }
     if(bbs_status.bbs_status>1) {
       /*etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);*/
       shell_prompt(bbs_status.bbs_prompt);
@@ -759,7 +757,7 @@ shell_init(void)
 
   bbs_init();
   bbs_setboard_init();
-  //bbs_blist_init(); 
+  bbs_blist_init(); 
   bbs_read_init();
   bbs_post_init();
   bbs_page_init(); 
@@ -846,7 +844,7 @@ void
 shell_stop(void)
 {
    if (bbs_locked==1) {
-      log_message("[bbs] ", "*timeout*");
+      log_message("[bbs] ", "*timeout*!");
    }
 
    /* set BBS parameters */

@@ -28,10 +28,10 @@ PROCESS_THREAD(bbs_blist_process, ev, data)
 
   PROCESS_BEGIN();
       if(bbs_status.bbs_encoding==1){
-      	bbs_banner(BBS_BANNER_SUBS_a);
+      	bbs_banner(BBS_BANNER_SUBS_a, bbs_status.board_drive);
       }
       else{
-	bbs_banner(BBS_BANNER_SUBS_p);
+	bbs_banner(BBS_BANNER_SUBS_p, bbs_status.board_drive);
       }
     shell_prompt("\n\rboard list\n\r");
      /* load BBS config */

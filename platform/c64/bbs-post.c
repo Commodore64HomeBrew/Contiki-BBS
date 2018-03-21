@@ -44,7 +44,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
   shell_output_str(&bbs_post_command, "on empty line: /a=abort /s=save\r\n", "");
   shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
-  sprintf(bbs_logbuf,"\n\rmsg from: %s\n\r", bbs_user.user_name);
+  sprintf(bbs_logbuf,"\n\rmsg from: %s\n\r\n\r", bbs_user.user_name);
 
   PROCESS_PAUSE();
 
@@ -66,7 +66,9 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
       sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
       
-      cbm_save (file.szFileName, bbs_status.board_drive, &bbs_logbuf, sizeof(bbs_logbuf));
+      cbm_save (file.szFileName, bbs_status.subs_drive, &bbs_logbuf, sizeof(bbs_logbuf));
+
+      log_message("[bbs] *post* ", bbs_logbuf);
 
       memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
       linecount=0;

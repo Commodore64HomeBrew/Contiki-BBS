@@ -25,7 +25,7 @@ void bbs_sub_banner()
   unsigned char file[12];
 
   sprintf(file, "%s%d",BBS_PREFIX_SUB_p,bbs_status.bbs_board_id);
-  bbs_banner(file);
+  bbs_banner(file, bbs_status.board_drive);
   sprintf(message, "\n\rtotal msgs: %d\n\n", bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
   shell_output_str(NULL, message, "");
 }
@@ -47,10 +47,10 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   PROCESS_BEGIN();
 
   if(bbs_status.bbs_encoding==1){
-    bbs_banner(BBS_BANNER_SUBS_a);
+    bbs_banner(BBS_BANNER_SUBS_a, bbs_status.board_drive);
   }
   else{
-    bbs_banner(BBS_BANNER_SUBS_p);
+    bbs_banner(BBS_BANNER_SUBS_p, bbs_status.board_drive);
   }
   /*memset(szBuff, 0, sizeof(szBuff));
   sprintf(szBuff, "(%s (%d, acl: %d) Choose board # (1-%d, 0=quit)? ", board.board_name, board.board_no, board.access_req, board.max_boards);
@@ -69,24 +69,10 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   if(num>0 && num <=BBS_MAX_BOARDS){
 
     bbs_status.bbs_board_id = num;
-    shell_output_str(NULL,"", PETSCII_CLRSCN);
+    shell_output_str(NULL, PETSCII_CLRSCN, "");
     bbs_sub_banner();
   }
 
-/*
-
-  if(! strcmp(input->data1, "1"){bbs_banner("sp-1");}
-  else if(! strcmp(input->data1, "2"){bbs_banner("sp-1");}
-
-  num = int(input->data1);
-
-  if( num>0 && num <= BBS_MAX_BOARDS ){
-
-    strcat(BBS_SUB_PRE_p , &c);
-    bbs_banner();
-  }
-
-*/
 
 
   /* read board data */
