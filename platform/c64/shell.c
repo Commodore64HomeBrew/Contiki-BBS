@@ -66,31 +66,50 @@ short bbs_filesize(char *filename, unsigned char drive)
 /*---------------------------------------------------------------------------*/
 static void bbs_init(void) 
 {
-   //ST_FILE file;
+  //unsigned char *buffer;
+  unsigned short fsize=0;
+  unsigned short siRet=0;
+  //char configfile[16];
 
   /* read BBS base configuration */
-/*   strcpy(file.szFileName, BBS_CFG_FILE);  
-   file.ucDeviceNo = 8;
-   ssReadRELFile(&file, &bbs_status, sizeof(bbs_status), 1);
-*/
-  /* set BBS parameters */
-  bbs_status.bbs_board_id=1;
-  bbs_status.bbs_msg_id[0]=0;
-  bbs_status.bbs_msg_id[1]=0;
-  bbs_status.bbs_msg_id[2]=0;
-  bbs_status.bbs_msg_id[3]=0;
-  bbs_status.bbs_msg_id[4]=0;
-  bbs_status.bbs_msg_id[5]=0;
-  bbs_status.bbs_msg_id[6]=0;
-  bbs_status.bbs_msg_id[7]=0;
 
-  bbs_status.board_drive=BBS_BOARD_DRIVE;
-  bbs_status.subs_drive=BBS_SUBS_DRIVE;
-  bbs_status.bbs_timeout_login=BBS_LOGIN_TIMEOUT_SEC;
-  bbs_status.bbs_timeout_session=BBS_TIMEOUT_SEC;
-  bbs_status.bbs_status=0;
-  strcpy(bbs_status.bbs_prompt, "> ");
-  bbs_status.bbs_encoding=1;
+  //sprintf(configfile,"%s", BBS_CFG_FILE);
+  fsize=bbs_filesize(BBS_CFG_FILE,  BBS_SYSTEM_DRIVE);
+
+  if (fsize == 0) {
+    //shell_output_str(NULL, "", "error: config not found, using defaults\n\r");
+    log_message("[bbs] ", "config not found, using defaults");
+	  /* set BBS parameters */
+	  bbs_status.bbs_board_id=1;
+	  bbs_status.bbs_msg_id[0]=0;
+	  bbs_status.bbs_msg_id[1]=0;
+	  bbs_status.bbs_msg_id[2]=0;
+	  bbs_status.bbs_msg_id[3]=0;
+	  bbs_status.bbs_msg_id[4]=0;
+	  bbs_status.bbs_msg_id[5]=0;
+	  bbs_status.bbs_msg_id[6]=0;
+	  bbs_status.bbs_msg_id[7]=0;
+
+	  bbs_status.board_drive=BBS_BOARD_DRIVE;
+	  bbs_status.subs_drive=BBS_SUBS_DRIVE;
+	  bbs_status.bbs_timeout_login=BBS_LOGIN_TIMEOUT_SEC;
+	  bbs_status.bbs_timeout_session=BBS_TIMEOUT_SEC;
+	  bbs_status.bbs_status=0;
+	  strcpy(bbs_status.bbs_prompt, "> ");
+	  bbs_status.bbs_encoding=1;
+  }
+  else{
+    log_message("[bbs] ", "config loaded from file");
+	siRet = cbm_open(10, BBS_SYSTEM_DRIVE, 10, BBS_CFG_FILE);
+
+	  if (! siRet) {
+	     cbm_read(10, &bbs_status, fsize);
+	     cbm_close(10);
+	  }
+  }
+
+
+
 }
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char szBannerFile[15], unsigned char drive) 
@@ -118,7 +137,7 @@ void bbs_banner(unsigned char szBannerFile[15], unsigned char drive)
   }
 
   memset(buffer, 0, fsize);
-  siRet = cbm_open(10, bbs_status.board_drive, 10, szBannerFile);
+  siRet = cbm_open(10, drive, 10, szBannerFile);
 
   if (! siRet) {
      len = cbm_read(10, buffer, fsize);

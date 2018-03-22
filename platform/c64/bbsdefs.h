@@ -22,14 +22,19 @@
 #define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        6
 
-#define BBS_BOARD_DRIVE         8
+#define BBS_BOARD_DRIVE         9
+//#define BBS_BOARD_PREFIX        ""
+
 #define BBS_SUBS_DRIVE          8
+//#define BBS_SUBS_PREFIX         "0:"
+
+#define BBS_SYSTEM_DRIVE        9
 
 #define BBS_LINE_WIDTH         40
 #define BBS_TIMEOUT_SEC       600
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
-#define BBS_BANNER_BUFFER    2048
+#define BBS_BANNER_BUFFER    1024
 #define BBS_BANNER_LOGIN_a     "login-a"
 #define BBS_BANNER_LOGIN_p     "login-p"
 
@@ -48,8 +53,8 @@
 #define BBS_PREFIX_SUB_a       "sa-"
 #define BBS_PREFIX_SUB_p       "sp-"
 
-#define BBS_CFG_FILE "bbs.cfg"
-#define BBS_BOARDCFG_FILE "board.cfg"
+#define BBS_CFG_FILE           "bbs-cfg"
+//#define BBS_BOARDCFG_FILE      "board-cfg"
 
 #define BBS_STRING_BOARDINFO "-id- -------board------- -acl- -msgs-"
 #define BBS_STRING_LINEMAX "  enter message (max. 40 chars per line)"
@@ -60,7 +65,7 @@
 #define PETSCII_CLRSCN          "\x93"
 #define PETSCII_WHITE           "\x05"
 
-
+/*
 typedef struct {
   unsigned char board_no;  
   unsigned char max_boards;
@@ -69,7 +74,7 @@ typedef struct {
   unsigned char access_req;
   char  board_name[20];
 } BBS_BOARD_REC;
-
+*/
 typedef struct {
   unsigned short user_no;  
   char  user_name[14];

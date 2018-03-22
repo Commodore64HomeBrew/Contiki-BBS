@@ -70,6 +70,14 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
       log_message("[bbs] *post* ", bbs_logbuf);
 
+/*
+      sprintf(file.szFileName,"S0:%s", BBS_CFG_FILE);  
+      cbm_open( 15, BBS_SYSTEM_DRIVE , 15, file.szFileName);
+      cbm_close(15); 
+
+      sprintf(file.szFileName, "%s", BBS_CFG_FILE);
+      cbm_save (file.szFileName, BBS_SYSTEM_DRIVE, &bbs_status, sizeof(struct bbs_status));
+*/
       memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
       linecount=0;
       disk_access=1;
