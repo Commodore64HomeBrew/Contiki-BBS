@@ -74,7 +74,7 @@ static void bbs_init(void)
   /* read BBS base configuration */
 
   //sprintf(configfile,"%s", BBS_CFG_FILE);
-  fsize=bbs_filesize(BBS_CFG_FILE,  BBS_SYSTEM_DRIVE);
+  fsize=bbs_filesize(BBS_CFG_FILE, BBS_SYS_DEVICE);
 
   if (fsize == 0) {
     //shell_output_str(NULL, "", "error: config not found, using defaults\n\r");
@@ -90,8 +90,6 @@ static void bbs_init(void)
 	  bbs_status.bbs_msg_id[6]=0;
 	  bbs_status.bbs_msg_id[7]=0;
 
-	  bbs_status.board_drive=BBS_BOARD_DRIVE;
-	  bbs_status.subs_drive=BBS_SUBS_DRIVE;
 	  bbs_status.bbs_timeout_login=BBS_LOGIN_TIMEOUT_SEC;
 	  bbs_status.bbs_timeout_session=BBS_TIMEOUT_SEC;
 	  bbs_status.bbs_status=0;
@@ -100,7 +98,7 @@ static void bbs_init(void)
   }
   else{
     log_message("[bbs] ", "config loaded from file");
-	siRet = cbm_open(10, BBS_SYSTEM_DRIVE, 10, BBS_CFG_FILE);
+	siRet = cbm_open(10, BBS_SYS_DEVICE, 10, BBS_CFG_FILE);
 
 	  if (! siRet) {
 	     cbm_read(10, &bbs_status, fsize);
@@ -190,11 +188,11 @@ int bbs_get_user(char *data)
   ST_FILE file;
 
   strcpy(file.szFileName, "user.idx");
-  file.ucDeviceNo = bbs_status.board_drive;
+  file.ucDeviceNo = BBS_SYS_DEVICE;
   ssReadRELFile(&file, &user_count, sizeof(unsigned short), 1);
 
   strcpy(file.szFileName, "user.dat");
-  file.ucDeviceNo = bbs_status.board_drive;
+  file.ucDeviceNo = BBS_SYS_DEVICE;
 
   do {     
        memset(&bbs_user, 0, sizeof(BBS_USER_REC));
@@ -236,11 +234,11 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=1;
-              bbs_banner(BBS_BANNER_LOGIN_a, bbs_status.board_drive);
+              bbs_banner(BBS_BANNER_LOGIN_a, BBS_SYS_DEVICE);
             }
             else{
               bbs_status.bbs_encoding=0;
-              bbs_banner(BBS_BANNER_LOGIN_p, bbs_status.board_drive);
+              bbs_banner(BBS_BANNER_LOGIN_p, BBS_SYS_DEVICE);
             }
             shell_prompt("handle: ");
             bbs_status.bbs_status=1;
@@ -275,10 +273,10 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               bbs_status.bbs_status=3;
               log_message("[bbs] *login* ", bbs_user.user_name);
 	      if(bbs_status.bbs_encoding==1){
-              	bbs_banner(BBS_BANNER_LOGO_a, bbs_status.board_drive);
+              	bbs_banner(BBS_BANNER_LOGO_a, BBS_SYS_DEVICE);
 	      }
 	      else{
-		bbs_banner(BBS_BANNER_LOGO_p, bbs_status.board_drive);
+		bbs_banner(BBS_BANNER_LOGO_p, BBS_SYS_DEVICE);
               }
               shell_output_str(NULL, "\r\nlast caller: ", bbs_status.bbs_last_caller);
               strcpy(bbs_status.bbs_last_caller, bbs_user.user_name);
@@ -428,10 +426,10 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   PROCESS_BEGIN();
 
 	if(bbs_status.bbs_encoding==1){
-	bbs_banner(BBS_BANNER_LOGOUT_a, bbs_status.board_drive);
+	bbs_banner(BBS_BANNER_LOGOUT_a, BBS_SYS_DEVICE);
 	}
 	else{
-	bbs_banner(BBS_BANNER_LOGOUT_p, bbs_status.board_drive);
+	bbs_banner(BBS_BANNER_LOGOUT_p, BBS_SYS_DEVICE);
 	}
 
   log_message("[bbs] *logout* ", bbs_user.user_name);
@@ -776,10 +774,10 @@ shell_init(void)
 
   bbs_init();
   bbs_setboard_init();
-  bbs_blist_init(); 
+  //bbs_blist_init(); 
   bbs_read_init();
   bbs_post_init();
-  bbs_page_init(); 
+  //bbs_page_init(); 
 
 
   shell_event_input = process_alloc_event();

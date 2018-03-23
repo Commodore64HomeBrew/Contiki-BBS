@@ -33,11 +33,6 @@ PROCESS_THREAD(bbs_read_process, ev, data)
   ST_FILE file;
   //BBS_BOARD_REC board;
 
-  /* read board data */
-  //strcpy(file.szFileName, "board.cfg");
-  file.ucDeviceNo=bbs_status.board_drive;
-  //ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
-  //memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
 
   PROCESS_BEGIN();
 
@@ -54,7 +49,7 @@ PROCESS_THREAD(bbs_read_process, ev, data)
 
   if(num>0 && num <= bbs_status.bbs_msg_id[bbs_status.bbs_board_id]){
     sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, num);
-    bbs_banner(file.szFileName, bbs_status.subs_drive);
+    bbs_banner(file.szFileName, BBS_SUBS_DEVICE);
   }
 
 

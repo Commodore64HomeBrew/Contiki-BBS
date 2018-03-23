@@ -35,17 +35,20 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   /* read board data */
 /*  if (disk_access) {
      strcpy(file.szFileName, BBS_BOARDCFG_FILE);
-     file.ucDeviceNo=bbs_status.board_drive;
+     file.ucDeviceNo=BBS_SYS_DEVICE;
      ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
      disk_access=0;
   }
 */  PROCESS_BEGIN();
+
+//process_exit(&shell_server_process);
 
   shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
   shell_output_str(&bbs_post_command, "on empty line: /a=abort /s=save\r\n", "");
   shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
   sprintf(bbs_logbuf,"\n\rmsg from: %s\n\r\n\r", bbs_user.user_name);
 
+ 
   PROCESS_PAUSE();
 
   while(1) {
@@ -66,13 +69,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
       sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
       
-      cbm_save (file.szFileName, bbs_status.subs_drive, &bbs_logbuf, sizeof(bbs_logbuf));
+      cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, sizeof(bbs_logbuf));
 
       log_message("[bbs] *post* ", bbs_logbuf);
 
 /*
       sprintf(file.szFileName,"S0:%s", BBS_CFG_FILE);  
-      cbm_open( 15, BBS_SYSTEM_DRIVE , 15, file.szFileName);
+      cbm_open( 15, BBS_SYS_DEVICE , 15, file.szFileName);
       cbm_close(15); 
 
       sprintf(file.szFileName, "%s", BBS_CFG_FILE);

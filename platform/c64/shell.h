@@ -386,8 +386,8 @@ struct shell_input {
 
 #include "bbsdefs.h"
 #include "bbs-file.h"
-#include "bbs-page.h"
-#include "bbs-blist.h"
+//#include "bbs-page.h"
+//#include "bbs-blist.h"
 #include "bbs-read.h"
 #include "bbs-setboard.h"
 #include "bbs-post.h"

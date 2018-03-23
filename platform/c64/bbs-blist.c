@@ -28,15 +28,15 @@ PROCESS_THREAD(bbs_blist_process, ev, data)
 
   PROCESS_BEGIN();
       if(bbs_status.bbs_encoding==1){
-      	bbs_banner(BBS_BANNER_SUBS_a, bbs_status.board_drive);
+      	bbs_banner(BBS_BANNER_SUBS_a, BBS_SYS_DEVICE);
       }
       else{
-	bbs_banner(BBS_BANNER_SUBS_p, bbs_status.board_drive);
+	bbs_banner(BBS_BANNER_SUBS_p, BBS_SYS_DEVICE);
       }
     shell_prompt("\n\rboard list\n\r");
      /* load BBS config */
 /*     strcpy(file.szFileName, BBS_BOARDCFG_FILE);
-     file.ucDeviceNo=bbs_status.board_drive;
+     file.ucDeviceNo=BBS_SYS_DEVICE;
      ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_board_id);
 
      sprintf(szBuff, "total boards: %d", board.max_boards);
