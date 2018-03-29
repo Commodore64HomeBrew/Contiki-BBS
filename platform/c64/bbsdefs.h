@@ -20,7 +20,7 @@
 #define BBS_MODE_CONSOLE        1
 
 #define BBS_MAX_BOARDS          8
-#define BBS_MAX_MSGLINES        6
+#define BBS_MAX_MSGLINES        20
 
 #define BBS_SUBS_DEVICE          8
 #define BBS_SUBS_PREFIX         "0:"
@@ -73,6 +73,14 @@ typedef struct {
   char  board_name[20];
 } BBS_BOARD_REC;
 */
+
+typedef struct {
+  //short bbs_msg_id[BBS_MAX_BOARDS];
+  short bbs_msg_id[9];
+  /*char bbs_name[20];
+  char bbs_sysop[20];*/
+} BBS_CONFIG_REC;
+
 typedef struct {
   unsigned short user_no;  
   char  user_name[14];
@@ -81,14 +89,9 @@ typedef struct {
 } BBS_USER_REC;
 
 typedef struct {
-  unsigned short bbs_timeout_login;
-  unsigned short bbs_timeout_session;
   unsigned char bbs_status;
-  short bbs_msg_id[BBS_MAX_BOARDS];
   unsigned char bbs_board_id;
   unsigned char bbs_encoding;
-  /*char bbs_name[20];
-  char bbs_sysop[20];*/
   char bbs_last_caller[14];
   char bbs_prompt[10];
 } BBS_STATUS_REC;

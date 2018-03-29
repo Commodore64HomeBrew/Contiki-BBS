@@ -14,8 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
+
 /*extern char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];*/
 
 PROCESS(bbs_post_process, "post");
@@ -41,7 +43,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   }
 */  PROCESS_BEGIN();
 
-//process_exit(&shell_server_process);
+  //process_exit(&bbs_read_process);
+  //process_exit(&bbs_setboard_process);
 
   shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
   shell_output_str(&bbs_post_command, "on empty line: /a=abort /s=save\r\n", "");
@@ -65,22 +68,19 @@ PROCESS_THREAD(bbs_post_process, ev, data)
     if (! strcmp(input->data1,"/s") || linecount >= BBS_MAX_MSGLINES) {
 
       /* write post */
-      ++bbs_status.bbs_msg_id[bbs_status.bbs_board_id];
+      ++bbs_config.bbs_msg_id[bbs_status.bbs_board_id];
 
-      sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
+      sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, bbs_config.bbs_msg_id[bbs_status.bbs_board_id]);
       
+      /* Save the post to file */
       cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, sizeof(bbs_logbuf));
 
       log_message("[bbs] *post* ", bbs_logbuf);
 
-/*
-      sprintf(file.szFileName,"S0:%s", BBS_CFG_FILE);  
-      cbm_open( 15, BBS_SYS_DEVICE , 15, file.szFileName);
-      cbm_close(15); 
+      /* Save the msg count struct to disk */
+      sprintf(file.szFileName, "@0:%s", BBS_CFG_FILE);
+      cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_config, sizeof(bbs_config));
 
-      sprintf(file.szFileName, "%s", BBS_CFG_FILE);
-      cbm_save (file.szFileName, BBS_SYSTEM_DRIVE, &bbs_status, sizeof(struct bbs_status));
-*/
       memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
       linecount=0;
       disk_access=1;
@@ -97,6 +97,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
     }*/
  } /* end ... while */
 
+  //bbs_setboard_init();
+  //bbs_read_init();
  PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/

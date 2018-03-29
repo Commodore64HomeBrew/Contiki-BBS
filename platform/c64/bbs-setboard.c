@@ -16,17 +16,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
-extern BBS_USER_REC bbs_user;
+//extern BBS_USER_REC bbs_user;
 
-void bbs_sub_banner()
+
+void bbs_sub_banner(void)
 {
   unsigned char message[40];
   unsigned char file[12];
 
   sprintf(file, "%s%d",BBS_PREFIX_SUB_p,bbs_status.bbs_board_id);
   bbs_banner(file, BBS_SYS_DEVICE);
-  sprintf(message, "\n\rtotal msgs: %d\n\n", bbs_status.bbs_msg_id[bbs_status.bbs_board_id]);
+  sprintf(message, "\n\rtotal msgs: %d\n\n", bbs_config.bbs_msg_id[bbs_status.bbs_board_id]);
   shell_output_str(NULL, message, "");
 }
 

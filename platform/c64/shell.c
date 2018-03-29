@@ -12,6 +12,7 @@
 #include "contiki.h"
 #include "contiki-lib.h"
 #include "shell.h"
+#include "bbs-setboard.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -24,6 +25,7 @@ static struct process *front_process;
 static unsigned long time_offset;
 /*static struct etimer bbs_login_timer;*/
  
+BBS_CONFIG_REC bbs_config;
 BBS_STATUS_REC bbs_status;
 BBS_USER_REC bbs_user;
 unsigned short bbs_locked=0;
@@ -50,12 +52,12 @@ PROCESS(bbs_login_process, "login");
 SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
 PROCESS(bbs_timer_process, "timer");
 /*---------------------------------------------------------------------------*/
-short bbs_filesize(char *filename, unsigned char drive)
+short bbs_filesize(char *filename, unsigned char device)
 {
     struct cbm_dirent dirent;
     unsigned short fsize=0;
 
-    if (cbm_opendir(1, drive)==0) {
+    if (cbm_opendir(1, device)==0) {
         while (!cbm_readdir(1, &dirent))
             if (strstr(dirent.name, filename)) 
                fsize=dirent.size;
@@ -69,48 +71,38 @@ static void bbs_init(void)
   //unsigned char *buffer;
   unsigned short fsize=0;
   unsigned short siRet=0;
-  //char configfile[16];
+  unsigned short i;
+
 
   /* read BBS base configuration */
-
-  //sprintf(configfile,"%s", BBS_CFG_FILE);
-  fsize=bbs_filesize(BBS_CFG_FILE, BBS_SYS_DEVICE);
+  fsize=bbs_filesize(BBS_CFG_FILE, BBS_SUBS_DEVICE);
 
   if (fsize == 0) {
-    //shell_output_str(NULL, "", "error: config not found, using defaults\n\r");
-    log_message("[bbs] ", "config not found, using defaults");
-	  /* set BBS parameters */
-	  bbs_status.bbs_board_id=1;
-	  bbs_status.bbs_msg_id[0]=0;
-	  bbs_status.bbs_msg_id[1]=0;
-	  bbs_status.bbs_msg_id[2]=0;
-	  bbs_status.bbs_msg_id[3]=0;
-	  bbs_status.bbs_msg_id[4]=0;
-	  bbs_status.bbs_msg_id[5]=0;
-	  bbs_status.bbs_msg_id[6]=0;
-	  bbs_status.bbs_msg_id[7]=0;
-
-	  bbs_status.bbs_timeout_login=BBS_LOGIN_TIMEOUT_SEC;
-	  bbs_status.bbs_timeout_session=BBS_TIMEOUT_SEC;
-	  bbs_status.bbs_status=0;
-	  strcpy(bbs_status.bbs_prompt, "> ");
-	  bbs_status.bbs_encoding=1;
+     log_message("[bbs] ", "config file not found, using defaults");
+     /* set sub msg counts */
+     for (i=0; i<=BBS_MAX_BOARDS; i++) {
+          bbs_config.bbs_msg_id[1]=0;
+     }
   }
   else{
-    log_message("[bbs] ", "config loaded from file");
-	siRet = cbm_open(10, BBS_SYS_DEVICE, 10, BBS_CFG_FILE);
-
-	  if (! siRet) {
-	     cbm_read(10, &bbs_status, fsize);
-	     cbm_close(10);
-	  }
+    siRet = cbm_open(10, BBS_SUBS_DEVICE, 10, BBS_CFG_FILE);
+    if (! siRet) {
+      log_message("[bbs] ", "config loaded from file");
+      cbm_read(10, &bbs_config, 2);
+      cbm_read(10, &bbs_config, sizeof(bbs_config));
+      cbm_close(10);
+    }
+    else{log_message("[bbs] ", "config file error");}
   }
 
-
+  bbs_status.bbs_board_id=1;
+  bbs_status.bbs_status=0;
+  strcpy(bbs_status.bbs_prompt, "> ");
+  bbs_status.bbs_encoding=1;
 
 }
 /*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char szBannerFile[15], unsigned char drive) 
+void bbs_banner(unsigned char szBannerFile[15], unsigned char device) 
 {
   //unsigned char encoding;
   unsigned char *buffer;
@@ -120,7 +112,7 @@ void bbs_banner(unsigned char szBannerFile[15], unsigned char drive)
   //encoding=bbs_status.bbs_encoding;
   //bbs_status.bbs_encoding=0;
 
-  fsize=bbs_filesize(szBannerFile, drive);
+  fsize=bbs_filesize(szBannerFile, device);
 
   if (fsize == 0) {
     shell_output_str(NULL, "", "error: file size\n\r");
@@ -135,7 +127,7 @@ void bbs_banner(unsigned char szBannerFile[15], unsigned char drive)
   }
 
   memset(buffer, 0, fsize);
-  siRet = cbm_open(10, drive, 10, szBannerFile);
+  siRet = cbm_open(10, device, 10, szBannerFile);
 
   if (! siRet) {
      len = cbm_read(10, buffer, fsize);
@@ -166,7 +158,7 @@ void bbs_splash(unsigned short mode)
 void bbs_lock(void)
 {
   bbs_status.bbs_board_id=1;
-  //bbs_status.bbs_msg_id=1;
+  //bbs_config.bbs_msg_id=1;
   process_start(&bbs_timer_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
@@ -280,6 +272,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               }
               shell_output_str(NULL, "\r\nlast caller: ", bbs_status.bbs_last_caller);
               strcpy(bbs_status.bbs_last_caller, bbs_user.user_name);
+              //Display the sub banner:
+              bbs_sub_banner();
               strcpy(bbs_status.bbs_prompt, "> ");
               shell_prompt(bbs_status.bbs_prompt);
               process_start(&bbs_timer_process, NULL);
@@ -326,9 +320,9 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
 
   PROCESS_BEGIN();
   if (bbs_status.bbs_status>1)
-     etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);
+     etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
   else
-     etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_login);
+     etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
 
   while (1) {
 
@@ -343,15 +337,15 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
         sprintf(szBuff, "session timeout.");
         shell_output_str(NULL, szBuff, "");
         if (bbs_status.bbs_status>1)
-           etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);
+           etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
         else
-           etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_login);
+           etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
      } else {
        if (ev == shell_event_input) 
          if (bbs_status.bbs_status>1)
-            etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);
+            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
          else
-            etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_login);
+            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
      }
   }
 
@@ -686,7 +680,7 @@ PROCESS_THREAD(shell_process, ev, data)
   /* Let the system start up before showing the prompt. */
   PROCESS_PAUSE();
   
-  /*etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);*/
+  /*etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);*/
 
   while(1) {
   
@@ -713,7 +707,7 @@ PROCESS_THREAD(shell_process, ev, data)
        log_message("[bbs] *unlock3* ", "");
     }
     if(bbs_status.bbs_status>1) {
-      /*etimer_set(&bbs_session_timer, CLOCK_SECOND * bbs_status.bbs_timeout_session);*/
+      /*etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);*/
       shell_prompt(bbs_status.bbs_prompt);
     }
 
@@ -837,7 +831,7 @@ shell_start(void)
 {
   /* set BBS parameters */
   /*bbs_status.bbs_board_id=1;
-  bbs_status.bbs_msg_id=1;
+  bbs_config.bbs_msg_id=1;
   process_start(&bbs_timer_process, NULL);*/
   bbs_lock();
   
@@ -869,7 +863,7 @@ shell_stop(void)
    bbs_status.bbs_encoding=1;
    bbs_status.bbs_status=0;
    bbs_status.bbs_board_id=1;
-   //bbs_status.bbs_msg_id=1;
+   //bbs_config.bbs_msg_id=1;
    killall();
 }
 /*---------------------------------------------------------------------------*/

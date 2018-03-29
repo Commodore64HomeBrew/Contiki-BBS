@@ -14,5 +14,6 @@
 #include "bbsdefs.h"
 
 void bbs_setboard_init(void);
+void bbs_sub_banner(void);
 
 #endif /* __BBS_SETBOARD_H__ */
