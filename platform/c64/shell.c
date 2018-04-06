@@ -12,8 +12,9 @@
 #include "contiki.h"
 #include "contiki-lib.h"
 #include "shell.h"
+#include "petsciiconv.h"
 #include "bbs-setboard.h"
-
+#include <em.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -100,19 +101,21 @@ static void bbs_init(void)
   strcpy(bbs_status.bbs_prompt, "> ");
   bbs_status.bbs_encoding=1;
 
+  siRet = em_load_driver (BBS_EMD_FILE);
 }
 /*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char szBannerFile[15], unsigned char device) 
+void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device) 
 {
-  //unsigned char encoding;
   unsigned char *buffer;
   unsigned short fsize=0;
   unsigned short i=0, siRet=0, len=0;
+  unsigned char file[15];
 
-  //encoding=bbs_status.bbs_encoding;
-  //bbs_status.bbs_encoding=0;
+  sprintf(file, "%s%s",szBannerFile,fileSuffix);
 
-  fsize=bbs_filesize(szBannerFile, device);
+  log_message("[debug] ", file);
+
+  fsize=bbs_filesize(file, device);
 
   if (fsize == 0) {
     shell_output_str(NULL, "", "error: file size\n\r");
@@ -127,7 +130,7 @@ void bbs_banner(unsigned char szBannerFile[15], unsigned char device)
   }
 
   memset(buffer, 0, fsize);
-  siRet = cbm_open(10, device, 10, szBannerFile);
+  siRet = cbm_open(10, device, 10, file);
 
   if (! siRet) {
      len = cbm_read(10, buffer, fsize);
@@ -139,12 +142,13 @@ void bbs_banner(unsigned char szBannerFile[15], unsigned char device)
      }*/
   }
 
+  //if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(buffer, len);}
+
   shell_output_str(NULL, "\n\r", buffer);
   
   if (buffer != NULL)
      free(buffer);
 
-  //bbs_status.bbs_encoding=encoding;
 }
 /*---------------------------------------------------------------------------*/
 void bbs_splash(unsigned short mode) 
@@ -223,15 +227,31 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       switch (bbs_status.bbs_status) {
 
           case 0: {
-            if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
+            if(! strcmp(input->data1, "b") || ! strcmp(input->data1, "B")){
+              log_message("[debug] encoding: ", input->data1);
+              bbs_status.bbs_encoding=0;
+              strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
+            }
+            else if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=1;
-              bbs_banner(BBS_BANNER_LOGIN_a, BBS_SYS_DEVICE);
+              strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
+            }
+            else if(! strcmp(input->data1, "c") || ! strcmp(input->data1, "C")){
+              log_message("[debug] encoding: ", input->data1);
+              bbs_status.bbs_encoding=2;
+              strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
+            }
+            else if(! strcmp(input->data1, "v") || ! strcmp(input->data1, "V")){
+              log_message("[debug] encoding: ", input->data1);
+              bbs_status.bbs_encoding=3;
+              strcpy(bbs_status.encoding_suffix, BBS_PET22_SUFFIX);
             }
             else{
-              bbs_status.bbs_encoding=0;
-              bbs_banner(BBS_BANNER_LOGIN_p, BBS_SYS_DEVICE);
+              shell_prompt(BBS_ENCODING_STRING);
+              break;
             }
+            bbs_banner(BBS_BANNER_LOGIN, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
             shell_prompt("handle: ");
             bbs_status.bbs_status=1;
             break;
@@ -240,8 +260,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
           case 1: {
             if ((bbs_get_user(input->data1) != 0)) {
 
-              if((int)strlen(input->data1)>14){
-                 shell_output_str(NULL, "\r\nhandle can't be longer than 14 characters\n\r", "");
+              if((int)strlen(input->data1)>12){
+                 shell_output_str(NULL, "\r\nhandle can't be longer than 12 characters\n\r", "");
 	         shell_prompt("handle: ");
                  bbs_status.bbs_status=1;
               }
@@ -264,12 +284,9 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               process_exit(&bbs_timer_process);
               bbs_status.bbs_status=3;
               log_message("[bbs] *login* ", bbs_user.user_name);
-	      if(bbs_status.bbs_encoding==1){
-              	bbs_banner(BBS_BANNER_LOGO_a, BBS_SYS_DEVICE);
-	      }
-	      else{
-		bbs_banner(BBS_BANNER_LOGO_p, BBS_SYS_DEVICE);
-              }
+
+              bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
+
               shell_output_str(NULL, "\r\nlast caller: ", bbs_status.bbs_last_caller);
               strcpy(bbs_status.bbs_last_caller, bbs_user.user_name);
               //Display the sub banner:
@@ -419,13 +436,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 {
   PROCESS_BEGIN();
 
-	if(bbs_status.bbs_encoding==1){
-	bbs_banner(BBS_BANNER_LOGOUT_a, BBS_SYS_DEVICE);
-	}
-	else{
-	bbs_banner(BBS_BANNER_LOGOUT_p, BBS_SYS_DEVICE);
-	}
-
+  bbs_banner(BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
   log_message("[bbs] *logout* ", bbs_user.user_name);
   bbs_unlock();
   log_message("[bbs] *unlock2* ", "");
@@ -843,7 +854,7 @@ shell_start(void)
 
     shell_output_str(NULL, PETSCII_LOWER, BBS_NAME);
 
-    shell_prompt("\n\rpetscii(p) OR ascii(a): ");
+    shell_prompt(BBS_ENCODING_STRING);
 
     front_process=&bbs_login_process;
   } 

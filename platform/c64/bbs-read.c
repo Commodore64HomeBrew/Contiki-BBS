@@ -49,7 +49,8 @@ PROCESS_THREAD(bbs_read_process, ev, data)
 
   if(num>0 && num <= bbs_config.bbs_msg_id[bbs_status.bbs_board_id]){
     sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, num);
-    bbs_banner(file.szFileName, BBS_SUBS_DEVICE);
+
+    bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE);
   }
 
 

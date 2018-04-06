@@ -271,10 +271,10 @@ int siFileExists(ST_FILE *pstFile)
    return (int) e;
 }
 
-unsigned char ucCheckDeviceNo(unsigned char *ucDeviceNo)
+/*unsigned char ucCheckDeviceNo(unsigned char *ucDeviceNo)
 {
    if (*ucDeviceNo < 8 || *ucDeviceNo > 11)
       return 8;
    else 
    	  return *ucDeviceNo;
-}
+}*/

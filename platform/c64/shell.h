@@ -86,7 +86,7 @@ struct shell_command {
   struct shell_command *child;
 };
 
-void bbs_banner(unsigned char szBannerFile[15], unsigned char device);
+void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device);
 
 
 /**
