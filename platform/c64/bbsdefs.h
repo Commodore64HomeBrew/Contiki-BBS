@@ -10,7 +10,7 @@
 
 #define BBS_COPYRIGHT_STRING "\n\r          Contiki BBS 0.3.0 \n\r     (c) 2018-> by K. Casteels\n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
 
-#define BBS_ENCODING_STRING "\n\rpetscii - 40c (c)\n\rpetscii - 22c (v)\n\rascii w/ echo (a)\n\rbash / vt-100 (b)\n\r\n\r>  "
+#define BBS_ENCODING_STRING "\n\rpetscii - 40col (c)\n\rpetscii - 22col (v)\n\rascii w/ echo   (a)\n\rlinux or vt100  (l)\n\r\n\r>  "
 
 #define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
 #define BBS_TELNET_PORT      2200

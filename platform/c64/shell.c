@@ -14,6 +14,7 @@
 #include "shell.h"
 #include "petsciiconv.h"
 #include "bbs-setboard.h"
+#include "bbs-file.h"
 #include <em.h>
 #include <ctype.h>
 #include <string.h>
@@ -52,20 +53,7 @@ SHELL_COMMAND(quit_command, "q", "q : exit bbs",
 PROCESS(bbs_login_process, "login");
 SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
 PROCESS(bbs_timer_process, "timer");
-/*---------------------------------------------------------------------------*/
-short bbs_filesize(char *filename, unsigned char device)
-{
-    struct cbm_dirent dirent;
-    unsigned short fsize=0;
 
-    if (cbm_opendir(1, device)==0) {
-        while (!cbm_readdir(1, &dirent))
-            if (strstr(dirent.name, filename)) 
-               fsize=dirent.size;
-        cbm_closedir(1);
-    }
-    return fsize*256; /* one block is 256 bytes */
-}
 /*---------------------------------------------------------------------------*/
 static void bbs_init(void) 
 {
@@ -103,53 +91,7 @@ static void bbs_init(void)
 
   siRet = em_load_driver (BBS_EMD_FILE);
 }
-/*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device) 
-{
-  unsigned char *buffer;
-  unsigned short fsize=0;
-  unsigned short i=0, siRet=0, len=0;
-  unsigned char file[15];
 
-  sprintf(file, "%s%s",szBannerFile,fileSuffix);
-
-  log_message("[debug] ", file);
-
-  fsize=bbs_filesize(file, device);
-
-  if (fsize == 0) {
-    shell_output_str(NULL, "", "error: file size\n\r");
-    return;
-  }
-
-  buffer = (char*) malloc(fsize);
-
-  if (buffer == NULL) {
-    shell_output_str(NULL, "", "error: malloc \n\r");
-    return;
-  }
-
-  memset(buffer, 0, fsize);
-  siRet = cbm_open(10, device, 10, file);
-
-  if (! siRet) {
-     len = cbm_read(10, buffer, fsize);
-     cbm_close(10);
-
-     /*for (i=0; i<len; i++) {
-         if (buffer[i] == '\r')
-            buffer[i] = '\n';
-     }*/
-  }
-
-  //if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(buffer, len);}
-
-  shell_output_str(NULL, "\n\r", buffer);
-  
-  if (buffer != NULL)
-     free(buffer);
-
-}
 /*---------------------------------------------------------------------------*/
 void bbs_splash(unsigned short mode) 
 {
@@ -227,7 +169,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       switch (bbs_status.bbs_status) {
 
           case 0: {
-            if(! strcmp(input->data1, "b") || ! strcmp(input->data1, "B")){
+            if(! strcmp(input->data1, "l") || ! strcmp(input->data1, "L")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=0;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);

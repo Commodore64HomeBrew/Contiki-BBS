@@ -10,96 +10,120 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-/*
-int ssInitRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecCount)
+#include <em.h>
+
+
+/*---------------------------------------------------------------------------*/
+short bbs_filesize(char *filename, unsigned char device)
 {
-  char command[40];
-  char cbm_filename[40];  
-  int siRet=0;
-  int siCount=0;
-  
-  int channel, hi, lo;
-  
-  channel=3+96;
+    struct cbm_dirent dirent;
+    unsigned short fsize=0;
 
-  sprintf(cbm_filename,"0:%s,l,%c", pstFile->szFileName, uiBuffSize);
-  
-  siRet = cbm_open( 15, pstFile->ucDeviceNo, 15, NULL);
-  siRet = cbm_open( 2, pstFile->ucDeviceNo,  3, cbm_filename);
+    if (cbm_opendir(1, device)==0) {
+        while (!cbm_readdir(1, &dirent))
+            if (strstr(dirent.name, filename)) 
+               fsize=dirent.size;
+        cbm_closedir(1);
+    }
+    return fsize*256; /* one block is 256 bytes */
+}
 
-  for (siCount = uiRecCount; siCount >= 1; siCount--)
-  {
-     hi=(siCount/256);
-     lo=siCount-(hi*256);
-    
-     sprintf(command, "p%c%c%c", channel, lo, hi);    
-     siRet=cbm_write( 15, command, strlen(command));
-     siRet = cbm_write( 2, pvBuffer, uiBuffSize); 
+/*---------------------------------------------------------------------------*/
+void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device) 
+{
+  unsigned char *buffer;
+  unsigned short fsize=0;
+  unsigned short i=0, siRet=0, len=0;
+  unsigned char file[15];
+
+  sprintf(file, "%s%s",szBannerFile,fileSuffix);
+
+  log_message("[debug] ", file);
+
+  fsize=bbs_filesize(file, device);
+
+  if (fsize == 0) {
+    shell_output_str(NULL, "", "error: file size\n\r");
+    return;
   }
 
-  cbm_close(15);  
-  cbm_close(2);
-  return siRet;	
+  buffer = (char*) malloc(fsize);
+
+  if (buffer == NULL) {
+    shell_output_str(NULL, "", "error: malloc \n\r");
+    return;
+  }
+
+  memset(buffer, 0, fsize);
+  siRet = cbm_open(10, device, 10, file);
+
+  if (! siRet) {
+     len = cbm_read(10, buffer, fsize);
+     cbm_close(10);
+
+     /*for (i=0; i<len; i++) {
+         if (buffer[i] == '\r')
+            buffer[i] = '\n';
+     }*/
+  }
+
+  shell_output_str(NULL, "\n\r", buffer);
+  
+  if (buffer != NULL)
+     free(buffer);
 }
 
-int ssWriteRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecNo)
+
+/*---------------------------------------------------------------------------*/
+static void em_fill (register unsigned* page, register unsigned char count, register unsigned num)
 {
-  char command[40];
-  char cbm_filename[40];
-  int siRet=0;
-  
-  int channel, hi, lo;
-  
-  channel=3+96;
-  
-  sprintf(cbm_filename,"0:%s,l,%c", pstFile->szFileName, uiBuffSize);
-  
-  siRet = cbm_open( 15, pstFile->ucDeviceNo, 15, NULL);
-  siRet = cbm_open( 2, pstFile->ucDeviceNo,  3, cbm_filename);    
-
-  hi=(uiRecNo/256);
-  lo=uiRecNo-(hi*256);
-  
-  sprintf(command, "p%c%c%c", channel, lo, hi);    
-  siRet=cbm_write( 15, command, strlen(command));
-
-  siRet = cbm_write( 2, pvBuffer, uiBuffSize);
-
-  cbm_close(15);  
-  cbm_close(2);
-    
-  return siRet;
+    register unsigned char i;
+    for (i = 0; i < count; ++i, ++page) {
+        *page = num;
+    }
 }
 
-int ssReadRELFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize, unsigned int uiRecNo)
+/*---------------------------------------------------------------------------*/
+int em_load(ST_FILE *pstFile, unsigned int uiBuffSize)
 {
-  char command[40];
-  char cbm_filename[40];
-  int siRet=0;
-  
-  int channel, hi, lo;
-  
-  channel=3+96;
+    unsigned I;
+    unsigned PageCount;
 
-  sprintf(cbm_filename,"0:%s,l,%c", pstFile->szFileName, uiBuffSize);
+	PageCount = em_pagecount ();
+    /* Fill all pages */
+    for (I = 0; I < PageCount; ++I) {
 
-  siRet = cbm_open( 15, pstFile->ucDeviceNo, 15, NULL);
-  siRet = cbm_open( 2, pstFile->ucDeviceNo,  3, cbm_filename);    
+        /* Fill the buffer and copy it to em */
+        em_fill (em_use (I), PAGE_SIZE, I);
+        em_commit ();
+    }
 
-  hi=(uiRecNo/256);
-  lo=uiRecNo-(hi*256);
-    
-  sprintf(command, "p%c%c%c", channel, lo, hi);    
-  siRet=cbm_write( 15, command, strlen(command));
-  
-  siRet = cbm_read( 2, pvBuffer, uiBuffSize);
-  
-  cbm_close(15);  
-  cbm_close(2); 
-       
-  return siRet;
+  return 0;	
 }
-*/
+
+/*---------------------------------------------------------------------------*/
+int em_out(ST_FILE *pstFile, unsigned int uiBuffSize)
+{
+    unsigned I;
+    unsigned PageCount;
+
+	PageCount = em_pagecount ();
+
+    /* Check all pages */
+    for (I = 0; I < PageCount; ++I) {
+
+        /* Get the buffer and compare it */
+        //cmp (I, em_map (I), PAGE_SIZE, I);
+
+    }
+
+  //shell_output_str(NULL, "\n\r", buffer);
+  return 0;	
+}
+
+
+/*---------------------------------------------------------------------------*/
+
 /*int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize)
 {
   int siRet=0;
@@ -184,34 +208,8 @@ int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
   return siRet;    
 }*/
 
-/*int ssWritePRGFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
-{
-  int siRet=0;
-  char szTmp[15];
-  
-  strcpy(szTmp,"@:");
-  strcat(szTmp, pstFile->szFileName);
-  strcat(szTmp, ",p,w");
-  //(ssMode != 0) ? strcat(szTmp, ",s,a") : strcat(szTmp, ",s,w");
-   
-  siRet = cbm_open(10, pstFile->ucDeviceNo, 10, szTmp);
-    
-  if (! siRet)
-  {
-     if (pvBuffer != NULL) {       
-        cbm_write(10, pvBuffer, uiBuffSize);   
-     }
-  } else {
-    cbm_close(10);
-    return siRet;
-  }
 
-  cbm_close(10);
-    
-  return siRet;
-}
-*/
-
+/*---------------------------------------------------------------------------*/
 int siDriveStatus(ST_FILE *pstFile)
 {
    unsigned char ucBuff[128];
@@ -237,7 +235,7 @@ int siDriveStatus(ST_FILE *pstFile)
 
    return (int) e;
 }
-
+/*---------------------------------------------------------------------------*/
 int siFileExists(ST_FILE *pstFile)
 {
    unsigned char ucBuff[128];
