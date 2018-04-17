@@ -84,8 +84,47 @@ static void em_fill (register unsigned* page, register unsigned char count, regi
 }
 
 /*---------------------------------------------------------------------------*/
-int em_load(ST_FILE *pstFile, unsigned int uiBuffSize)
+
+void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device) 
 {
+  unsigned char *buffer;
+  unsigned short fsize=0;
+  unsigned short i=0, siRet=0, len=0;
+  unsigned char file[15];
+
+  sprintf(file, "%s%s",szBannerFile,fileSuffix);
+
+  log_message("[debug] ", file);
+
+  fsize=bbs_filesize(file, device);
+
+  if (fsize == 0) {
+    shell_output_str(NULL, "", "error: file size\n\r");
+    return;
+  }
+
+  buffer = (char*) malloc(fsize);
+
+  if (buffer == NULL) {
+    shell_output_str(NULL, "", "error: malloc \n\r");
+    return;
+  }
+
+  memset(buffer, 0, fsize);
+  siRet = cbm_open(10, device, 10, file);
+
+  if (! siRet) {
+     len = cbm_read(10, buffer, fsize);
+     cbm_close(10);
+
+  }
+
+  shell_output_str(NULL, "\n\r", buffer);
+  
+
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
     unsigned I;
     unsigned PageCount;
 
@@ -98,7 +137,11 @@ int em_load(ST_FILE *pstFile, unsigned int uiBuffSize)
         em_commit ();
     }
 
-  return 0;	
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  if (buffer != NULL)
+     free(buffer);
 }
 
 /*---------------------------------------------------------------------------*/
