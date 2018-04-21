@@ -74,14 +74,6 @@ void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], uns
 }
 
 
-/*---------------------------------------------------------------------------*/
-static void em_fill (register unsigned* page, register unsigned char count, register unsigned num)
-{
-    register unsigned char i;
-    for (i = 0; i < count; ++i, ++page) {
-        *page = num;
-    }
-}
 
 /*---------------------------------------------------------------------------*/
 
@@ -89,8 +81,14 @@ void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsign
 {
   unsigned char *buffer;
   unsigned short fsize=0;
-  unsigned short i=0, siRet=0, len=0;
+  unsigned short i=0, siRet=0, len=0; 
+  int *page,n;
   unsigned char file[15];
+  unsigned I;
+  unsigned PageCount;
+
+
+
 
   sprintf(file, "%s%s",szBannerFile,fileSuffix);
 
@@ -98,17 +96,7 @@ void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsign
 
   fsize=bbs_filesize(file, device);
 
-  if (fsize == 0) {
-    shell_output_str(NULL, "", "error: file size\n\r");
-    return;
-  }
-
   buffer = (char*) malloc(fsize);
-
-  if (buffer == NULL) {
-    shell_output_str(NULL, "", "error: malloc \n\r");
-    return;
-  }
 
   memset(buffer, 0, fsize);
   siRet = cbm_open(10, device, 10, file);
@@ -125,23 +113,27 @@ void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsign
   //+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-    unsigned I;
-    unsigned PageCount;
-
 	PageCount = em_pagecount ();
     /* Fill all pages */
+    n=0;
     for (I = 0; I < PageCount; ++I) {
 
-        /* Fill the buffer and copy it to em */
-        em_fill (em_use (I), PAGE_SIZE, I);
+    	/* Set the next page: */
+		page = em_use (I);
+
+
+        /* Copy the buffer to em one page at a time: */
+
+	    for (i = 0; i < PAGE_SIZE; ++i, ++page, ++n) {
+	        *page = buffer[n];
+	    }
+	    /* Now commit the page to extended memory: */
         em_commit ();
     }
 
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++
-
-  if (buffer != NULL)
-     free(buffer);
+	if (buffer != NULL)
+	 free(buffer);
 }
 
 /*---------------------------------------------------------------------------*/
