@@ -8,9 +8,9 @@
 #ifndef __BBS_READ_H__
 #define __BBS_READ_H__
 
-#include "shell.h"
+#include "bbs-shell.h"
 #include "sys/log.h"
-#include "bbsdefs.h"
+#include "bbs-defs.h"
 #include "bbs-file.h"
 
 void bbs_read_init(void);

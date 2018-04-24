@@ -5,7 +5,7 @@
  *         (c) 2009-2015 by Niels Haedecke <n.haedecke@unitybox.de>
  */
 
-#include "shell.h"
+#include "bbs-shell.h"
 #include "bbs-file.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,7 +92,7 @@ void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsign
 
   sprintf(file, "%s%s",szBannerFile,fileSuffix);
 
-  log_message("[debug] ", file);
+  log_message("[bbs] em loaded: ", file);
 
   fsize=bbs_filesize(file, device);
 

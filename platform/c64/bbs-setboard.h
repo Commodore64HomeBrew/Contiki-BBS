@@ -9,9 +9,9 @@
 #ifndef __BBS_SETBOARD_H__
 #define __BBS_SETBOARD_H__
 
-#include "shell.h"
+#include "bbs-shell.h"
 #include "sys/log.h"
-#include "bbsdefs.h"
+#include "bbs-defs.h"
 
 void bbs_setboard_init(void);
 void bbs_sub_banner(void);

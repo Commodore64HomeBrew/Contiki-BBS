@@ -90,9 +90,10 @@ typedef struct {
 typedef struct {
   unsigned char bbs_status;
   unsigned char bbs_board_id;
+  unsigned char bbs_current_msg[9];
   unsigned char bbs_encoding;
   char bbs_last_caller[12];
-  char bbs_prompt[10];
+  char bbs_prompt[20];
   char encoding_suffix[3];
 } BBS_STATUS_REC;
 

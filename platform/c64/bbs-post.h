@@ -8,9 +8,9 @@
 #ifndef __BBS_POST_H__
 #define __BBS_POST_H__
 
-#include "shell.h"
 #include "sys/log.h"
-#include "bbsdefs.h"
+#include "bbs-shell.h"
+#include "bbs-defs.h"
 
 void bbs_post_init(void);
 

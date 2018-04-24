@@ -7,9 +7,9 @@
 
 
 #include "contiki.h"
-#include "shell.h"
+#include "bbs-shell.h"
 #include "bbs-read.h"
-#include "telnetd.h"
+#include "bbs-telnetd.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,10 +46,12 @@ PROCESS_THREAD(bbs_read_process, ev, data)
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
+  bbs_status.bbs_current_msg[bbs_status.bbs_board_id] = num;
 
   if(num>0 && num <= bbs_config.bbs_msg_id[bbs_status.bbs_board_id]){
     sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, num);
 
+	set_prompt();
     bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE);
   }
 
@@ -89,9 +91,46 @@ PROCESS_THREAD(bbs_read_process, ev, data)
 */
   PROCESS_END();
 }
+
+/*---------------------------------------------------------------------------*/
+
+PROCESS(bbs_nextmsg_process, "nextmsg");
+SHELL_COMMAND(bbs_nextmsg_command, "n", "n : read next message", &bbs_nextmsg_process);
+
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(bbs_nextmsg_process, ev, data)
+{
+  unsigned short num;
+  ST_FILE file;
+
+
+  PROCESS_BEGIN();
+
+  num = bbs_status.bbs_current_msg[bbs_status.bbs_board_id]+1;
+
+  if(num>0 && num <= bbs_config.bbs_msg_id[bbs_status.bbs_board_id]){
+
+	++bbs_status.bbs_current_msg[bbs_status.bbs_board_id];
+
+    sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, num);
+
+    shell_output_str(NULL,PETSCII_LOWER, "");
+    shell_output_str(NULL,PETSCII_WHITE, "");
+
+	set_prompt();
+    bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE);
+  }
+
+
+  PROCESS_EXIT();
+   
+  PROCESS_END();
+}
+
 /*---------------------------------------------------------------------------*/
 void
 bbs_read_init(void)
 {
   shell_register_command(&bbs_read_command);
+  shell_register_command(&bbs_nextmsg_command);
 }

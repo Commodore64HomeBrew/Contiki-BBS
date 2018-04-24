@@ -11,8 +11,8 @@
 
 #include "contiki.h"
 #include "contiki-lib.h"
-#include "shell.h"
-#include "petsciiconv.h"
+#include "bbs-shell.h"
+#include "bbs-encodings.h"
 #include "bbs-setboard.h"
 #include "bbs-file.h"
 #include <em.h>
@@ -55,6 +55,12 @@ SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_proc
 PROCESS(bbs_timer_process, "timer");
 
 /*---------------------------------------------------------------------------*/
+void set_prompt(void) 
+{
+    sprintf(bbs_status.bbs_prompt, "\x05sub %d, msg %d > ", bbs_status.bbs_board_id, bbs_status.bbs_current_msg[bbs_status.bbs_board_id]);
+}
+
+/*---------------------------------------------------------------------------*/
 static void bbs_init(void) 
 {
   //unsigned char *buffer;
@@ -84,12 +90,17 @@ static void bbs_init(void)
     else{log_message("[bbs] ", "config file error");}
   }
 
+
   bbs_status.bbs_board_id=1;
   bbs_status.bbs_status=0;
-  strcpy(bbs_status.bbs_prompt, "> ");
   bbs_status.bbs_encoding=1;
 
+  set_prompt();
+
   siRet = em_load_driver (BBS_EMD_FILE);
+
+  em_load(BBS_BANNER_LOGIN, "", BBS_SYS_DEVICE);
+  
 }
 
 /*---------------------------------------------------------------------------*/
@@ -233,7 +244,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               strcpy(bbs_status.bbs_last_caller, bbs_user.user_name);
               //Display the sub banner:
               bbs_sub_banner();
-              strcpy(bbs_status.bbs_prompt, "> ");
+              set_prompt();
               shell_prompt(bbs_status.bbs_prompt);
               process_start(&bbs_timer_process, NULL);
               front_process=&shell_process;

@@ -6,7 +6,7 @@
  */
 
 #include "contiki.h"
-#include "shell.h"
+#include "bbs-shell.h"
 
 #include "bbs-post.h"
 
@@ -20,8 +20,8 @@ extern BBS_USER_REC bbs_user;
 
 /*extern char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];*/
 
-PROCESS(bbs_post_process, "post");
-SHELL_COMMAND(bbs_post_command, "p", "p : post a new message", &bbs_post_process);
+PROCESS(bbs_post_process, "write");
+SHELL_COMMAND(bbs_post_command, "w", "w : write a new message", &bbs_post_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_post_process, ev, data)
 {

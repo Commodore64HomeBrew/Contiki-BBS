@@ -13,7 +13,7 @@
 #include <string.h>
 
 #include "bbs-file.h"
-#include "bbsdefs.h"
+#include "bbs-defs.h"
 
 typedef struct {
    unsigned int   srvip[4];

@@ -8,7 +8,7 @@
 
 
 #include "contiki.h"
-#include "shell.h"
+#include "bbs-shell.h"
 
 #include "bbs-setboard.h"
 
@@ -62,11 +62,12 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   input = data;
   num = atoi(input->data1);
 
-
   if(num>0 && num <=BBS_MAX_BOARDS){
 
     bbs_status.bbs_board_id = num;
     shell_output_str(NULL, PETSCII_CLRSCN, "");
+
+	set_prompt();
     bbs_sub_banner();
   }
 
@@ -118,6 +119,7 @@ PROCESS_THREAD(bbs_nextboard_process, ev, data)
 
     ++bbs_status.bbs_board_id;
 
+	set_prompt();
     bbs_sub_banner();
   }
 
@@ -138,6 +140,7 @@ PROCESS_THREAD(bbs_prevboard_process, ev, data)
 
     --bbs_status.bbs_board_id;
 
+	set_prompt();
     bbs_sub_banner();
   }
 

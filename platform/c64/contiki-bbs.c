@@ -49,8 +49,8 @@
 
 
 #include "contiki-net.h"
-#include "telnetd.h"
-#include "shell.h"
+#include "bbs-telnetd.h"
+#include "bbs-shell.h"
 
 char telnetd_reject_text[] = "centronian bbs is busy, please try again later.";
 

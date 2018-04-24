@@ -37,9 +37,9 @@
 #include "contiki-lib.h"
 #include "contiki-net.h"
 #include "bbs-encodings.h"
-#include "shell.h"
-#include "bbsdefs.h"
-#include "telnetd.h"
+#include "bbs-shell.h"
+#include "bbs-defs.h"
+#include "bbs-telnetd.h"
 
 extern BBS_STATUS_REC bbs_status;
 

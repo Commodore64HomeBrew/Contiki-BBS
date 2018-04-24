@@ -35,7 +35,7 @@
 #define TELNETD_H_
 
 #include "contiki.h"
-#include "bbsdefs.h"
+#include "bbs-defs.h"
 
 PROCESS_NAME(telnetd_process);
 

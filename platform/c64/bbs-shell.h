@@ -86,7 +86,7 @@ struct shell_command {
   struct shell_command *child;
 };
 
-void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device);
+void set_prompt(void);
 
 
 /**
@@ -337,7 +337,7 @@ unsigned long shell_strtolong(const char *str, const char **retstr);
 unsigned long shell_time(void);
 void shell_set_time(unsigned long seconds);
 
-int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);
+//int ssStreamSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);
 /**
  * @}
  */
@@ -384,7 +384,7 @@ struct shell_input {
  * @}
  */
 
-#include "bbsdefs.h"
+#include "bbs-defs.h"
 #include "bbs-file.h"
 //#include "bbs-page.h"
 //#include "bbs-blist.h"

@@ -13,7 +13,7 @@
 #include <string.h>
 #include <cbm.h>
 
-#include "shell.h"
+#include "bbs-shell.h"
 #include "bbs-file.h"
 #include <conio.h>
 #include <em.h>
