@@ -749,7 +749,7 @@ shell_init(void)
   bbs_status.bbs_status=0;
 }
 /*---------------------------------------------------------------------------*/
-unsigned long
+/*unsigned long
 shell_strtolong(const char *str, const char **retstr)
 {
   int i;
@@ -776,7 +776,7 @@ shell_strtolong(const char *str, const char **retstr)
   }
   
   return num;
-}
+}*/
 /*---------------------------------------------------------------------------*/
 unsigned long
 shell_time(void)
