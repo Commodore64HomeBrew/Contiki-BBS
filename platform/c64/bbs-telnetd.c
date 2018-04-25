@@ -264,14 +264,10 @@ get_char(uint8_t c)
 
   if(c != ISO_nl && c != ISO_cr) {
     s.buf[(int)s.bufptr] = c;
-    if(s.bufptr < 40){
     	++s.bufptr;
-    }
   }
-  //if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
-  if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == 40) {
-    //if(s.bufptr < sizeof(s.buf)) {
-   	if(s.bufptr < 40) {
+  if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
+    if(s.bufptr < sizeof(s.buf)) {
       s.buf[(int)s.bufptr] = 0;
     }
     if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
