@@ -20,7 +20,7 @@ extern BBS_STATUS_REC bbs_status;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(bbs_read_process, "read");
-SHELL_COMMAND(bbs_read_command, "r", "r : read a message", &bbs_read_process);
+SHELL_COMMAND(bbs_read_command, "#", "# : select message #", &bbs_read_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_read_process, ev, data)
 {
@@ -95,7 +95,8 @@ PROCESS_THREAD(bbs_read_process, ev, data)
 /*---------------------------------------------------------------------------*/
 
 PROCESS(bbs_nextmsg_process, "nextmsg");
-SHELL_COMMAND(bbs_nextmsg_command, "n", "n : read next message", &bbs_nextmsg_process);
+SHELL_COMMAND(bbs_nextmsg1_command, "\x0d", "CR : read next message", &bbs_nextmsg_process);
+SHELL_COMMAND(bbs_nextmsg2_command, "\x0a", "CR : read next message", &bbs_nextmsg_process);
 
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_nextmsg_process, ev, data)
@@ -132,5 +133,6 @@ void
 bbs_read_init(void)
 {
   shell_register_command(&bbs_read_command);
-  shell_register_command(&bbs_nextmsg_command);
+  shell_register_command(&bbs_nextmsg1_command);
+  shell_register_command(&bbs_nextmsg2_command);
 }

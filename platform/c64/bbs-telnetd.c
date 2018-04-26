@@ -43,9 +43,6 @@
 
 extern BBS_STATUS_REC bbs_status;
 
-#define ISO_nl       0x0a
-#define ISO_cr       0x0d
-
 PROCESS(telnetd_process, "Telnet server");
 
 AUTOSTART_PROCESSES(&telnetd_process);
@@ -250,31 +247,53 @@ senddata(void)
 static void
 get_char(uint8_t c)
 {
-  //char in[1];
+
   PRINTF("telnetd: get_char '%c' %d %d\n", c, c, s.bufptr);
 
   if(c == 0) {
     return;
   }
   if(bbs_status.bbs_encoding>0){
-  	//in[0]=c;
   	buf_append(&buf, &c, 1);
   }
 
+  /*if(bbs_status.bbs_status==3){
+		s.buf[(int)s.bufptr] = c;
+		++s.bufptr;
+		s.buf[(int)s.bufptr] = 0;
 
-  if(c != ISO_nl && c != ISO_cr) {
-    s.buf[(int)s.bufptr] = c;
-    	++s.bufptr;
+		if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
+		shell_input(s.buf, s.bufptr);
+		s.bufptr = 0;
+
   }
-  if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
-    if(s.bufptr < sizeof(s.buf)) {
-      s.buf[(int)s.bufptr] = 0;
-    }
-    if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
-    PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
-    shell_input(s.buf, s.bufptr);
-    s.bufptr = 0;
-  }
+
+*/
+
+
+  //else{
+
+	  if(c != ISO_nl && c != ISO_cr)  {
+		s.buf[(int)s.bufptr] = c;
+			++s.bufptr;
+	  }
+	  else if ((c == ISO_nl || c == ISO_cr) && s.bufptr == 0){
+		s.buf[(int)s.bufptr] = c;
+			++s.bufptr;
+	  }
+	  
+
+	  if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
+		if(s.bufptr < sizeof(s.buf)) {
+		  s.buf[(int)s.bufptr] = 0;
+		}
+		if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
+		shell_input(s.buf, s.bufptr);
+		s.bufptr = 0;
+	  }
+  //}
 }
 /*---------------------------------------------------------------------------*/
 static void

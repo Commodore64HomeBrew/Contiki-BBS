@@ -185,21 +185,28 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               bbs_status.bbs_encoding=0;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
-            else if(! strcmp(input->data1, "a") || ! strcmp(input->data1, "A")){
+            else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=1;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
-            else if(! strcmp(input->data1, "c") || ! strcmp(input->data1, "C")){
+            else if(! strcmp(input->data1, "4")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=2;
               strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
             }
-            else if(! strcmp(input->data1, "v") || ! strcmp(input->data1, "V")){
+            else if(! strcmp(input->data1, "2")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.bbs_encoding=3;
               strcpy(bbs_status.encoding_suffix, BBS_PET22_SUFFIX);
             }
+            else if(! strcmp(input->data1, "t") || ! strcmp(input->data1, "t")){
+              log_message("[debug] encoding: ", input->data1);
+              bbs_status.bbs_encoding=1;
+              strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
+            }
+
+
             else{
               shell_prompt(BBS_ENCODING_STRING);
               break;

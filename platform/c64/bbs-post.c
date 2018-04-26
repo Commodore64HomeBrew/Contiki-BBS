@@ -51,6 +51,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
   sprintf(bbs_logbuf,"\n\rmsg from: %s\n\r\n\r", bbs_user.user_name);
 
+  bbs_status.bbs_status=4;
  
   PROCESS_PAUSE();
 
@@ -85,6 +86,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
       linecount=0;
       disk_access=1;
 
+	  bbs_status.bbs_status=3;
       PROCESS_EXIT();
     }
 
@@ -99,6 +101,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
   //bbs_setboard_init();
   //bbs_read_init();
+
  PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/

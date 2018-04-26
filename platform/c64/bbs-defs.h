@@ -10,7 +10,7 @@
 
 #define BBS_COPYRIGHT_STRING "\n\r          Contiki BBS 0.3.0 \n\r     (c) 2018-> by K. Casteels\n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
 
-#define BBS_ENCODING_STRING "\n\rpetscii - 40col (c)\n\rpetscii - 22col (v)\n\rascii w/ echo   (a)\n\rlinux or vt100  (l)\n\r\n\r>  "
+#define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
 
 #define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
 #define BBS_TELNET_PORT      2200
@@ -61,6 +61,8 @@
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_CLRSCN          "\x93"
 #define PETSCII_WHITE           "\x05"
+#define ISO_nl       0x0a
+#define ISO_cr       0x0d
 
 /*
 typedef struct {
