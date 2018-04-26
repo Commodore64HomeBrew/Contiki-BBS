@@ -12,6 +12,7 @@
 #include <conio.h>
 #include <em.h>
 
+BBS_EM_REC bbs_em;
 
 /*---------------------------------------------------------------------------*/
 short bbs_filesize(char *filename, unsigned char device)
@@ -112,12 +113,14 @@ void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsign
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
 	PageCount = em_pagecount ();
     /* Fill all pages */
     n=0;
-    for (I = 0; I < PageCount; ++I) {
-
+	I=0;
+    //for (I = 0; I < PageCount; ++I) {
+	bbs_em.file[0][0] = I;	
+	while (n<fsize && I < PageCount){
+		++I;
     	/* Set the next page: */
 		page = em_use (I);
 
@@ -131,6 +134,7 @@ void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsign
         em_commit ();
     }
 
+	bbs_em.file[0][1] = I;
 
 	if (buffer != NULL)
 	 free(buffer);

@@ -99,4 +99,8 @@ typedef struct {
   char encoding_suffix[3];
 } BBS_STATUS_REC;
 
+typedef struct {
+  short file[10][2];
+} BBS_EM_REC;
+
 #endif /* __BBSDEFS_H_ */
