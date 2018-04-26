@@ -39,17 +39,17 @@ PROCESS_THREAD(bbs_read_process, ev, data)
 
   shell_output_str(NULL,PETSCII_LOWER, "");
   shell_output_str(NULL,PETSCII_WHITE, "");
-  sprintf(message, "\n\rselect msg (1-%d): ", bbs_config.bbs_msg_id[bbs_status.bbs_board_id]);
+  sprintf(message, "\n\rselect msg (1-%d): ", bbs_config.msg_id[bbs_status.board_id]);
   shell_prompt(message);
 
 
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
-  bbs_status.bbs_current_msg[bbs_status.bbs_board_id] = num;
+  bbs_status.current_msg[bbs_status.board_id] = num;
 
-  if(num>0 && num <= bbs_config.bbs_msg_id[bbs_status.bbs_board_id]){
-    sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, num);
+  if(num>0 && num <= bbs_config.msg_id[bbs_status.board_id]){
+    sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
 
 	set_prompt();
     bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE);
@@ -69,15 +69,15 @@ PROCESS_THREAD(bbs_read_process, ev, data)
        shell_prompt(""); 
        PROCESS_EXIT();
     } else {
-       bbs_config.bbs_msg_id=atoi(input->data1); 
+       bbs_config.msg_id=atoi(input->data1); 
 
-       sprintf(bbs_logbuf[0], "* reading: board #%d, msg. #%d", bbs_status.bbs_board_id, bbs_config.bbs_msg_id);
+       sprintf(bbs_logbuf[0], "* reading: board #%d, msg. #%d", bbs_status.board_id, bbs_config.msg_id);
        shell_output_str(&bbs_read_command, bbs_logbuf[0], "");
        shell_output_str(&bbs_read_command, BBS_STRING_EDITHDR, "");
        memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
 
-       sprintf(file.szFileName, "board%d.msg", bbs_status.bbs_board_id);
-       //ssReadRELFile(&file, bbs_logbuf, sizeof(bbs_logbuf), bbs_config.bbs_msg_id);
+       sprintf(file.szFileName, "board%d.msg", bbs_status.board_id);
+       //ssReadRELFile(&file, bbs_logbuf, sizeof(bbs_logbuf), bbs_config.msg_id);
 
        do {
           shell_output_str(&bbs_read_command, bbs_logbuf[linecount], "");
@@ -107,13 +107,13 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
 
   PROCESS_BEGIN();
 
-  num = bbs_status.bbs_current_msg[bbs_status.bbs_board_id]+1;
+  num = bbs_status.current_msg[bbs_status.board_id]+1;
 
-  if(num>0 && num <= bbs_config.bbs_msg_id[bbs_status.bbs_board_id]){
+  if(num>0 && num <= bbs_config.msg_id[bbs_status.board_id]){
 
-	++bbs_status.bbs_current_msg[bbs_status.bbs_board_id];
+	++bbs_status.current_msg[bbs_status.board_id];
 
-    sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, num);
+    sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
 
     shell_output_str(NULL,PETSCII_LOWER, "");
     shell_output_str(NULL,PETSCII_WHITE, "");

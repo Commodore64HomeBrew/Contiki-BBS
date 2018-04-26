@@ -76,8 +76,7 @@ typedef struct {
 */
 
 typedef struct {
-  //short bbs_msg_id[BBS_MAX_BOARDS];
-  short bbs_msg_id[9];
+  short msg_id[9];
   /*char bbs_name[20];
   char bbs_sysop[20];*/
 } BBS_CONFIG_REC;
@@ -86,16 +85,17 @@ typedef struct {
 //  unsigned short user_no;  
   char  user_name[12];
   char  user_pwd[20];
+  short msg_id[9];
 //  unsigned char  access_req;
 } BBS_USER_REC;
 
 typedef struct {
-  unsigned char bbs_status;
-  unsigned char bbs_board_id;
-  unsigned char bbs_current_msg[9];
-  unsigned char bbs_encoding;
-  char bbs_last_caller[12];
-  char bbs_prompt[20];
+  unsigned char status;
+  unsigned char board_id;
+  unsigned char current_msg[9];
+  unsigned char encoding;
+  char last_caller[12];
+  char prompt[20];
   char encoding_suffix[3];
 } BBS_STATUS_REC;
 

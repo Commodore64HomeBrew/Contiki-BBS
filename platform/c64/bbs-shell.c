@@ -57,7 +57,7 @@ PROCESS(bbs_timer_process, "timer");
 /*---------------------------------------------------------------------------*/
 void set_prompt(void) 
 {
-    sprintf(bbs_status.bbs_prompt, "\x05sub %d, msg %d > ", bbs_status.bbs_board_id, bbs_status.bbs_current_msg[bbs_status.bbs_board_id]);
+    sprintf(bbs_status.prompt, "\x05sub %d, msg %d > ", bbs_status.board_id, bbs_status.current_msg[bbs_status.board_id]);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -76,7 +76,7 @@ static void bbs_init(void)
      log_message("[bbs] ", "config file not found, using defaults");
      /* set sub msg counts */
      for (i=0; i<=BBS_MAX_BOARDS; i++) {
-          bbs_config.bbs_msg_id[1]=0;
+          bbs_config.msg_id[1]=0;
      }
   }
   else{
@@ -91,9 +91,9 @@ static void bbs_init(void)
   }
 
 
-  bbs_status.bbs_board_id=1;
-  bbs_status.bbs_status=0;
-  bbs_status.bbs_encoding=1;
+  bbs_status.board_id=1;
+  bbs_status.status=0;
+  bbs_status.encoding=1;
 
   set_prompt();
 
@@ -114,8 +114,8 @@ void bbs_splash(unsigned short mode)
 /*---------------------------------------------------------------------------*/
 void bbs_lock(void)
 {
-  bbs_status.bbs_board_id=1;
-  //bbs_config.bbs_msg_id=1;
+  bbs_status.board_id=1;
+  //bbs_config.msg_id=1;
   process_start(&bbs_timer_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
@@ -124,9 +124,9 @@ void bbs_unlock(void)
   log_message("[bbs] ", "*session timeout*");
 
   bbs_locked=0;
-  bbs_status.bbs_encoding=1;
-  bbs_status.bbs_status=0;
-  bbs_status.bbs_board_id=1;
+  bbs_status.encoding=1;
+  bbs_status.status=0;
+  bbs_status.board_id=1;
   process_exit(&bbs_timer_process);
   shell_exit();
 }
@@ -177,32 +177,32 @@ PROCESS_THREAD(bbs_login_process, ev, data)
     }
     if (ev == shell_event_input) {
       input = data;
-      switch (bbs_status.bbs_status) {
+      switch (bbs_status.status) {
 
           case 0: {
             if(! strcmp(input->data1, "l") || ! strcmp(input->data1, "L")){
               log_message("[debug] encoding: ", input->data1);
-              bbs_status.bbs_encoding=0;
+              bbs_status.encoding=0;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
               log_message("[debug] encoding: ", input->data1);
-              bbs_status.bbs_encoding=1;
+              bbs_status.encoding=1;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "4")){
               log_message("[debug] encoding: ", input->data1);
-              bbs_status.bbs_encoding=2;
+              bbs_status.encoding=2;
               strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
             }
             else if(! strcmp(input->data1, "2")){
               log_message("[debug] encoding: ", input->data1);
-              bbs_status.bbs_encoding=3;
+              bbs_status.encoding=3;
               strcpy(bbs_status.encoding_suffix, BBS_PET22_SUFFIX);
             }
             else if(! strcmp(input->data1, "t") || ! strcmp(input->data1, "t")){
               log_message("[debug] encoding: ", input->data1);
-              bbs_status.bbs_encoding=1;
+              bbs_status.encoding=1;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
 
@@ -213,7 +213,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             }
             bbs_banner(BBS_BANNER_LOGIN, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
             shell_prompt("handle: ");
-            bbs_status.bbs_status=1;
+            bbs_status.status=1;
             break;
           }
 
@@ -223,16 +223,16 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               if((int)strlen(input->data1)>12){
                  shell_output_str(NULL, "\r\nhandle can't be longer than 12 characters\n\r", "");
 	         shell_prompt("handle: ");
-                 bbs_status.bbs_status=1;
+                 bbs_status.status=1;
               }
               else{
                  shell_prompt("password: ");
-                 bbs_status.bbs_status=2;
+                 bbs_status.status=2;
               }
             } 
             else {
               shell_output_str(&bbs_login_command, "login failed.", "");
-              bbs_status.bbs_status=0;
+              bbs_status.status=0;
               bbs_unlock();
               log_message("[bbs] *unlock1* ", "");
             }
@@ -242,17 +242,17 @@ PROCESS_THREAD(bbs_login_process, ev, data)
           case 2: {
             //if(! strcmp(input->data1, bbs_user.user_pwd)) {
               process_exit(&bbs_timer_process);
-              bbs_status.bbs_status=3;
+              bbs_status.status=3;
               log_message("[bbs] *login* ", bbs_user.user_name);
 
               bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
 
-              shell_output_str(NULL, "\r\nlast caller: ", bbs_status.bbs_last_caller);
-              strcpy(bbs_status.bbs_last_caller, bbs_user.user_name);
+              shell_output_str(NULL, "\r\nlast caller: ", bbs_status.last_caller);
+              strcpy(bbs_status.last_caller, bbs_user.user_name);
               //Display the sub banner:
               bbs_sub_banner();
               set_prompt();
-              shell_prompt(bbs_status.bbs_prompt);
+              shell_prompt(bbs_status.prompt);
               process_start(&bbs_timer_process, NULL);
               front_process=&shell_process;
             /*} else {
@@ -296,7 +296,7 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
   char szBuff[20];
 
   PROCESS_BEGIN();
-  if (bbs_status.bbs_status>1)
+  if (bbs_status.status>1)
      etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
   else
      etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
@@ -306,20 +306,20 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
      PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&bbs_session_timer));
 
      if (ev == PROCESS_EVENT_TIMER) {
-        if (bbs_status.bbs_status>1)
+        if (bbs_status.status>1)
            process_post(PROCESS_BROADCAST, PROCESS_EVENT_TIMER, NULL);
         else
            process_post(&bbs_login_process, PROCESS_EVENT_TIMER, NULL);
 
         sprintf(szBuff, "session timeout.");
         shell_output_str(NULL, szBuff, "");
-        if (bbs_status.bbs_status>1)
+        if (bbs_status.status>1)
            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
         else
            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
      } else {
        if (ev == shell_event_input) 
-         if (bbs_status.bbs_status>1)
+         if (bbs_status.status>1)
             etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
          else
             etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
@@ -677,9 +677,9 @@ PROCESS_THREAD(shell_process, ev, data)
        bbs_unlock();
        log_message("[bbs] *unlock3* ", "");
     }
-    if(bbs_status.bbs_status>1) {
+    if(bbs_status.status>1) {
       /*etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);*/
-      shell_prompt(bbs_status.bbs_prompt);
+      shell_prompt(bbs_status.prompt);
     }
 
   }
@@ -753,7 +753,7 @@ shell_init(void)
 
   front_process = &bbs_login_process;
 
-  bbs_status.bbs_status=0;
+  bbs_status.status=0;
 }
 /*---------------------------------------------------------------------------*/
 /*unsigned long
@@ -801,8 +801,8 @@ void
 shell_start(void)
 {
   /* set BBS parameters */
-  /*bbs_status.bbs_board_id=1;
-  bbs_config.bbs_msg_id=1;
+  /*bbs_status.board_id=1;
+  bbs_config.msg_id=1;
   process_start(&bbs_timer_process, NULL);*/
   bbs_lock();
   
@@ -831,10 +831,10 @@ shell_stop(void)
 
    /* set BBS parameters */
    bbs_locked=0;
-   bbs_status.bbs_encoding=1;
-   bbs_status.bbs_status=0;
-   bbs_status.bbs_board_id=1;
-   //bbs_config.bbs_msg_id=1;
+   bbs_status.encoding=1;
+   bbs_status.status=0;
+   bbs_status.board_id=1;
+   //bbs_config.msg_id=1;
    killall();
 }
 /*---------------------------------------------------------------------------*/

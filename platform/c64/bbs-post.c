@@ -38,7 +38,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 /*  if (disk_access) {
      strcpy(file.szFileName, BBS_BOARDCFG_FILE);
      file.ucDeviceNo=BBS_SYS_DEVICE;
-     ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.bbs_board_id);
+     ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.board_id);
      disk_access=0;
   }
 */  PROCESS_BEGIN();
@@ -51,7 +51,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
   shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
   sprintf(bbs_logbuf,"\n\rmsg from: %s\n\r\n\r", bbs_user.user_name);
 
-  bbs_status.bbs_status=4;
+  bbs_status.status=4;
  
   PROCESS_PAUSE();
 
@@ -69,9 +69,9 @@ PROCESS_THREAD(bbs_post_process, ev, data)
     if (! strcmp(input->data1,"/s") || linecount >= BBS_MAX_MSGLINES) {
 
       /* write post */
-      ++bbs_config.bbs_msg_id[bbs_status.bbs_board_id];
+      ++bbs_config.msg_id[bbs_status.board_id];
 
-      sprintf(file.szFileName, "%d-%d", bbs_status.bbs_board_id, bbs_config.bbs_msg_id[bbs_status.bbs_board_id]);
+      sprintf(file.szFileName, "%d-%d", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
       
       /* Save the post to file */
       cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, sizeof(bbs_logbuf));
@@ -86,7 +86,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
       linecount=0;
       disk_access=1;
 
-	  bbs_status.bbs_status=3;
+	  bbs_status.status=3;
       PROCESS_EXIT();
     }
 

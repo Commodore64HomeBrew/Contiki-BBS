@@ -123,7 +123,7 @@ buf_append(struct telnetd_buf *buf, const char *data, int len)
   PRINTF("buf_append len %d (%d) '%.*s'\n", len, buf->ptr, len, data);
   copylen = MIN(len, buf->size - buf->ptr);
   memcpy(&buf->bufmem[buf->ptr], data, copylen);
-  if(bbs_status.bbs_encoding<2){petsciiconv_toascii(&buf->bufmem[buf->ptr], copylen);}
+  if(bbs_status.encoding<2){petsciiconv_toascii(&buf->bufmem[buf->ptr], copylen);}
   buf->ptr += copylen;
 
   return copylen;
@@ -207,7 +207,7 @@ PROCESS_THREAD(telnetd_process, ev, data)
   telnetd_gui_init();
 #endif /* TELNETD_CONF_GUI */
 
-  if(bbs_status.bbs_encoding<2){petsciiconv_toascii(telnetd_reject_text, strlen(telnetd_reject_text));}
+  if(bbs_status.encoding<2){petsciiconv_toascii(telnetd_reject_text, strlen(telnetd_reject_text));}
 
   tcp_listen(UIP_HTONS(BBS_TELNET_PORT));
 
@@ -253,16 +253,16 @@ get_char(uint8_t c)
   if(c == 0) {
     return;
   }
-  if(bbs_status.bbs_encoding>0){
+  if(bbs_status.encoding>0){
   	buf_append(&buf, &c, 1);
   }
 
-  /*if(bbs_status.bbs_status==3){
+  /*if(bbs_status.status==3){
 		s.buf[(int)s.bufptr] = c;
 		++s.bufptr;
 		s.buf[(int)s.bufptr] = 0;
 
-		if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+		if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 		shell_input(s.buf, s.bufptr);
 		s.bufptr = 0;
@@ -288,7 +288,7 @@ get_char(uint8_t c)
 		if(s.bufptr < sizeof(s.buf)) {
 		  s.buf[(int)s.bufptr] = 0;
 		}
-		if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+		if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 		shell_input(s.buf, s.bufptr);
 		s.bufptr = 0;
@@ -304,7 +304,7 @@ sendopt(uint8_t option, uint8_t value)
   line[1] = option;
   line[2] = value;
   line[3] = 0;
-  if(bbs_status.bbs_encoding<2){petsciiconv_topetscii(line, 4);}
+  if(bbs_status.encoding<2){petsciiconv_topetscii(line, 4);}
   buf_append(&buf, line, 4);
 }
 /*---------------------------------------------------------------------------*/
