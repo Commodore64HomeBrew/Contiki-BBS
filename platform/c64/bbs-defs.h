@@ -61,8 +61,13 @@
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_CLRSCN          "\x93"
 #define PETSCII_WHITE           "\x05"
-#define ISO_nl       0x0a
-#define ISO_cr       0x0d
+#define ISO_nl       	0x0a
+#define ISO_cr       	0x0d
+#define PETSCII_DEL  	0x14
+#define PETSCII_DOWN 	0x11
+#define PETSCII_UP   	0x91
+#define PETSCII_LEFT 	0x9d
+#define PETSCII_RIGHT 	0x1d
 
 /*
 typedef struct {

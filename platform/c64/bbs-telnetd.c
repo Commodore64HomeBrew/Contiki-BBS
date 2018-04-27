@@ -253,7 +253,21 @@ get_char(uint8_t c)
   if(c == 0) {
     return;
   }
+
+  //if(c != ISO_nl)  {return;}
+
   if(bbs_status.encoding>0){
+
+	if (c == PETSCII_DEL){
+		//log_message("[debug] ", "petscii-del");
+		if(s.bufptr>0){
+			--s.bufptr;
+			s.buf[(int)s.bufptr] = 0;
+			buf_append(&buf, &c, 1);
+		}
+		return;	
+	}
+	else if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT){return;}
   	buf_append(&buf, &c, 1);
   }
 
@@ -274,25 +288,33 @@ get_char(uint8_t c)
 
   //else{
 
-	  if(c != ISO_nl && c != ISO_cr)  {
-		s.buf[(int)s.bufptr] = c;
-			++s.bufptr;
-	  }
-	  else if ((c == ISO_nl || c == ISO_cr) && s.bufptr == 0){
-		s.buf[(int)s.bufptr] = c;
-			++s.bufptr;
-	  }
+	//if(c == ISO_nl)  {log_message("[debug] iso-nl:", &s.bufptr);}
+	//if(c == ISO_cr)  {log_message("[debug] iso-cr:", &s.bufptr);}
 	  
 
-	  if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
+
+	if(c != ISO_nl && c != ISO_cr)  {
+	//if(c != ISO_cr)  {
+		s.buf[(int)s.bufptr] = c;
+		++s.bufptr;
+	}
+	//else if ((c == ISO_nl || c == ISO_cr) && s.bufptr == 0){
+	else if ((c == ISO_cr) && s.bufptr == 0){
+		s.buf[(int)s.bufptr] = c;
+		++s.bufptr;
+	}
+	  
+
+	//if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
+	if(((c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
 		if(s.bufptr < sizeof(s.buf)) {
-		  s.buf[(int)s.bufptr] = 0;
+	    	s.buf[(int)s.bufptr] = 0;
 		}
 		if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 		shell_input(s.buf, s.bufptr);
 		s.bufptr = 0;
-	  }
+	}
   //}
 }
 /*---------------------------------------------------------------------------*/
