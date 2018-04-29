@@ -267,7 +267,11 @@ get_char(uint8_t c)
 		}
 		return;	
 	}
-	else if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT){return;}
+	
+	if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT){
+		return;
+	}
+
   	buf_append(&buf, &c, 1);
   }
 
@@ -297,16 +301,37 @@ get_char(uint8_t c)
 	//if(c != ISO_cr)  {
 		s.buf[(int)s.bufptr] = c;
 		++s.bufptr;
+
+		if(s.bufptr == sizeof(s.buf)) {
+			if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+			PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
+			shell_input(s.buf, s.bufptr);
+			s.bufptr = 0;
+		}
+		return;
 	}
 	//else if ((c == ISO_nl || c == ISO_cr) && s.bufptr == 0){
-	else if ((c == ISO_cr) && s.bufptr == 0){
+	
+	if ((c == ISO_cr) && s.bufptr == 0){
 		s.buf[(int)s.bufptr] = c;
 		++s.bufptr;
 	}
 	  
 
+	if((c == ISO_cr) && s.bufptr > 0) {
+	    s.buf[(int)s.bufptr] = 0;
+		if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
+		shell_input(s.buf, s.bufptr);
+		s.bufptr = 0;
+	}
+
+
+
+
+
 	//if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
-	if(((c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
+/*	if(((c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
 		if(s.bufptr < sizeof(s.buf)) {
 	    	s.buf[(int)s.bufptr] = 0;
 		}
@@ -314,7 +339,7 @@ get_char(uint8_t c)
 		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 		shell_input(s.buf, s.bufptr);
 		s.bufptr = 0;
-	}
+	}*/
   //}
 }
 /*---------------------------------------------------------------------------*/
