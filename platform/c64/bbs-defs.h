@@ -99,6 +99,8 @@ typedef struct {
   unsigned char board_id;
   unsigned char current_msg[BBS_MAX_BOARDS+1];
   unsigned char encoding;
+  unsigned char echo;
+  unsigned char width;
   char last_caller[12];
   char prompt[20];
   char encoding_suffix[3];

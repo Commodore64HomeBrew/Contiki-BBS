@@ -55,6 +55,15 @@ SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_proc
 PROCESS(bbs_timer_process, "timer");
 
 /*---------------------------------------------------------------------------*/
+void bbs_defaults(void)
+{
+  bbs_status.encoding=1;
+  bbs_status.echo=1;
+  bbs_status.width=39;
+  bbs_status.status=0;
+  bbs_status.board_id=1;
+}
+/*---------------------------------------------------------------------------*/
 void set_prompt(void) 
 {
     sprintf(bbs_status.prompt, "\x05sub %d, msg %d > ", bbs_status.board_id, bbs_status.current_msg[bbs_status.board_id]);
@@ -90,11 +99,7 @@ static void bbs_init(void)
     else{log_message("[bbs] ", "config file error");}
   }
 
-
-  bbs_status.board_id=1;
-  bbs_status.status=0;
-  bbs_status.encoding=1;
-
+  bbs_defaults();
   set_prompt();
 
   siRet = em_load_driver (BBS_EMD_FILE);
@@ -124,9 +129,7 @@ void bbs_unlock(void)
   log_message("[bbs] ", "*session timeout*");
 
   bbs_locked=0;
-  bbs_status.encoding=1;
-  bbs_status.status=0;
-  bbs_status.board_id=1;
+  bbs_defaults();
   process_exit(&bbs_timer_process);
   shell_exit();
 }
@@ -180,29 +183,43 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       switch (bbs_status.status) {
 
           case 0: {
-            if(! strcmp(input->data1, "l") || ! strcmp(input->data1, "L")){
+
+            if(! strcmp(input->data1, "4")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=0;
+			  //bbs_status.echo=1;
+			  //bbs_status.width=40;
+              strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
+            }
+            else if(! strcmp(input->data1, "2")){
+              log_message("[debug] encoding: ", input->data1);
+              bbs_status.encoding=0;
+			  //bbs_status.echo=1;
+			  bbs_status.width=21;
+              strcpy(bbs_status.encoding_suffix, BBS_PET22_SUFFIX);
+            }
+
+
+            else if(! strcmp(input->data1, "l") || ! strcmp(input->data1, "L")){
+              log_message("[debug] encoding: ", input->data1);
+              bbs_status.encoding=1;
+			  bbs_status.echo=0;
+			  //bbs_status.width=40;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
+			  //bbs_status.echo=1;
+			  //bbs_status.width=40;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
-            else if(! strcmp(input->data1, "4")){
-              log_message("[debug] encoding: ", input->data1);
-              bbs_status.encoding=2;
-              strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
-            }
-            else if(! strcmp(input->data1, "2")){
-              log_message("[debug] encoding: ", input->data1);
-              bbs_status.encoding=3;
-              strcpy(bbs_status.encoding_suffix, BBS_PET22_SUFFIX);
-            }
+
             else if(! strcmp(input->data1, "t") || ! strcmp(input->data1, "t")){
               log_message("[debug] encoding: ", input->data1);
-              bbs_status.encoding=1;
+              bbs_status.encoding=2;
+			  //bbs_status.echo=1;
+			  //bbs_status.width=40;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
 
@@ -831,9 +848,7 @@ shell_stop(void)
 
    /* set BBS parameters */
    bbs_locked=0;
-   bbs_status.encoding=1;
-   bbs_status.status=0;
-   bbs_status.board_id=1;
+   bbs_defaults();
    //bbs_config.msg_id=1;
    killall();
 }

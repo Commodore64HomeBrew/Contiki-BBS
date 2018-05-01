@@ -123,7 +123,7 @@ buf_append(struct telnetd_buf *buf, const char *data, int len)
   PRINTF("buf_append len %d (%d) '%.*s'\n", len, buf->ptr, len, data);
   copylen = MIN(len, buf->size - buf->ptr);
   memcpy(&buf->bufmem[buf->ptr], data, copylen);
-  if(bbs_status.encoding<2){petsciiconv_toascii(&buf->bufmem[buf->ptr], copylen);}
+  if(bbs_status.encoding==1){petsciiconv_toascii(&buf->bufmem[buf->ptr], copylen);}
   buf->ptr += copylen;
 
   return copylen;
@@ -207,7 +207,7 @@ PROCESS_THREAD(telnetd_process, ev, data)
   telnetd_gui_init();
 #endif /* TELNETD_CONF_GUI */
 
-  if(bbs_status.encoding<2){petsciiconv_toascii(telnetd_reject_text, strlen(telnetd_reject_text));}
+  if(bbs_status.encoding==1){petsciiconv_toascii(telnetd_reject_text, strlen(telnetd_reject_text));}
 
   tcp_listen(UIP_HTONS(BBS_TELNET_PORT));
 
@@ -248,62 +248,59 @@ static void
 get_char(uint8_t c)
 {
 
-  //PRINTF("telnetd: get_char '%c' %d %d\n", c, c, s.bufptr);
+	//PRINTF("telnetd: get_char '%c' %d %d\n", c, c, s.bufptr);
 
-  if(c == 0) {
-    return;
-  }
-
-  //if(c != ISO_nl)  {return;}
-
-  if(bbs_status.encoding>0){
-
-	if (c == PETSCII_DEL){
-		//log_message("[debug] ", "petscii-del");
-		if(s.bufptr>0){
-			--s.bufptr;
-			s.buf[(int)s.bufptr] = 0;
-			buf_append(&buf, &c, 1);
-		}
-		return;	
-	}
-
-	if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT){
+	if(c == 0) {
 		return;
 	}
 
-  	buf_append(&buf, &c, 1);
-  }
-
-  /*if(bbs_status.status==3){
-		s.buf[(int)s.bufptr] = c;
-		++s.bufptr;
-		s.buf[(int)s.bufptr] = 0;
-
-		if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
-		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
-		shell_input(s.buf, s.bufptr);
-		s.bufptr = 0;
-
-  }
-
-*/
+	//if(c != ISO_nl)  {return;}
 
 
-  //else{
+	if(bbs_status.echo==1){
 
-	//if(c == ISO_nl)  {log_message("[debug] iso-nl:", &s.bufptr);}
-	//if(c == ISO_cr)  {log_message("[debug] iso-cr:", &s.bufptr);}
-	  
+		if (c == PETSCII_DEL){
+			//log_message("[debug] ", "petscii-del");
+			if(s.bufptr>0){
+				--s.bufptr;
+				s.buf[(int)s.bufptr] = 0;
+				buf_append(&buf, &c, 1);
+			}
+			return;	
+		}
+
+		if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT){
+			return;
+		}
+
+		if(bbs_status.status==4){
+			if((s.bufptr+1)>bbs_status.width){
+				if(c != ISO_cr){
+					return;
+				}
+			}
+		}
+
+		buf_append(&buf, &c, 1);
+	}
+	else if(bbs_status.status==4){
+		if((s.bufptr+1)>bbs_status.width){
+			if(c != ISO_cr){
+				return;
+			}
+		}
+	}
 
 
 	if(c != ISO_nl && c != ISO_cr)  {
 	//if(c != ISO_cr)  {
+
 		s.buf[(int)s.bufptr] = c;
 		++s.bufptr;
 
 		if(s.bufptr == sizeof(s.buf)) {
-			if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+			if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+			//if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
 			//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 			shell_input(s.buf, s.bufptr);
 			s.bufptr = 0;
@@ -311,7 +308,7 @@ get_char(uint8_t c)
 		return;
 	}
 	//else if ((c == ISO_nl || c == ISO_cr) && s.bufptr == 0){
-	
+
 	if ((c == ISO_cr) && s.bufptr == 0){
 		s.buf[(int)s.bufptr] = c;
 		++s.bufptr;
@@ -320,27 +317,13 @@ get_char(uint8_t c)
 
 	if((c == ISO_cr) && s.bufptr > 0) {
 	    s.buf[(int)s.bufptr] = 0;
-		if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+		if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
+		//else if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
 		//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 		shell_input(s.buf, s.bufptr);
 		s.bufptr = 0;
 	}
 
-
-
-
-
-	//if(((c == ISO_nl || c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
-/*	if(((c == ISO_cr) && s.bufptr > 0) || s.bufptr == sizeof(s.buf)) {
-		if(s.bufptr < sizeof(s.buf)) {
-	    	s.buf[(int)s.bufptr] = 0;
-		}
-		if(bbs_status.encoding<2){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
-		PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
-		shell_input(s.buf, s.bufptr);
-		s.bufptr = 0;
-	}*/
-  //}
 }
 /*---------------------------------------------------------------------------*/
 static void
@@ -351,7 +334,7 @@ sendopt(uint8_t option, uint8_t value)
   line[1] = option;
   line[2] = value;
   line[3] = 0;
-  if(bbs_status.encoding<2){petsciiconv_topetscii(line, 4);}
+  if(bbs_status.encoding==1){petsciiconv_topetscii(line, 4);}
   buf_append(&buf, line, 4);
 }
 /*---------------------------------------------------------------------------*/
