@@ -59,14 +59,36 @@ void bbs_defaults(void)
 {
   bbs_status.encoding=1;
   bbs_status.echo=1;
-  bbs_status.width=39;
+  bbs_status.width=BBS_40_COL;
   bbs_status.status=0;
   bbs_status.board_id=1;
 }
 /*---------------------------------------------------------------------------*/
 void set_prompt(void) 
 {
-    sprintf(bbs_status.prompt, "\x05sub %d, msg %d > ", bbs_status.board_id, bbs_status.current_msg[bbs_status.board_id]);
+	unsigned short next_msg;
+	next_msg = bbs_status.current_msg[bbs_status.board_id]+1;
+
+    //sprintf(bbs_status.prompt, "\x05sub %d, msg %d > ", bbs_status.board_id, bbs_status.current_msg[bbs_status.board_id]);
+	
+	if(next_msg > bbs_config.msg_id[bbs_status.board_id]){
+		if(bbs_status.encoding==0){
+			sprintf(bbs_status.prompt, "\r\n\x12\x05sub:%d \x1emsgs:%d \x92\x9f>\x05 ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+		}
+		else{
+			sprintf(bbs_status.prompt, "\r\nsub:%d msgs:%d > ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+		}
+	}
+	else{
+		if(bbs_status.encoding==0){
+			sprintf(bbs_status.prompt, "\r\n\x12\x05sub:%d \x1emsgs:%d \x9eret=%d \x92\x9f>\x05 ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+		}
+		else{
+			sprintf(bbs_status.prompt, "\r\nsub:%d msgs:%d ret=%d > ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+		}
+	}
+
+	
 }
 
 /*---------------------------------------------------------------------------*/
@@ -188,14 +210,14 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=0;
 			  //bbs_status.echo=1;
-			  //bbs_status.width=40;
+			  //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
             }
             else if(! strcmp(input->data1, "2")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=0;
 			  //bbs_status.echo=1;
-			  bbs_status.width=21;
+			  bbs_status.width=BBS_22_COL;
               strcpy(bbs_status.encoding_suffix, BBS_PET22_SUFFIX);
             }
 
@@ -204,14 +226,14 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
 			  bbs_status.echo=0;
-			  //bbs_status.width=40;
+			  //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
               log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
 			  //bbs_status.echo=1;
-			  //bbs_status.width=40;
+			  //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
 
@@ -219,7 +241,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=2;
 			  //bbs_status.echo=1;
-			  //bbs_status.width=40;
+			  //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
 

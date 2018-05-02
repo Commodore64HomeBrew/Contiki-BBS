@@ -30,6 +30,8 @@
 #define BBS_SYS_DEVICE          9
 #define BBS_SYS_PREFIX          "0:"
 
+#define BBS_40_COL	           39
+#define BBS_22_COL	           21
 #define BBS_LINE_WIDTH         40
 #define BBS_TIMEOUT_SEC       600
 #define BBS_LOGIN_TIMEOUT_SEC  60
@@ -68,6 +70,7 @@
 #define PETSCII_UP   	0x91
 #define PETSCII_LEFT 	0x9d
 #define PETSCII_RIGHT 	0x1d
+#define PETSCII_SPACE 	0x20
 
 /*
 typedef struct {
@@ -102,7 +105,7 @@ typedef struct {
   unsigned char echo;
   unsigned char width;
   char last_caller[12];
-  char prompt[20];
+  char prompt[40];
   char encoding_suffix[3];
 } BBS_STATUS_REC;
 

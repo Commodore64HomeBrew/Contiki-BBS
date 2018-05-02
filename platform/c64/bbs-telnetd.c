@@ -273,23 +273,23 @@ get_char(uint8_t c)
 			return;
 		}
 
-		if(bbs_status.status==4){
+		//if(bbs_status.status==4){
 			if((s.bufptr+1)>bbs_status.width){
 				if(c != ISO_cr){
 					return;
 				}
 			}
-		}
+		//}
 
 		buf_append(&buf, &c, 1);
 	}
-	else if(bbs_status.status==4){
+	/*else if(bbs_status.status==4){
 		if((s.bufptr+1)>bbs_status.width){
 			if(c != ISO_cr){
 				return;
 			}
 		}
-	}
+	}*/
 
 
 	if(c != ISO_nl && c != ISO_cr)  {
