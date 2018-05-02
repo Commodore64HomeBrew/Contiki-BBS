@@ -7,12 +7,14 @@
 
 #include "bbs-shell.h"
 #include "bbs-file.h"
+#include "bbs-defs.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
 #include <em.h>
 
 BBS_EM_REC bbs_em;
+extern BBS_STATUS_REC bbs_status;
 
 /*---------------------------------------------------------------------------*/
 short bbs_filesize(char *filename, unsigned char device)
@@ -59,6 +61,12 @@ void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], uns
   siRet = cbm_open(10, device, 10, file);
 
   if (! siRet) {
+
+	  if (bbs_status.status == STATUS_READ){
+			cbm_read(10, buffer, 2);
+			fsize=fsize-2;
+	  }
+
      len = cbm_read(10, buffer, fsize);
      cbm_close(10);
 
@@ -68,7 +76,7 @@ void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], uns
      }*/
   }
 
-  shell_output_str(NULL, "\n\r", buffer);
+  shell_output_str(NULL, "\n\r\x05", buffer);
   
   if (buffer != NULL)
      free(buffer);

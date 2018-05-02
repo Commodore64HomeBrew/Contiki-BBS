@@ -119,9 +119,11 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
     shell_output_str(NULL,PETSCII_WHITE, "");
 
 	set_prompt();
+	bbs_status.status=STATUS_READ;
     bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE);
   }
 
+  bbs_status.status=STATUS_LOCK;
 
   PROCESS_EXIT();
    

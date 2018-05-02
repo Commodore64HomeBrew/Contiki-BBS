@@ -60,6 +60,13 @@
 #define BBS_STRING_EDITHDR "---------+---------+---------+---------+" 
 #define BBS_STRING_VERSION "0.3.0"
 
+#define STATUS_UNLOCK   0
+#define STATUS_HANDLE	1
+#define STATUS_PASSWD	2
+#define STATUS_LOCK		3
+#define STATUS_POST		4
+#define STATUS_READ		5
+
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_CLRSCN          "\x93"
 #define PETSCII_WHITE           "\x05"

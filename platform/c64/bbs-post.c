@@ -53,7 +53,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 	sprintf(bbs_logbuf,"\x92\n\rmsg from: %s\n\r\x05\n\r", bbs_user.user_name);
 
-	bbs_status.status=4;
+	bbs_status.status=STATUS_POST;
 
 	PROCESS_PAUSE();
 
@@ -89,7 +89,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			linecount=0;
 			disk_access=1;
 
-			bbs_status.status=3;
+			bbs_status.status=STATUS_LOCK;
 
 			set_prompt();
 			PROCESS_EXIT();

@@ -60,7 +60,7 @@ void bbs_defaults(void)
   bbs_status.encoding=1;
   bbs_status.echo=1;
   bbs_status.width=BBS_40_COL;
-  bbs_status.status=0;
+  bbs_status.status=STATUS_UNLOCK;
   bbs_status.board_id=1;
 }
 /*---------------------------------------------------------------------------*/
@@ -73,18 +73,18 @@ void set_prompt(void)
 	
 	if(next_msg > bbs_config.msg_id[bbs_status.board_id]){
 		if(bbs_status.encoding==0){
-			sprintf(bbs_status.prompt, "\r\n\x12\x05sub:%d \x1emsgs:%d \x92\x9f>\x05 ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+			sprintf(bbs_status.prompt, "\r\n\x12\x9fsub:\x05%d\x1cmsgs:\x05%d\x92\x9f>\x05 ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
 		}
 		else{
-			sprintf(bbs_status.prompt, "\r\nsub:%d msgs:%d > ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+			sprintf(bbs_status.prompt, "\r\nsub:%d msgs:%d> ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
 		}
 	}
 	else{
 		if(bbs_status.encoding==0){
-			sprintf(bbs_status.prompt, "\r\n\x12\x05sub:%d \x1emsgs:%d \x9eret=%d \x92\x9f>\x05 ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+			sprintf(bbs_status.prompt, "\r\n\x12\x9fsub:\x05%d\x1eret=\x05%d\x1c/\x05%d\x92\x9f>\x05 ", bbs_status.board_id, next_msg, bbs_config.msg_id[bbs_status.board_id]);
 		}
 		else{
-			sprintf(bbs_status.prompt, "\r\nsub:%d msgs:%d ret=%d > ", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id], next_msg);
+			sprintf(bbs_status.prompt, "\r\nsub:%d ret=%d / %d> ", bbs_status.board_id, next_msg, bbs_config.msg_id[bbs_status.board_id]);
 		}
 	}
 
@@ -141,8 +141,7 @@ void bbs_splash(unsigned short mode)
 /*---------------------------------------------------------------------------*/
 void bbs_lock(void)
 {
-  bbs_status.board_id=1;
-  //bbs_config.msg_id=1;
+  bbs_defaults();
   process_start(&bbs_timer_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
@@ -204,7 +203,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       input = data;
       switch (bbs_status.status) {
 
-          case 0: {
+          case STATUS_UNLOCK: {
 
             if(! strcmp(input->data1, "4")){
               log_message("[debug] encoding: ", input->data1);
@@ -252,36 +251,36 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             }
             bbs_banner(BBS_BANNER_LOGIN, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
             shell_prompt("handle: ");
-            bbs_status.status=1;
+            bbs_status.status=STATUS_HANDLE;
             break;
           }
 
-          case 1: {
+          case STATUS_HANDLE: {
             if ((bbs_get_user(input->data1) != 0)) {
 
               if((int)strlen(input->data1)>12){
                  shell_output_str(NULL, "\r\nhandle can't be longer than 12 characters\n\r", "");
 	         shell_prompt("handle: ");
-                 bbs_status.status=1;
+                 bbs_status.status=STATUS_HANDLE;
               }
               else{
                  shell_prompt("password: ");
-                 bbs_status.status=2;
+                 bbs_status.status=STATUS_PASSWD;
               }
             } 
             else {
               shell_output_str(&bbs_login_command, "login failed.", "");
-              bbs_status.status=0;
+              bbs_status.status=STATUS_UNLOCK;
               bbs_unlock();
               log_message("[bbs] *unlock1* ", "");
             }
             break;
           }
 
-          case 2: {
+          case STATUS_PASSWD: {
             //if(! strcmp(input->data1, bbs_user.user_pwd)) {
               process_exit(&bbs_timer_process);
-              bbs_status.status=3;
+              bbs_status.status=STATUS_LOCK;
               log_message("[bbs] *login* ", bbs_user.user_name);
 
               bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
@@ -335,7 +334,7 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
   char szBuff[20];
 
   PROCESS_BEGIN();
-  if (bbs_status.status>1)
+  if (bbs_status.status>STATUS_HANDLE)
      etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
   else
      etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
@@ -345,20 +344,20 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
      PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&bbs_session_timer));
 
      if (ev == PROCESS_EVENT_TIMER) {
-        if (bbs_status.status>1)
+        if (bbs_status.status>STATUS_HANDLE)
            process_post(PROCESS_BROADCAST, PROCESS_EVENT_TIMER, NULL);
         else
            process_post(&bbs_login_process, PROCESS_EVENT_TIMER, NULL);
 
         sprintf(szBuff, "session timeout.");
         shell_output_str(NULL, szBuff, "");
-        if (bbs_status.status>1)
+        if (bbs_status.status>STATUS_HANDLE)
            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
         else
            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
      } else {
        if (ev == shell_event_input) 
-         if (bbs_status.status>1)
+         if (bbs_status.status>STATUS_HANDLE)
             etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
          else
             etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
@@ -716,7 +715,7 @@ PROCESS_THREAD(shell_process, ev, data)
        bbs_unlock();
        log_message("[bbs] *unlock3* ", "");
     }
-    if(bbs_status.status>1) {
+    if(bbs_status.status>STATUS_HANDLE) {
       /*etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);*/
       shell_prompt(bbs_status.prompt);
     }
@@ -778,11 +777,8 @@ shell_init(void)
 
   bbs_init();
   bbs_setboard_init();
-  //bbs_blist_init(); 
   bbs_read_init();
   bbs_post_init();
-  //bbs_page_init(); 
-
 
   shell_event_input = process_alloc_event();
   
@@ -792,7 +788,7 @@ shell_init(void)
 
   front_process = &bbs_login_process;
 
-  bbs_status.status=0;
+  bbs_status.status=STATUS_UNLOCK;
 }
 /*---------------------------------------------------------------------------*/
 /*unsigned long
@@ -871,7 +867,6 @@ shell_stop(void)
    /* set BBS parameters */
    bbs_locked=0;
    bbs_defaults();
-   //bbs_config.msg_id=1;
    killall();
 }
 /*---------------------------------------------------------------------------*/

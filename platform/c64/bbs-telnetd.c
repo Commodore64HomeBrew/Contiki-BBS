@@ -273,7 +273,7 @@ get_char(uint8_t c)
 			return;
 		}
 
-		//if(bbs_status.status==4){
+		//if(bbs_status.status==STATUS_POST){
 			if((s.bufptr+1)>bbs_status.width){
 				if(c != ISO_cr){
 					return;
@@ -283,7 +283,7 @@ get_char(uint8_t c)
 
 		buf_append(&buf, &c, 1);
 	}
-	/*else if(bbs_status.status==4){
+	/*else if(bbs_status.status==STATUS_POST){
 		if((s.bufptr+1)>bbs_status.width){
 			if(c != ISO_cr){
 				return;
@@ -299,6 +299,7 @@ get_char(uint8_t c)
 		++s.bufptr;
 
 		if(s.bufptr == sizeof(s.buf)) {
+			s.buf[(int)s.bufptr] = 0;
 			if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 			//if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
 			//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
