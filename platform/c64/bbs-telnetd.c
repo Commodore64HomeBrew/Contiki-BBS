@@ -247,7 +247,9 @@ senddata(void)
 static void
 get_char(uint8_t c)
 {
-
+	unsigned char new_line=0;
+	uint8_t k;
+	short i,n;
 	//PRINTF("telnetd: get_char '%c' %d %d\n", c, c, s.bufptr);
 
 	if(c == 0) {
@@ -260,7 +262,6 @@ get_char(uint8_t c)
 	if(bbs_status.echo==1){
 
 		if (c == PETSCII_DEL){
-			//log_message("[debug] ", "petscii-del");
 			if(s.bufptr>0){
 				--s.bufptr;
 				s.buf[(int)s.bufptr] = 0;
@@ -274,22 +275,53 @@ get_char(uint8_t c)
 		}
 
 		//if(bbs_status.status==STATUS_POST){
-			if((s.bufptr+1)>bbs_status.width){
+		/*	if((s.bufptr+1)>bbs_status.width){
 				if(c != ISO_cr){
 					return;
 				}
-			}
+			}*/
 		//}
+//**************************************************
+		if(bbs_status.status==STATUS_POST){
+			if((s.bufptr+1)==bbs_status.width){
 
-		buf_append(&buf, &c, 1);
-	}
-	/*else if(bbs_status.status==STATUS_POST){
-		if((s.bufptr+1)>bbs_status.width){
-			if(c != ISO_cr){
-				return;
+				if(c != ISO_cr){
+					new_line=1;
+
+					if(c==PETSCII_SPACE){
+						//jump to next line
+						k=0x14;
+						buf_append(&buf, &c, 1);
+						buf_append(&buf, &k, 1);
+					}
+					else{
+						i=(int)s.bufptr;
+						//Erase the word
+						k=0x14;
+						while(s.buf[i]!=PETSCII_SPACE && i>0){
+							buf_append(&buf, &k, 1);
+							--i;
+						}
+						//Jump to new line
+						k=0x0d;
+						buf_append(&buf, &k, 1);
+
+						//Rewrite the word
+						for(n=i;n<(int)s.bufptr;++n){
+							buf_append(&buf,&s.buf[n], 1);
+						}
+					}
+				}
+			}
+			else{	
+				buf_append(&buf, &c, 1);
 			}
 		}
-	}*/
+//**************************************************
+		else{	
+			buf_append(&buf, &c, 1);
+		}
+	}
 
 
 	if(c != ISO_nl && c != ISO_cr)  {
@@ -308,7 +340,6 @@ get_char(uint8_t c)
 		}
 		return;
 	}
-	//else if ((c == ISO_nl || c == ISO_cr) && s.bufptr == 0){
 
 	if ((c == ISO_cr) && s.bufptr == 0){
 		s.buf[(int)s.bufptr] = c;
@@ -316,7 +347,7 @@ get_char(uint8_t c)
 	}
 	  
 
-	if((c == ISO_cr) && s.bufptr > 0) {
+	if(((c == ISO_cr) && s.bufptr > 0) || new_line==1) {
 	    s.buf[(int)s.bufptr] = 0;
 		if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 		//else if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}

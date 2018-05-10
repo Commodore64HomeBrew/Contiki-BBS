@@ -24,14 +24,14 @@
 #define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        20
 
-#define BBS_SUBS_DEVICE          8
+#define BBS_SUBS_DEVICE         8
 #define BBS_SUBS_PREFIX         "0:"
 
 #define BBS_SYS_DEVICE          9
 #define BBS_SYS_PREFIX          "0:"
 
-#define BBS_40_COL	           39
-#define BBS_22_COL	           21
+#define BBS_40_COL	           40
+#define BBS_22_COL	           22
 #define BBS_LINE_WIDTH         40
 #define BBS_TIMEOUT_SEC       600
 #define BBS_LOGIN_TIMEOUT_SEC  60
