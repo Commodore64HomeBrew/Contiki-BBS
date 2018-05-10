@@ -247,7 +247,6 @@ senddata(void)
 static void
 get_char(uint8_t c)
 {
-	unsigned char new_line=0;
 	uint8_t k;
 	short i,n;
 	//PRINTF("telnetd: get_char '%c' %d %d\n", c, c, s.bufptr);
@@ -282,19 +281,22 @@ get_char(uint8_t c)
 			}*/
 		//}
 //**************************************************
-		if(bbs_status.status==STATUS_POST){
+		//if(bbs_status.status==STATUS_POST){
 			if((s.bufptr+1)==bbs_status.width){
 
-				if(c != ISO_cr){
-					new_line=1;
+				if(c != ISO_cr)
+        {
+				
 
-					if(c==PETSCII_SPACE){
+					if(c==PETSCII_SPACE)
+          {
 						//jump to next line
 						k=0x14;
 						buf_append(&buf, &c, 1);
 						buf_append(&buf, &k, 1);
 					}
-					else{
+					else
+          {
 						i=(int)s.bufptr;
 						//Erase the word
 						k=0x14;
@@ -315,12 +317,16 @@ get_char(uint8_t c)
 			}
 			else{	
 				buf_append(&buf, &c, 1);
+        //memcpy(&buf->bufmem[buf->ptr], &c, 1);
+        //++buf->ptr;
+        //memcpy(&buf->bufmem[buf->ptr++], uip_appdata, 1);
+
 			}
-		}
+		//}
 //**************************************************
-		else{	
+		/*else{	
 			buf_append(&buf, &c, 1);
-		}
+		}*/
 	}
 
 
@@ -347,7 +353,7 @@ get_char(uint8_t c)
 	}
 	  
 
-	if(((c == ISO_cr) && s.bufptr > 0) || new_line==1) {
+	if(((c == ISO_cr) && s.bufptr > 0)) {
 	    s.buf[(int)s.bufptr] = 0;
 		if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 		//else if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
