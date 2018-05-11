@@ -259,8 +259,6 @@ get_char(uint8_t c)
 		return;
 	}
 
-	//if(c != ISO_nl)  {return;}
-
 
 	if(bbs_status.echo==1){
 
@@ -277,73 +275,65 @@ get_char(uint8_t c)
 			return;
 		}
 
-//**************************************************
-		//if(bbs_status.status==STATUS_POST){
-			//if((s.bufptr+1)==bbs_status.width){
-			if(col_num>=bbs_status.width){
 
-				if(c != ISO_cr)
-        		{
-				
-					if(c==PETSCII_SPACE)
-          			{
-						//jump to next line
-						buf_append(&buf, &c, 1);
-						buf_append(&buf, &cr, 1);
+		if(col_num>=bbs_status.width){
 
-						col_num=0;
+			if(c != ISO_cr)
+    		{
+			
+				if(c==PETSCII_SPACE)
+      			{
+					//jump to next line
+					buf_append(&buf, &c, 1);
+					buf_append(&buf, &cr, 1);
+
+					col_num=0;
+				}
+				else
+      			{
+					i=(int)s.bufptr;
+					//Erase the word
+					while(s.buf[i]!=PETSCII_SPACE && i>0){
+						buf_append(&buf, &dl, 1);
+						--i;
 					}
-					else
-          			{
-						i=(int)s.bufptr;
-						//Erase the word
-						while(s.buf[i]!=PETSCII_SPACE && i>0){
-							buf_append(&buf, &dl, 1);
-							--i;
-						}
-						++i;
+					++i;
 
-						//Jump to new line
-						buf_append(&buf, &cr, 1);
+					//Jump to new line
+					buf_append(&buf, &cr, 1);
 
-						//Set the column number to match wrapped word
-						col_num=(int)s.bufptr-i;
+					//Set the column number to match wrapped word
+					col_num=(int)s.bufptr-i;
 
-						//Rewrite the word
-						for(n=i;n<(int)s.bufptr;++n){
-							buf_append(&buf,&s.buf[n], 1);
-						}
-						//Add the new character to the word.
-						buf_append(&buf, &c, 1);
+					//Rewrite the word
+					for(n=i;n<(int)s.bufptr;++n){
+						buf_append(&buf,&s.buf[n], 1);
 					}
+					//Add the new character to the word.
+					buf_append(&buf, &c, 1);
 				}
 			}
-			else{	
-				buf_append(&buf, &c, 1);
-				++col_num;
-				//memcpy(&s.buf->bufmem[s.buf->ptr], &c, 1);
-				//++s.buf->ptr;
-				//or
-				//memcpy(&buf->bufmem[buf->ptr++], uip_appdata, 1);
-
-			}
-		//}
-//**************************************************
-		/*else{	
+		}
+		else{	
 			buf_append(&buf, &c, 1);
-		}*/
+			++col_num;
+			//memcpy(&s.buf->bufmem[s.buf->ptr], &c, 1);
+			//++s.buf->ptr;
+			//or
+			//memcpy(&buf->bufmem[buf->ptr++], uip_appdata, 1);
+
+		}
+
 	}
 
 
 	if(c != ISO_nl && c != ISO_cr)  {
-	//if(c != ISO_cr)  {
 
 		s.buf[(int)s.bufptr] = c;
 		++s.bufptr;
 
 		if(s.bufptr == sizeof(s.buf)) {
-			//s.buf[(int)s.bufptr] = 0;
-			--s.bufptr;
+			s.buf[(int)s.bufptr] = 0;
 			if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 			//if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
 			//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
@@ -352,8 +342,7 @@ get_char(uint8_t c)
 		}
 		return;
 	}
-
-	if ((c == ISO_cr) && s.bufptr == 0){
+	else if ((c == ISO_cr) && s.bufptr == 0){
 		s.buf[(int)s.bufptr] = c;
 		++s.bufptr;
 	}
