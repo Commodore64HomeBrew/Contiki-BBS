@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, Adam Dunkels.
+ * Copyright (c) 2003-2018, Adam Dunkels, Kevin Casteels.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,6 +97,10 @@ static struct telnetd_state s;
 #define PRINTF(...)
 #endif
 
+uint8_t cr=0x0d;
+uint8_t dl=0x14;
+uint8_t col_num=0;
+
 struct telnetd_buf {
   char bufmem[TELNETD_CONF_NUMLINES * TELNETD_CONF_LINELEN];
   int ptr;
@@ -120,7 +124,7 @@ buf_append(struct telnetd_buf *buf, const char *data, int len)
 {
   int copylen;
 
-  PRINTF("buf_append len %d (%d) '%.*s'\n", len, buf->ptr, len, data);
+  //PRINTF("buf_append len %d (%d) '%.*s'\n", len, buf->ptr, len, data);
   copylen = MIN(len, buf->size - buf->ptr);
   memcpy(&buf->bufmem[buf->ptr], data, copylen);
   if(bbs_status.encoding==1){petsciiconv_toascii(&buf->bufmem[buf->ptr], copylen);}
@@ -140,7 +144,7 @@ buf_pop(struct telnetd_buf *buf, int len)
 {
   int poplen;
 
-  PRINTF("buf_pop len %d (%d)\n", len, buf->ptr);
+  //PRINTF("buf_pop len %d (%d)\n", len, buf->ptr);
   poplen = MIN(len, buf->ptr);
   memcpy(&buf->bufmem[0], &buf->bufmem[poplen], buf->ptr - poplen);
   buf->ptr -= poplen;
@@ -181,7 +185,7 @@ shell_default_output(const char *str1, int len1, const char *str2, int len2)
     --len2;
   }
 
-  /*  PRINTF("shell_default_output: %.*s %.*s\n", len1, str1, len2, str2);*/
+  /*  //PRINTF("shell_default_output: %.*s %.*s\n", len1, str1, len2, str2);*/
   
 #if TELNETD_CONF_GUI
   telnetd_gui_output(str1, len1, str2, len2);
@@ -238,7 +242,7 @@ senddata(void)
 {
   int len;
   len = MIN(buf_len(&buf), uip_mss());
-  PRINTF("senddata len %d\n", len);
+  //PRINTF("senddata len %d\n", len);
   buf_copyto(&buf, uip_appdata, len);
   uip_send(uip_appdata, len);
   s.numsent = len;
@@ -247,7 +251,7 @@ senddata(void)
 static void
 get_char(uint8_t c)
 {
-	uint8_t k;
+
 	short i,n;
 	//PRINTF("telnetd: get_char '%c' %d %d\n", c, c, s.bufptr);
 
@@ -273,53 +277,54 @@ get_char(uint8_t c)
 			return;
 		}
 
-		//if(bbs_status.status==STATUS_POST){
-		/*	if((s.bufptr+1)>bbs_status.width){
-				if(c != ISO_cr){
-					return;
-				}
-			}*/
-		//}
 //**************************************************
 		//if(bbs_status.status==STATUS_POST){
-			if((s.bufptr+1)==bbs_status.width){
+			//if((s.bufptr+1)==bbs_status.width){
+			if(col_num>=bbs_status.width){
 
 				if(c != ISO_cr)
-        {
+        		{
 				
-
 					if(c==PETSCII_SPACE)
-          {
+          			{
 						//jump to next line
-						k=0x14;
 						buf_append(&buf, &c, 1);
-						buf_append(&buf, &k, 1);
+						buf_append(&buf, &cr, 1);
+
+						col_num=0;
 					}
 					else
-          {
+          			{
 						i=(int)s.bufptr;
 						//Erase the word
-						k=0x14;
 						while(s.buf[i]!=PETSCII_SPACE && i>0){
-							buf_append(&buf, &k, 1);
+							buf_append(&buf, &dl, 1);
 							--i;
 						}
+						++i;
+
 						//Jump to new line
-						k=0x0d;
-						buf_append(&buf, &k, 1);
+						buf_append(&buf, &cr, 1);
+
+						//Set the column number to match wrapped word
+						col_num=(int)s.bufptr-i;
 
 						//Rewrite the word
 						for(n=i;n<(int)s.bufptr;++n){
 							buf_append(&buf,&s.buf[n], 1);
 						}
+						//Add the new character to the word.
+						buf_append(&buf, &c, 1);
 					}
 				}
 			}
 			else{	
 				buf_append(&buf, &c, 1);
-        //memcpy(&buf->bufmem[buf->ptr], &c, 1);
-        //++buf->ptr;
-        //memcpy(&buf->bufmem[buf->ptr++], uip_appdata, 1);
+				++col_num;
+				//memcpy(&s.buf->bufmem[s.buf->ptr], &c, 1);
+				//++s.buf->ptr;
+				//or
+				//memcpy(&buf->bufmem[buf->ptr++], uip_appdata, 1);
 
 			}
 		//}
@@ -337,7 +342,8 @@ get_char(uint8_t c)
 		++s.bufptr;
 
 		if(s.bufptr == sizeof(s.buf)) {
-			s.buf[(int)s.bufptr] = 0;
+			//s.buf[(int)s.bufptr] = 0;
+			--s.bufptr;
 			if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 			//if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
 			//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
@@ -360,6 +366,7 @@ get_char(uint8_t c)
 		//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 		shell_input(s.buf, s.bufptr);
 		s.bufptr = 0;
+		col_num = 0;
 	}
 
 }
@@ -384,12 +391,12 @@ newdata(void)
   uint8_t *ptr;
     
   len = uip_datalen();
-  PRINTF("newdata len %d '%.*s'\n", len, len, (char *)uip_appdata);
+  //PRINTF("newdata len %d '%.*s'\n", len, len, (char *)uip_appdata);
 
   ptr = uip_appdata;
   while(len > 0 && s.bufptr < sizeof(s.buf)) {
     c = *ptr;
-    PRINTF("newdata char '%c' %d %d state %d\n", c, c, len, s.state);
+    //PRINTF("newdata char '%c' %d %d state %d\n", c, c, len, s.state);
     ++ptr;
     --len;
     switch(s.state) {

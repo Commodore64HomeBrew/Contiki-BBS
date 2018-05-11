@@ -97,7 +97,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 
 		//bytes_used += sizeof(input->data1);
-		strcat(bbs_logbuf, "\r\n");
+		//strcat(bbs_logbuf, "\r\n");
 		strcat(bbs_logbuf, input->data1);
 
 		//log_message("[bbs] *post* ", bbs_logbuf);
