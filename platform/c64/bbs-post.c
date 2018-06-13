@@ -26,8 +26,8 @@ SHELL_COMMAND(bbs_post_command, "w", "w : write a new message", &bbs_post_proces
 PROCESS_THREAD(bbs_post_process, ev, data)
 {
 
-	static short linecount=0;
-	static short disk_access=1;
+	//static short linecount=0;
+	//static short disk_access=1;
 	//static short bytes_used=2;
 	struct shell_input *input;
 	//static char bbs_logbuf[BBS_MAX_MSGLINES*BBS_LINE_WIDTH];
@@ -54,7 +54,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	sprintf(bbs_logbuf,"\x92\n\rmsg from: %s\n\r\x05\n\r", bbs_user.user_name);
 
 	bbs_status.status=STATUS_POST;
-
+	bbs_status.msg_size=30;
 	PROCESS_PAUSE();
 
 	while(1) {
@@ -63,12 +63,12 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 		input = data;
 
 		if (! strcmp(input->data1, "/a") ) {
-			linecount=0;
-			disk_access=1;
+			//linecount=0;
+			//disk_access=1;
 			PROCESS_EXIT();
 		}
 
-		if (! strcmp(input->data1,"/s") || linecount >= BBS_MAX_MSGLINES) {
+		if (! strcmp(input->data1,"/s")){// || linecount >= BBS_MAX_MSGLINES) {
 
 			/* write post */
 			++bbs_config.msg_id[bbs_status.board_id];
@@ -76,18 +76,24 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			sprintf(file.szFileName, "%d-%d", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
 			/* Save the post to file */
-			cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, sizeof(bbs_logbuf));
+			//
+			//cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, sizeof(bbs_logbuf));
+			cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, bbs_status.msg_size);
 			//cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, bytes_used);
 
 			log_message("[bbs] *post* ", bbs_logbuf);
+
+			//sprintf(bbs_logbuf, "bu:%d ms:%d lb:%d", bytes_used, bbs_status.msg_size, sizeof(bbs_logbuf));
+			//log_message("[debug] *bytes-used* ", bbs_logbuf);
+
 
 			/* Save the msg count struct to disk */
 			sprintf(file.szFileName, "@0:%s", BBS_CFG_FILE);
 			cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_config, sizeof(bbs_config));
 
 			memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
-			linecount=0;
-			disk_access=1;
+			//linecount=0;
+			//disk_access=1;
 
 			bbs_status.status=STATUS_LOCK;
 
@@ -97,7 +103,6 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 
 		//bytes_used += sizeof(input->data1);
-		//strcat(bbs_logbuf, "\r\n");
 		strcat(bbs_logbuf, input->data1);
 
 		//log_message("[bbs] *post* ", bbs_logbuf);

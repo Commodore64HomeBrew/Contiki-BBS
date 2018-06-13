@@ -111,6 +111,7 @@ typedef struct {
   unsigned char encoding;
   unsigned char echo;
   unsigned char width;
+  unsigned short msg_size;
   char last_caller[12];
   char prompt[40];
   char encoding_suffix[3];

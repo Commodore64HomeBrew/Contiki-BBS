@@ -249,7 +249,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               shell_prompt(BBS_ENCODING_STRING);
               break;
             }
-            bbs_banner(BBS_BANNER_LOGIN, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
+            bbs_banner(BBS_BANNER_LOGIN, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
             shell_prompt("handle: ");
             bbs_status.status=STATUS_HANDLE;
             break;
@@ -283,7 +283,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               bbs_status.status=STATUS_LOCK;
               log_message("[bbs] *login* ", bbs_user.user_name);
 
-              bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
+              bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
 
               shell_output_str(NULL, "\r\nlast caller: ", bbs_status.last_caller);
               strcpy(bbs_status.last_caller, bbs_user.user_name);
@@ -434,7 +434,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  bbs_banner(BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
+  bbs_banner(BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
   log_message("[bbs] *logout* ", bbs_user.user_name);
   bbs_unlock();
   log_message("[bbs] *unlock2* ", "");

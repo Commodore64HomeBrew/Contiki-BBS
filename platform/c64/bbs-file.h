@@ -31,7 +31,7 @@ typedef struct
 	unsigned char ucDeviceNo;
 } ST_FILE;
 short bbs_filesize(char *filename, unsigned char device);
-void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device);
+void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap);
 void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device);
 int em_out(ST_FILE *pstFile, unsigned int uiBuffSize);
 

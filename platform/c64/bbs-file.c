@@ -32,11 +32,12 @@ short bbs_filesize(char *filename, unsigned char device)
 }
 
 /*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device) 
+void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
 {
   unsigned char *buffer;
-  unsigned short fsize=0;
-  unsigned short i=0, siRet=0, len=0;
+  unsigned short fsize=0, siRet=0, len=0;
+  unsigned short i=0, j=0, col, preCol;
+  unsigned short width;
   unsigned char file[15];
 
   sprintf(file, "%s%s",szBannerFile,fileSuffix);
@@ -67,13 +68,39 @@ void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], uns
 			fsize=fsize-2;
 	  }
 
-     len = cbm_read(10, buffer, fsize);
-     cbm_close(10);
+    len = cbm_read(10, buffer, fsize);
+    cbm_close(10);
 
-     /*for (i=0; i<len; i++) {
-         if (buffer[i] == '\r')
-            buffer[i] = '\n';
-     }*/
+
+    if (wordWrap==1){
+      width = bbs_status.width;
+	  col=0;
+	  preCol=0;
+      for (i=0; i<len; i++) {
+
+		if (buffer[i] == ISO_cr){
+			col=0;
+		}
+        else if (col == width){
+
+			//We're at the end of the row. Walk back until you find a space and then insert a CR:
+			j=i;
+		    while(buffer[j] != PETSCII_SPACE && j>preCol){
+		      --j;
+		    }
+			//Space is found; insert CR:
+		    buffer[j] = ISO_cr;
+			//Record counter position or previous line:
+			preCol=j;
+			//Set the new column counter, taking into account the wrapped word:
+		    col=i-j;
+
+        }
+        else{
+          ++col;
+        }
+      }
+    }
   }
 
   shell_output_str(NULL, "\n\r\x05", buffer);

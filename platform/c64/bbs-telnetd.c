@@ -333,6 +333,7 @@ get_char(uint8_t c)
 		++s.bufptr;
 
 		if(s.bufptr == sizeof(s.buf)) {
+			bbs_status.msg_size += s.bufptr;
 			s.buf[(int)s.bufptr] = 0;
 			if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 			//if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
@@ -349,6 +350,7 @@ get_char(uint8_t c)
 	  
 
 	if(((c == ISO_cr) && s.bufptr > 0)) {
+		bbs_status.msg_size += s.bufptr;
 	    s.buf[(int)s.bufptr] = 0;
 		if(bbs_status.encoding==1){petsciiconv_topetscii(s.buf, TELNETD_CONF_LINELEN);}
 		//else if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}

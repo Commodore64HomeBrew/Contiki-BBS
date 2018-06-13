@@ -27,7 +27,7 @@ void bbs_sub_banner(void)
   unsigned char file[12];
 
   sprintf(file, "%s%d",BBS_PREFIX_SUB,bbs_status.board_id);
-  bbs_banner(file, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
+  bbs_banner(file, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
   sprintf(message, "\n\rtotal msgs: %d\n\n", bbs_config.msg_id[bbs_status.board_id]);
   shell_output_str(NULL, message, "");
 }
@@ -48,7 +48,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
 
   PROCESS_BEGIN();
 
-  bbs_banner(BBS_BANNER_SUBS, bbs_status.encoding_suffix, BBS_SYS_DEVICE);
+  bbs_banner(BBS_BANNER_SUBS, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
   /*memset(szBuff, 0, sizeof(szBuff));
   sprintf(szBuff, "(%s (%d, acl: %d) Choose board # (1-%d, 0=quit)? ", board.board_name, board.board_no, board.access_req, board.max_boards);
   shell_prompt(szBuff);

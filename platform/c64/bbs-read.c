@@ -52,7 +52,7 @@ PROCESS_THREAD(bbs_read_process, ev, data)
     sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
 
 	set_prompt();
-    bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE);
+    bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE,1);
   }
 
 
@@ -120,7 +120,7 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
 
 	set_prompt();
 	bbs_status.status=STATUS_READ;
-    bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE);
+    bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE,1);
   }
 
   bbs_status.status=STATUS_LOCK;
