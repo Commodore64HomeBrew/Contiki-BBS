@@ -13,7 +13,7 @@
 #define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
 
 #define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
-#define BBS_TELNET_PORT      2200
+#define BBS_TELNET_PORT      3121
 
 #define BBS_LOCKMODE_OFF        0
 #define BBS_LOCKMODE_ON         1
