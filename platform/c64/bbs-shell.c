@@ -141,12 +141,22 @@ void bbs_splash(unsigned short mode)
 /*---------------------------------------------------------------------------*/
 void bbs_lock(void)
 {
+  //Change border colour to red
+  bordercolor(2);
+  //Blank the screen to speed things up
+  poke(0xd011, peek(0xd011) & 0xef);
+
   bbs_defaults();
   process_start(&bbs_timer_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
 void bbs_unlock(void)
 {
+  //Change border colour to black
+  bordercolor(0);
+  //Turn on the screen again
+  poke(0xd011, peek(0xd011) | 0x10);
+
   log_message("[bbs] ", "*session timeout*");
 
   bbs_locked=0;
@@ -206,14 +216,14 @@ PROCESS_THREAD(bbs_login_process, ev, data)
           case STATUS_UNLOCK: {
 
             if(! strcmp(input->data1, "4")){
-              log_message("[debug] encoding: ", input->data1);
+              //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=0;
 			  //bbs_status.echo=1;
 			  //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
             }
             else if(! strcmp(input->data1, "2")){
-              log_message("[debug] encoding: ", input->data1);
+              //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=0;
 			  //bbs_status.echo=1;
 			  bbs_status.width=BBS_22_COL;
@@ -222,14 +232,14 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
 
             else if(! strcmp(input->data1, "l") || ! strcmp(input->data1, "L")){
-              log_message("[debug] encoding: ", input->data1);
+              //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
 			  bbs_status.echo=0;
 			  //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
-              log_message("[debug] encoding: ", input->data1);
+              //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
 			  //bbs_status.echo=1;
 			  //bbs_status.width=BBS_40_COL;
@@ -237,7 +247,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             }
 
             else if(! strcmp(input->data1, "t") || ! strcmp(input->data1, "t")){
-              log_message("[debug] encoding: ", input->data1);
+              //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=2;
 			  //bbs_status.echo=1;
 			  //bbs_status.width=BBS_40_COL;
