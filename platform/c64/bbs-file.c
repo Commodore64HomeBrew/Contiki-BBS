@@ -42,7 +42,7 @@ void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], uns
 
   sprintf(file, "%s%s",szBannerFile,fileSuffix);
 
-  log_message("[debug] ", file);
+  //log_message("[debug] ", file);
 
   fsize=bbs_filesize(file, device);
 

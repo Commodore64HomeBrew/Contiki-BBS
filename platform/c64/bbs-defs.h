@@ -79,6 +79,9 @@
 #define PETSCII_RIGHT 	0x1d
 #define PETSCII_SPACE 	0x20
 
+#define poke(A,X) (*(unsigned char *)A) = (X)
+#define peek(A) (*(unsigned char *)A)
+
 /*
 typedef struct {
   unsigned char board_no;  
