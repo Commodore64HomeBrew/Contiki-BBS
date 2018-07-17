@@ -8,12 +8,12 @@
 #ifndef __BBSDEFS_H_
 #define __BBSDEFS_H_
 
-#define BBS_COPYRIGHT_STRING "\n\r          Contiki BBS 0.3.0 \n\r     (c) 2018-> by K. Casteels\n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
+#define BBS_COPYRIGHT_STRING "\n\r        Centronian BBS 0.1.0 \n\r     (c) 2018-> by K. Casteels\n\r           based on Contiki BBS,\n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
 
 #define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
 
 #define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
-#define BBS_TELNET_PORT      3121
+#define BBS_TELNET_PORT      2200
 
 #define BBS_LOCKMODE_OFF        0
 #define BBS_LOCKMODE_ON         1
@@ -27,7 +27,7 @@
 #define BBS_SUBS_DEVICE         8
 #define BBS_SUBS_PREFIX         "0:"
 
-#define BBS_SYS_DEVICE          9
+#define BBS_SYS_DEVICE          8
 #define BBS_SYS_PREFIX          "0:"
 
 #define BBS_40_COL	           39
