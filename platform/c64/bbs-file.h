@@ -32,8 +32,8 @@ typedef struct
 } ST_FILE;
 short bbs_filesize(char *filename, unsigned char device);
 void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap);
-void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device);
-int em_out(ST_FILE *pstFile, unsigned int uiBuffSize);
+void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned short file_num);
+void em_out(unsigned short file_num);
 
 //int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize);
 //int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize);*/

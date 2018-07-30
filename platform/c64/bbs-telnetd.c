@@ -88,7 +88,7 @@ static struct telnetd_state s;
 #define TELNET_WONT  252
 #define TELNET_DO    253
 #define TELNET_DONT  254
-
+/*
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
@@ -96,7 +96,7 @@ static struct telnetd_state s;
 #else
 #define PRINTF(...)
 #endif
-
+*/
 uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;

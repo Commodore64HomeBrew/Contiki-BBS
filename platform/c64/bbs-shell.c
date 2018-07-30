@@ -126,7 +126,7 @@ static void bbs_init(void)
 
   siRet = em_load_driver (BBS_EMD_FILE);
 
-  em_load(BBS_BANNER_LOGIN, "", BBS_SYS_DEVICE);
+  em_load(BBS_BANNER_LOGIN, "", BBS_SYS_DEVICE,0);
   
 }
 
