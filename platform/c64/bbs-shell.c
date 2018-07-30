@@ -293,7 +293,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               bbs_status.status=STATUS_LOCK;
               log_message("[bbs] *login* ", bbs_user.user_name);
 
-              bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
+              //bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
+              em_out(0);
 
               shell_output_str(NULL, "\r\nlast caller: ", bbs_status.last_caller);
               strcpy(bbs_status.last_caller, bbs_user.user_name);
