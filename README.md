@@ -1,7 +1,7 @@
 # Magnetar BBS
 Magnetar BBS is a tiny, little and text based bulletin board system (BBS) server for the Commodore 64 homecomputer and a compatible ethernet cartridge (e.g. TFE, RRnet, 64NIC+). It will also run in a VICE emulator with ethernet support enabled. The BBS itself can be accessed through a standard telnet connection. Despite a floppy disk drive and the ethernet cartridge no further addon hardware is required (for emulation use VICE with ethernet support).
 
-Magnetar BBS is a fork of Magnetar BBS v2.7 but has diverged greatly in both function and appearence.
+Magnetar BBS is a fork of Contiki BBS v2.7 but has diverged greatly in both function and appearence.
 
 
 Magnetar BBS 1.x quick startup guide
