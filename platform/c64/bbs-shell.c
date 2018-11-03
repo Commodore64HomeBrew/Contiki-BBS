@@ -167,6 +167,22 @@ void bbs_unlock(void)
 /*---------------------------------------------------------------------------*/
 int bbs_get_user(char *data)
 {
+	/*
+  	strcpy(bbs_user.user_name, data);
+	sprintf(password_file, "u-%s", bbs_user.user_name);
+
+    siRet = cbm_open(10, BBS_USER_DEVICE, 10, PASSWORD_FILE);
+    if (! siRet) {
+      log_message("[bbs] ", "user file found");
+      cbm_read(10, &BBS_USER_REC.user_pwd, 2);
+      cbm_read(10, &BBS_USER_REC.user_pwd, sizeof(BBS_USER_REC.user_pwd));
+      cbm_close(10);
+    }
+    else{log_message("[bbs] ", "user not found");}
+  }
+
+	*/
+  
   /*int user_count,count=1;
   ST_FILE file;
 
@@ -190,7 +206,7 @@ int bbs_get_user(char *data)
 
   return 0;
 */
-  strcpy(bbs_user.user_name, data);
+
   return 1;
 
 }
