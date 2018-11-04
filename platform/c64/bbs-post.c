@@ -73,13 +73,11 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			/* write post */
 			++bbs_config.msg_id[bbs_status.board_id];
 
-			sprintf(file.szFileName, "%d-%d", bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
+			sprintf(file.szFileName, "%s%d-%d", BBS_SUBS_PREFIX, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
 			/* Save the post to file */
-			//
-			//cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, sizeof(bbs_logbuf));
+		
 			cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, bbs_status.msg_size);
-			//cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, bytes_used);
 
 			log_message("[bbs] *post* ", bbs_logbuf);
 

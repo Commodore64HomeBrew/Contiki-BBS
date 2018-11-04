@@ -14,7 +14,7 @@
 #define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\r\n\r>  "
 
 #define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
-#define BBS_TELNET_PORT      2200
+#define BBS_TELNET_PORT      6400
 
 #define BBS_LOCKMODE_OFF        0
 #define BBS_LOCKMODE_ON         1
@@ -26,10 +26,10 @@
 #define BBS_MAX_MSGLINES        20
 
 #define BBS_SUBS_DEVICE         8
-#define BBS_SUBS_PREFIX         "0:"
+#define BBS_SUBS_PREFIX         "//s/:"
 
 #define BBS_SYS_DEVICE          8
-#define BBS_SYS_PREFIX          "0:"
+#define BBS_SYS_PREFIX          "//x/:"
 
 #define BBS_40_COL	           39
 #define BBS_22_COL	           21
@@ -37,7 +37,7 @@
 #define BBS_TIMEOUT_SEC       600
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
-#define BBS_BANNER_BUFFER    1024
+#define BBS_BANNER_BUFFER    2048
 
 #define BBS_PET40_SUFFIX       "-c"
 #define BBS_PET22_SUFFIX       "-v"
@@ -83,16 +83,37 @@
 #define poke(A,X) (*(unsigned char *)A) = (X)
 #define peek(A) (*(unsigned char *)A)
 
-/*
+
 typedef struct {
-  unsigned char board_no;  
+  char  board_name[40];
+  short telnet_port;
   unsigned char max_boards;
-  unsigned short board_max;
-  unsigned short board_ptr;
-  unsigned char access_req;
-  char  board_name[20];
-} BBS_BOARD_REC;
+  
+  unsigned char subs_device;
+  char subs_prefix[10];
+
+  unsigned char sys_device;
+  char sys_prefix[10];
+
+  unsigned char user_device;
+  char user_prefix[10];
+
+/*
+#define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
+#define BBS_TELNET_PORT      6400
+
+#define BBS_MAX_BOARDS          8
+#define BBS_MAX_MSGLINES        20
+
+#define BBS_SUBS_DEVICE         8
+#define BBS_SUBS_PREFIX         "//s/:"
+
+#define BBS_SYS_DEVICE          8
+#define BBS_SYS_PREFIX          "//x/:"
 */
+
+} BBS_BOARD_REC;
+
 
 typedef struct {
   short msg_id[BBS_MAX_BOARDS+1];
@@ -100,13 +121,17 @@ typedef struct {
   char bbs_sysop[20];*/
 } BBS_CONFIG_REC;
 
-typedef struct {
-//  unsigned short user_no;  
+typedef struct {  
   char  user_name[12];
   char  user_pwd[20];
-  short msg_id[BBS_MAX_BOARDS+1];
-//  unsigned char  access_req;
+  unsigned char  access_req;
 } BBS_USER_REC;
+
+typedef struct {
+  short num_calls;
+  int last_call;
+  short msg_id[BBS_MAX_BOARDS+1];
+} BBS_USER_STATS;
 
 typedef struct {
   unsigned char status;

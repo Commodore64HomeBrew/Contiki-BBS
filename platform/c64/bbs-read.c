@@ -49,7 +49,7 @@ PROCESS_THREAD(bbs_read_process, ev, data)
   bbs_status.current_msg[bbs_status.board_id] = num;
 
   if(num>0 && num <= bbs_config.msg_id[bbs_status.board_id]){
-    sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
+    sprintf(file.szFileName, "%s%d-%d", BBS_SUBS_PREFIX, bbs_status.board_id, num);
 
 	set_prompt();
     bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE,1);
@@ -113,7 +113,7 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
 
 	++bbs_status.current_msg[bbs_status.board_id];
 
-    sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
+    sprintf(file.szFileName, "%s%d-%d", BBS_SUBS_PREFIX,bbs_status.board_id, num);
 
     shell_output_str(NULL,PETSCII_LOWER, "");
     shell_output_str(NULL,PETSCII_WHITE, "");
@@ -122,6 +122,7 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
 	bbs_status.status=STATUS_READ;
     bbs_banner(file.szFileName, "", BBS_SUBS_DEVICE,1);
   }
+  log_message("[debug] file: ", file.szFileName);
 
   bbs_status.status=STATUS_LOCK;
 
