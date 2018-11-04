@@ -26,7 +26,8 @@ int shell_event_input;
 static struct process *front_process;
 static unsigned long time_offset;
 /*static struct etimer bbs_login_timer;*/
- 
+
+BBS_BOARD_REC board;
 BBS_CONFIG_REC bbs_config;
 BBS_STATUS_REC bbs_status;
 BBS_USER_REC bbs_user;
@@ -100,18 +101,35 @@ static void bbs_init(void)
   unsigned short i;
 
 
+
+sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
+board.telnet_port = 6400;
+board.max_boards = 8;
+
+board.subs_device = 8;
+sprintf(board.subs_prefix, "//s/");
+
+board.sys_device = 8;
+sprintf(board.sys_prefix, "//x/");
+
+
+
+
+
+
+
   /* read BBS base configuration */
-  fsize=bbs_filesize(BBS_CFG_FILE, BBS_SUBS_DEVICE);
+  fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
 
   if (fsize == 0) {
      log_message("[bbs] ", "config file not found, using defaults");
      /* set sub msg counts */
-     for (i=0; i<=BBS_MAX_BOARDS; i++) {
+     for (i=0; i<=board.max_boards; i++) {
           bbs_config.msg_id[1]=0;
      }
   }
   else{
-    siRet = cbm_open(10, BBS_SUBS_DEVICE, 10, BBS_CFG_FILE);
+    siRet = cbm_open(10, board.sys_device, 10, BBS_CFG_FILE);
     if (! siRet) {
       log_message("[bbs] ", "config loaded from file");
       cbm_read(10, &bbs_config, 2);
@@ -126,7 +144,7 @@ static void bbs_init(void)
 
   siRet = em_load_driver (BBS_EMD_FILE);
 
-  em_load(BBS_BANNER_LOGIN, "", BBS_SYS_DEVICE,0);
+  em_load(board.sys_prefix, BBS_BANNER_LOGIN, "", board.sys_device, 0);
   
 }
 
@@ -187,11 +205,11 @@ int bbs_get_user(char *data)
   ST_FILE file;
 
   strcpy(file.szFileName, "user.idx");
-  file.ucDeviceNo = BBS_SYS_DEVICE;
+  file.ucDeviceNo = board.sys_device;
   ssReadRELFile(&file, &user_count, sizeof(unsigned short), 1);
 
   strcpy(file.szFileName, "user.dat");
-  file.ucDeviceNo = BBS_SYS_DEVICE;
+  file.ucDeviceNo = board.sys_device;
 
   do {     
        memset(&bbs_user, 0, sizeof(BBS_USER_REC));
@@ -275,7 +293,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               shell_prompt(BBS_ENCODING_STRING);
               break;
             }
-            bbs_banner(BBS_BANNER_LOGIN, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
+            bbs_banner(board.sys_prefix, BBS_BANNER_LOGIN, bbs_status.encoding_suffix, board.sys_device,0);
             shell_prompt("handle: ");
             bbs_status.status=STATUS_HANDLE;
             break;
@@ -309,7 +327,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               bbs_status.status=STATUS_LOCK;
               log_message("[bbs] *login* ", bbs_user.user_name);
 
-              bbs_banner(BBS_BANNER_LOGO, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
+              bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
               //em_out(0);
 
               shell_output_str(NULL, "\r\nlast caller: ", bbs_status.last_caller);
@@ -461,7 +479,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  bbs_banner(BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
+  bbs_banner(board.sys_prefix, BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, board.sys_device,0);
   log_message("[bbs] *logout* ", bbs_user.user_name);
   bbs_unlock();
   log_message("[bbs] *unlock2* ", "");
@@ -874,7 +892,7 @@ shell_start(void)
   } else {
     bbs_locked=1;
 
-    shell_output_str(NULL, PETSCII_LOWER, BBS_NAME);
+    shell_output_str(NULL, PETSCII_LOWER, board.board_name);
 
     shell_prompt(BBS_ENCODING_STRING);
 

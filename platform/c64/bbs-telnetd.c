@@ -41,6 +41,7 @@
 #include "bbs-defs.h"
 #include "bbs-telnetd.h"
 
+extern BBS_BOARD_REC board;
 extern BBS_STATUS_REC bbs_status;
 
 PROCESS(telnetd_process, "Telnet server");
@@ -213,7 +214,7 @@ PROCESS_THREAD(telnetd_process, ev, data)
 
   if(bbs_status.encoding==1){petsciiconv_toascii(telnetd_reject_text, strlen(telnetd_reject_text));}
 
-  tcp_listen(UIP_HTONS(BBS_TELNET_PORT));
+  tcp_listen(UIP_HTONS(board.telnet_port));
 
   while(1) {
     PROCESS_WAIT_EVENT();

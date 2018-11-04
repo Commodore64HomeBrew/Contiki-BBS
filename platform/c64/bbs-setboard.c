@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern BBS_BOARD_REC board;
 extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
 //extern BBS_USER_REC bbs_user;
@@ -27,7 +28,7 @@ void bbs_sub_banner(void)
   unsigned char file[12];
 
   sprintf(file, "%s%d",BBS_PREFIX_SUB,bbs_status.board_id);
-  bbs_banner(file, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
+  bbs_banner(board.sys_prefix, file, bbs_status.encoding_suffix, board.sys_device,0);
   sprintf(message, "\n\rtotal msgs: %d\n\n", bbs_config.msg_id[bbs_status.board_id]);
   shell_output_str(NULL, message, "");
 }
@@ -48,21 +49,21 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
 
   PROCESS_BEGIN();
 
-  bbs_banner(BBS_BANNER_SUBS, bbs_status.encoding_suffix, BBS_SYS_DEVICE,0);
+  bbs_banner(board.sys_prefix, BBS_BANNER_SUBS, bbs_status.encoding_suffix, board.sys_device, 0);
   /*memset(szBuff, 0, sizeof(szBuff));
   sprintf(szBuff, "(%s (%d, acl: %d) Choose board # (1-%d, 0=quit)? ", board.board_name, board.board_no, board.access_req, board.max_boards);
   shell_prompt(szBuff);
   */
 
   shell_output_str(NULL,"", PETSCII_WHITE);
-  sprintf(message, "\n\rselect board (1-%d):", BBS_MAX_BOARDS);
+  sprintf(message, "\n\rselect board (1-%d):", board.max_boards);
 
   shell_prompt(message);
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
 
-  if(num>0 && num <=BBS_MAX_BOARDS){
+  if(num>0 && num <=board.max_boards){
 
     bbs_status.board_id = num;
     shell_output_str(NULL, PETSCII_CLRSCN, "");
@@ -115,7 +116,7 @@ PROCESS_THREAD(bbs_nextboard_process, ev, data)
 {
   PROCESS_BEGIN();
 
-  if(bbs_status.board_id < BBS_MAX_BOARDS){
+  if(bbs_status.board_id < board.max_boards){
 
     ++bbs_status.board_id;
 

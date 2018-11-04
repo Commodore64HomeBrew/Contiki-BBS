@@ -13,8 +13,6 @@
 //#define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
 #define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\r\n\r>  "
 
-#define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
-#define BBS_TELNET_PORT      6400
 
 #define BBS_LOCKMODE_OFF        0
 #define BBS_LOCKMODE_ON         1
@@ -25,19 +23,13 @@
 #define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        20
 
-#define BBS_SUBS_DEVICE         8
-#define BBS_SUBS_PREFIX         "//s/:"
-
-#define BBS_SYS_DEVICE          8
-#define BBS_SYS_PREFIX          "//x/:"
-
 #define BBS_40_COL	           39
 #define BBS_22_COL	           21
 #define BBS_LINE_WIDTH         40
 #define BBS_TIMEOUT_SEC       600
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
-#define BBS_BANNER_BUFFER    2048
+#define BBS_BANNER_BUFFER    1024
 
 #define BBS_PET40_SUFFIX       "-c"
 #define BBS_PET22_SUFFIX       "-v"
@@ -99,17 +91,17 @@ typedef struct {
   char user_prefix[10];
 
 /*
-#define BBS_NAME "\n\r     CENTRONIAN BBS\n\r"
-#define BBS_TELNET_PORT      6400
+#define board.board_name "\n\r     CENTRONIAN BBS\n\r"
+#define board.telnet_port      6400
 
-#define BBS_MAX_BOARDS          8
+#define board.max_boards          8
 #define BBS_MAX_MSGLINES        20
 
-#define BBS_SUBS_DEVICE         8
-#define BBS_SUBS_PREFIX         "//s/:"
+#define board.subs_device         8
+#define board.subs_prefix         "//s/:"
 
-#define BBS_SYS_DEVICE          8
-#define BBS_SYS_PREFIX          "//x/:"
+#define board.sys_device          8
+#define board.sys_prefix          "//x/:"
 */
 
 } BBS_BOARD_REC;

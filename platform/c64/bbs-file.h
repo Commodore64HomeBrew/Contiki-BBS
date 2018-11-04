@@ -30,9 +30,9 @@ typedef struct
 	char szFileName[MAX_FILENAME];
 	unsigned char ucDeviceNo;
 } ST_FILE;
-short bbs_filesize(char *filename, unsigned char device);
-void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap);
-void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned short file_num);
+short bbs_filesize(char *prefix, char *filename, unsigned char device);
+void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap);
+void em_load(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned short file_num);
 void em_out(unsigned short file_num);
 
 //int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize);

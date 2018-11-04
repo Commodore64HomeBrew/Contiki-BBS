@@ -19,34 +19,48 @@ BBS_EM_REC bbs_em;
 extern BBS_STATUS_REC bbs_status;
 
 /*---------------------------------------------------------------------------*/
-short bbs_filesize(char *filename, unsigned char device)
+short bbs_filesize(char *prefix, char *filename, unsigned char device)
 {
     struct cbm_dirent dirent;
     unsigned short fsize=0;
+    char dir[12];
+
+    sprintf(dir,"cd%s",prefix);
+
+    cbm_open(1, device, 15, dir);
+    cbm_close(1);
 
     if (cbm_opendir(1, device)==0) {
+    //if (cbm_opendir(1, device, "$//s/")==0) {
         while (!cbm_readdir(1, &dirent))
             if (strstr(dirent.name, filename)) 
                fsize=dirent.size;
         cbm_closedir(1);
     }
+    cbm_open(1, device, 15, "cd//");
+    cbm_close(1);
+
     return fsize*256; /* one block is 256 bytes */
 }
 
 /*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
+void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
 {
   unsigned char *buffer;
   unsigned short fsize=0, siRet=0, len=0;
   unsigned short i=0, j=0, col, preCol;
   unsigned short width;
-  unsigned char file[15];
+  unsigned char file[25];
 
-  sprintf(file, "%s%s",szBannerFile,fileSuffix);
+  sprintf(file, "%s%s",szBannerFile, fileSuffix);
+  //log_message("[debug] file banner: ", file);
 
   //log_message("[debug] ", file);
 
-  fsize=bbs_filesize(file, device);
+  fsize=bbs_filesize(filePrefix, file, device);
+  
+  sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
+  //log_message("[debug] file banner2: ", file);
 
   if (fsize == 0) {
     shell_output_str(NULL, "", "error: file size\n\r");
@@ -115,7 +129,7 @@ void bbs_banner(unsigned char szBannerFile[12], unsigned char fileSuffix[3], uns
 
 /*---------------------------------------------------------------------------*/
 
-void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned short file_num) 
+void em_load(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned short file_num) 
 {
   unsigned char *buffer;
   unsigned short fsize=0;
@@ -132,7 +146,7 @@ void em_load(unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsign
 
   log_message("[bbs] em loaded: ", file);
 
-  fsize=bbs_filesize(file, device);
+  fsize=bbs_filesize(filePrefix, file, device);
 
   buffer = (char*) malloc(fsize);
 

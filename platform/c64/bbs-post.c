@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern BBS_BOARD_REC board;
 extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
@@ -38,7 +39,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	/* read board data */
 	/*  if (disk_access) {
 	 strcpy(file.szFileName, BBS_BOARDCFG_FILE);
-	 file.ucDeviceNo=BBS_SYS_DEVICE;
+	 file.ucDeviceNo=board.sys_device;
 	 ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.board_id);
 	 disk_access=0;
 	}
@@ -49,9 +50,10 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 	shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
 	shell_output_str(&bbs_post_command, "on empty line: /a=abort /s=save\r\n", "");
-	shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
+	//shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
+	printf("%-*i", bbs_status.width, 0);
 
-	sprintf(bbs_logbuf,"\x92\n\rmsg from: %s\n\r\x05\n\r", bbs_user.user_name);
+	sprintf(bbs_logbuf,"\r\n\x92\n\rmsg from: %s\n\r\x05\n\r", bbs_user.user_name);
 
 	bbs_status.status=STATUS_POST;
 	bbs_status.msg_size=30;
@@ -73,11 +75,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			/* write post */
 			++bbs_config.msg_id[bbs_status.board_id];
 
-			sprintf(file.szFileName, "%s%d-%d", BBS_SUBS_PREFIX, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
+			sprintf(file.szFileName, "%s:%d-%d", board.subs_prefix, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
+
+			log_message("[debug] file postmsg: ", file.szFileName);
 
 			/* Save the post to file */
 		
-			cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_logbuf, bbs_status.msg_size);
+			cbm_save (file.szFileName, board.subs_device, &bbs_logbuf, bbs_status.msg_size);
 
 			log_message("[bbs] *post* ", bbs_logbuf);
 
@@ -86,8 +90,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 
 			/* Save the msg count struct to disk */
-			sprintf(file.szFileName, "@0:%s", BBS_CFG_FILE);
-			cbm_save (file.szFileName, BBS_SUBS_DEVICE, &bbs_config, sizeof(bbs_config));
+			sprintf(file.szFileName, "@%s:%s", board.sys_prefix, BBS_CFG_FILE);
+			cbm_save (file.szFileName, board.sys_device, &bbs_config, sizeof(bbs_config));
 
 			memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
 			//linecount=0;
