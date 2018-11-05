@@ -36,6 +36,8 @@
 #define BBS_ASCII_SUFFIX       "-a"
 //#define BBS_BASH_SUFFIX       "-b"
 #define BBS_PREFIX_SUB         "s-"
+#define BBS_PREFIX_USER        "u-"
+
 
 #define BBS_BANNER_LOGIN       "login"
 #define BBS_BANNER_LOGOUT      "logout"
@@ -50,15 +52,18 @@
 
 //#define BBS_STRING_BOARDINFO "-id- -------board------- -acl- -msgs-"
 //#define BBS_STRING_LINEMAX "  enter message (max. 40 chars per line)"
-#define BBS_STRING_EDITHDR "---------+---------+---------+---------+" 
+#define BBS_STRING_EDITH40 "---------+---------+---------+---------+"
+#define BBS_STRING_EDITH22 "----------+----------+"
+
 #define BBS_STRING_VERSION "0.3.0"
 
-#define STATUS_UNLOCK   0
+#define STATUS_UNLOCK 0
 #define STATUS_HANDLE	1
 #define STATUS_PASSWD	2
-#define STATUS_LOCK		3
-#define STATUS_POST		4
-#define STATUS_READ		5
+#define STATUS_NEWUSR 3
+#define STATUS_LOCK		4
+#define STATUS_POST		5
+#define STATUS_READ		6
 
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_CLRSCN          "\x93"
@@ -89,20 +94,6 @@ typedef struct {
 
   unsigned char user_device;
   char user_prefix[10];
-
-/*
-#define board.board_name "\n\r     CENTRONIAN BBS\n\r"
-#define board.telnet_port      6400
-
-#define board.max_boards          8
-#define BBS_MAX_MSGLINES        20
-
-#define board.subs_device         8
-#define board.subs_prefix         "//s/:"
-
-#define board.sys_device          8
-#define board.sys_prefix          "//x/:"
-*/
 
 } BBS_BOARD_REC;
 

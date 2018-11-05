@@ -50,8 +50,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 	shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
 	shell_output_str(&bbs_post_command, "on empty line: /a=abort /s=save\r\n", "");
-	//shell_output_str(&bbs_post_command, BBS_STRING_EDITHDR, "");
-	printf("%-*i", bbs_status.width, 0);
+	
+	if ( bbs_status.width == BBS_22_COL) {
+		shell_output_str(&bbs_post_command, BBS_STRING_EDITH22, "");
+	}
+	else {
+		shell_output_str(&bbs_post_command, BBS_STRING_EDITH40, "");
+	}
 
 	sprintf(bbs_logbuf,"\r\n\x92\n\rmsg from: %s\n\r\x05\n\r", bbs_user.user_name);
 
