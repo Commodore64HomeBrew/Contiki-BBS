@@ -103,22 +103,21 @@ static void bbs_init(void)
 
 
 
-sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
-board.telnet_port = 6400;
-board.max_boards = 8;
+  sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
+  board.telnet_port = 6400;
+  board.max_boards = 8;
 
-board.subs_device = 8;
-sprintf(board.subs_prefix, "//s/");
+  board.subs_device = 8;
+  sprintf(board.subs_prefix, "//s/");
 
-board.sys_device = 8;
-sprintf(board.sys_prefix, "//x/");
+  board.sys_device = 8;
+  sprintf(board.sys_prefix, "//x/");
 
-
+  board.user_device = 8;
+  sprintf(board.user_prefix, "//u/");
 
 
   sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
-
-
 
   /* read BBS base configuration */
   fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
@@ -185,18 +184,18 @@ void bbs_unlock(void)
   shell_exit();
 }
 /*---------------------------------------------------------------------------*/
-int bbs_get_user(char *user_name)
+int bbs_get_user(char *data)
 {
 	unsigned short fsize=0;
 	unsigned short siRet=0;
 	unsigned char file[25];
 	
-	strcpy(bbs_user.user_name, user_name);
+	strcpy(bbs_user.user_name, data);
 
-  	sprintf(file, "%s:%s%s",board.user_prefix, BBS_PREFIX_USER, bbs_user.user_name);
+  sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
+  log_message("[debug] user file: ", file);
 
-	/* read BBS base configuration */
-	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+	fsize=bbs_filesize(board.user_prefix, data, board.user_device);
 
 	if (fsize == 0) {
 	 log_message("[bbs] user not found: ", bbs_user.user_name);
@@ -215,52 +214,21 @@ int bbs_get_user(char *user_name)
 		return 0;
 	}
 
-
-
-
-  
-  /*int user_count,count=1;
-  ST_FILE file;
-
-  strcpy(file.szFileName, "user.idx");
-  file.ucDeviceNo = board.sys_device;
-  ssReadRELFile(&file, &user_count, sizeof(unsigned short), 1);
-
-  strcpy(file.szFileName, "user.dat");
-  file.ucDeviceNo = board.sys_device;
-
-  do {     
-       memset(&bbs_user, 0, sizeof(BBS_USER_REC));
-       ssReadRELFile(&file, &bbs_user, sizeof(BBS_USER_REC), count);
-
-       if (! strcmp(bbs_user.user_name, data)) {
-          return count;
-       }
-
-       count++;
-  } while (count <= user_count); 
-
-  return 0;
-*/
-  	//strcpy(bbs_user.user_name, data);
-
 	return 0;
 
 }
 
 /*---------------------------------------------------------------------------*/
-int bbs_new_user(char *password)
+int bbs_new_user(char *data)
 {
 	unsigned char file[25];
 
-	strcpy(bbs_user.user_pwd, password);
+	strcpy(bbs_user.user_pwd, data);
 	bbs_user.access_req = 1;
 
-  	sprintf(file, "%s:%s%s",board.user_prefix, BBS_PREFIX_USER, bbs_user.user_name);
+  sprintf(file, "%s:u-%s",board.user_prefix, bbs_user.user_name);
 
-	log_message("[debug] file postmsg: ", file);
-
-			/* Save the post to file */
+	log_message("[debug] new user file: ", file);
 		
 	cbm_save (file, board.user_device, &bbs_user, sizeof(bbs_user));
 
@@ -291,7 +259,7 @@ void bbs_login()
 PROCESS_THREAD(bbs_login_process, ev, data)
 {
   struct shell_input *input;
-  unsigned char return_code;
+  int return_code;
 
   PROCESS_BEGIN();
 
@@ -360,30 +328,31 @@ PROCESS_THREAD(bbs_login_process, ev, data)
           }
 
           case STATUS_HANDLE: {
-	        /*if((int)strlen(input->data1)>12){
-				shell_output_str(NULL, "\r\nhandle can't be longer than 12 characters\n\r", "");
-				shell_prompt("handle: ");
-				bbs_status.status=STATUS_HANDLE;
-				break;
-	        }
-			*/
-			return_code = bbs_get_user(input->data1);
-			if ( return_code == 1 ) {
-			    shell_prompt("password: ");
-			    bbs_status.status=STATUS_PASSWD;
-			}
-			else if ( return_code == 2 ) {
-				shell_prompt("new user. please enter a password.\n\r");
-			    shell_prompt("password: ");
-			    bbs_status.status=STATUS_NEWUSR;
-			}
-			else {
-			  shell_output_str(&bbs_login_command, "login failed.", "");
-			  bbs_status.status=STATUS_UNLOCK;
-			  bbs_unlock();
-			  log_message("[bbs] *unlock1* ", "");
-			}
-			break;
+            if((int)strlen(input->data1)>12){
+              shell_output_str(NULL, "\r\nhandle can't be longer than 12 characters\n\r", "");
+              shell_prompt("handle: ");
+              bbs_status.status=STATUS_HANDLE;
+              break;
+            }
+    			 
+      			return_code = bbs_get_user(input->data1);
+            //return_code=1;
+      			if ( return_code == 1 ) {
+      			    shell_prompt("password: ");
+      			    bbs_status.status=STATUS_PASSWD;
+      			}
+      			else if ( return_code == 2 ) {
+                shell_output_str(NULL,"\n\rnew user.\n\rplease enter a password.\n\r\n\r" , "");
+      			    shell_prompt("password: ");
+      			    bbs_status.status=STATUS_NEWUSR;
+      			}
+      			else {
+      			  shell_output_str(&bbs_login_command, "login failed.", "");
+      			  bbs_status.status=STATUS_UNLOCK;
+      			  bbs_unlock();
+      			  log_message("[bbs] *unlock1* ", "");
+      			}
+      			break;
           }
 
           case STATUS_PASSWD: {
