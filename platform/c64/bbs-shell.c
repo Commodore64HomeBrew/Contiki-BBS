@@ -124,11 +124,21 @@ static void bbs_init(void)
   fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
 
   if (fsize == 0) {
-     log_message("[bbs] ", "config file not found, using defaults");
-     /* set sub msg counts */
-     for (i=0; i<=board.max_boards; i++) {
-          bbs_config.msg_id[1]=0;
-     }
+    log_message("[bbs] ", "config file not found, using defaults");
+    /* set sub msg counts */
+	bbs_config.msg_id[1]=1611;
+	bbs_config.msg_id[2]=140;
+	bbs_config.msg_id[3]=117;
+	bbs_config.msg_id[4]=536;
+	bbs_config.msg_id[5]=370;
+	bbs_config.msg_id[6]=139;
+	bbs_config.msg_id[7]=160;
+	bbs_config.msg_id[8]=29;
+
+
+	/*for (i=0; i<=board.max_boards; i++) {
+	  bbs_config.msg_id[1]=0;
+	}*/
   }
   else{
     siRet = cbm_open(10, board.sys_device, 10, file);
@@ -138,7 +148,9 @@ static void bbs_init(void)
       cbm_read(10, &bbs_config, sizeof(bbs_config));
       cbm_close(10);
     }
-    else{log_message("[bbs] ", "config file error");}
+    else{
+    	log_message("[bbs] ", "config file error");
+    }
   }
 
   bbs_defaults();
@@ -223,6 +235,7 @@ int bbs_get_user(char *data)
 /*---------------------------------------------------------------------------*/
 int bbs_new_user(char *data)
 {
+	unsigned char i;
 	unsigned char file[25];
 
 	strcpy(bbs_user.user_pwd, data);
@@ -233,6 +246,12 @@ int bbs_new_user(char *data)
 	log_message("[debug] new user file: ", file);
 		
 	cbm_save (file, board.user_device, &bbs_user, sizeof(bbs_user));
+
+	for (i=0; i<=board.max_boards; i++) {
+	  bbs_usrstats.current_msg[i]=0;
+	}
+
+
 
 	return 1;
 }
@@ -351,7 +370,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               break;
             }
             bbs_banner(board.sys_prefix, BBS_BANNER_LOGIN, bbs_status.encoding_suffix, board.sys_device,0);
-            shell_prompt("handle: ");
+            shell_prompt("\n\rhandle: ");
             bbs_status.status=STATUS_HANDLE;
             break;
           }
@@ -359,7 +378,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
           case STATUS_HANDLE: {
             if((int)strlen(input->data1)>12){
               shell_output_str(NULL, "\r\nhandle can't be longer than 12 characters\n\r", "");
-              shell_prompt("handle: ");
+              shell_prompt("\n\rhandle: ");
               bbs_status.status=STATUS_HANDLE;
               break;
             }
@@ -367,12 +386,12 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       			return_code = bbs_get_user(input->data1);
             //return_code=1;
       			if ( return_code == 1 ) {
-      			    shell_prompt("password: ");
+      			    shell_prompt("\n\rpassword: ");
       			    bbs_status.status=STATUS_PASSWD;
       			}
       			else if ( return_code == 2 ) {
                 shell_output_str(NULL,"\n\rnew user.\n\rplease enter a password.\n\r\n\r" , "");
-      			    shell_prompt("password: ");
+      			    shell_prompt("\n\rpassword: ");
       			    bbs_status.status=STATUS_NEWUSR;
       			}
       			else {

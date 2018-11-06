@@ -33,6 +33,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	struct shell_input *input;
 	//static char bbs_logbuf[BBS_MAX_MSGLINES*BBS_LINE_WIDTH];
 	char bbs_logbuf[1024];
+
 	ST_FILE file;
 	//BBS_BOARD_REC board;
 
@@ -80,7 +81,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			/* write post */
 			++bbs_config.msg_id[bbs_status.board_id];
 
-			sprintf(file.szFileName, "%s:%d-%d", board.subs_prefix, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
+			sprintf(file.szFileName, "%s%d:%d-%d", board.subs_prefix, bbs_status.board_id, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
 			log_message("[debug] file postmsg: ", file.szFileName);
 

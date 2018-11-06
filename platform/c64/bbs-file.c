@@ -31,7 +31,6 @@ short bbs_filesize(char *prefix, char *filename, unsigned char device)
     cbm_close(1);
 
     if (cbm_opendir(1, device)==0) {
-    //if (cbm_opendir(1, device, "$//s/")==0) {
         while (!cbm_readdir(1, &dirent))
             if (strstr(dirent.name, filename)) 
                fsize=dirent.size;
@@ -40,25 +39,31 @@ short bbs_filesize(char *prefix, char *filename, unsigned char device)
     cbm_open(1, device, 15, "cd//");
     cbm_close(1);
 
-    return fsize*256; /* one block is 256 bytes */
+    return fsize*256; 
 }
 
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
 {
   unsigned char *buffer;
+  //char buffer[BBS_BANNER_BUFFER];
+
   unsigned short fsize=0, siRet=0, len=0;
   unsigned short i=0, j=0, col, preCol;
   unsigned short width;
   unsigned char file[25];
 
   sprintf(file, "%s%s",szBannerFile, fileSuffix);
-  //log_message("[debug] file banner: ", file);
+  log_message("[debug] file banner: ", file);
 
   //log_message("[debug] ", file);
 
-  fsize=bbs_filesize(filePrefix, file, device);
-  
+  //fsize=bbs_filesize(filePrefix, file, device);
+  fsize = BBS_BANNER_BUFFER;
+  sprintf(file, "%d",fsize);
+  log_message("[debug] fsize:", file);
+
+
   sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
   //log_message("[debug] file banner2: ", file);
 
@@ -75,6 +80,11 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
   }
 
   memset(buffer, 0, fsize);
+
+
+  //cbm_load(const char* name, unsigned char device, void* data)
+  //cbm_load(file, device, &buffer);
+
   siRet = cbm_open(10, device, 10, file);
 
   if (! siRet) {
