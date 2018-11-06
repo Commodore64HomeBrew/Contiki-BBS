@@ -193,10 +193,11 @@ int bbs_get_user(char *data)
 	
 	strcpy(bbs_user.user_name, data);
 
-  sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
-  log_message("[debug] user file: ", file);
+	sprintf(file, "u-%s", bbs_user.user_name);
+	log_message("[debug] user file: ", file);
 
-	fsize=bbs_filesize(board.user_prefix, data, board.user_device);
+	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+ 	sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
 
 	if (fsize == 0) {
 	 log_message("[bbs] user not found: ", bbs_user.user_name);
@@ -246,10 +247,11 @@ void bbs_login()
   unsigned short siRet=0;
   unsigned char file[25];
 
-  sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
+  sprintf(file, "s-%s", bbs_user.user_name);
   log_message("[debug] user stats file: ", file);
 
   fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+  sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
 
   if (fsize == 0) {
    log_message("[bbs] file not found: ", file);
