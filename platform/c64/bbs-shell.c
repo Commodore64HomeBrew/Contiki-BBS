@@ -31,6 +31,8 @@ BBS_BOARD_REC board;
 BBS_CONFIG_REC bbs_config;
 BBS_STATUS_REC bbs_status;
 BBS_USER_REC bbs_user;
+BBS_USER_STATS bbs_usrstats;
+
 unsigned short bbs_locked=0;
 
 /*---------------------------------------------------------------------------*/
@@ -68,9 +70,8 @@ void bbs_defaults(void)
 void set_prompt(void) 
 {
 	unsigned short next_msg;
-	next_msg = bbs_status.current_msg[bbs_status.board_id]+1;
+	next_msg = bbs_usrstats.current_msg[bbs_status.board_id]+1;
 
-    //sprintf(bbs_status.prompt, "\x05sub %d, msg %d > ", bbs_status.board_id, bbs_status.current_msg[bbs_status.board_id]);
 	
 	if(next_msg > bbs_config.msg_id[bbs_status.board_id]){
 		if(bbs_status.encoding==0){
@@ -237,6 +238,32 @@ int bbs_new_user(char *data)
 
 void bbs_login()
 {
+  //**********************************************************************
+  //This needs to go in a separate function...
+  //**********************************************************************
+
+  unsigned short fsize=0;
+  unsigned short siRet=0;
+  unsigned char file[25];
+
+  sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
+  log_message("[debug] user stats file: ", file);
+
+  fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+
+  if (fsize == 0) {
+   log_message("[bbs] file not found: ", file);
+  }
+  else{
+    siRet = cbm_open(10, board.user_device, 10, file);
+    if (! siRet) {
+      log_message("[bbs] file loaded: ", file);
+      cbm_read(10, &bbs_usrstats, 2);
+      cbm_read(10, &bbs_usrstats, sizeof(bbs_usrstats));
+      cbm_close(10);
+    }
+  }
+  //**********************************************************************
 	process_exit(&bbs_timer_process);
 	bbs_status.status=STATUS_LOCK;
 	log_message("[bbs] *login* ", bbs_user.user_name);
@@ -502,7 +529,18 @@ PROCESS_THREAD(help_command_process, ev, data)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(shell_exit_process, ev, data)
 {
+  ST_FILE file;
   PROCESS_BEGIN();
+
+  //**********************************************************************
+  //This needs to go in a separate function...
+  //**********************************************************************
+  sprintf(file.szFileName, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
+  log_message("[debug] user stats file: ", file.szFileName);
+
+  cbm_save (file.szFileName, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
+  //**********************************************************************
+
 
   bbs_banner(board.sys_prefix, BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, board.sys_device,0);
   log_message("[bbs] *logout* ", bbs_user.user_name);

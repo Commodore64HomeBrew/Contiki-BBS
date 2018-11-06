@@ -18,6 +18,7 @@
 extern BBS_BOARD_REC board;
 extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
+extern BBS_USER_STATS bbs_usrstats;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(bbs_read_process, "read");
@@ -47,7 +48,7 @@ PROCESS_THREAD(bbs_read_process, ev, data)
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
-  bbs_status.current_msg[bbs_status.board_id] = num;
+  bbs_usrstats.current_msg[bbs_status.board_id] = num;
 
   if(num>0 && num <= bbs_config.msg_id[bbs_status.board_id]){
     sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
@@ -109,11 +110,11 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
 
   PROCESS_BEGIN();
 
-  num = bbs_status.current_msg[bbs_status.board_id]+1;
+  num = bbs_usrstats.current_msg[bbs_status.board_id]+1;
 
   if(num>0 && num <= bbs_config.msg_id[bbs_status.board_id]){
 
-    ++bbs_status.current_msg[bbs_status.board_id];
+    ++bbs_usrstats.current_msg[bbs_status.board_id];
 
     sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
 

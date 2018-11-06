@@ -113,13 +113,13 @@ typedef struct {
 typedef struct {
   short num_calls;
   int last_call;
-  short msg_id[BBS_MAX_BOARDS+1];
+  short current_msg[BBS_MAX_BOARDS+1];
 } BBS_USER_STATS;
 
 typedef struct {
   unsigned char status;
   unsigned char board_id;
-  unsigned char current_msg[BBS_MAX_BOARDS+1];
+  //short current_msg[BBS_MAX_BOARDS+1];
   unsigned char encoding;
   unsigned char echo;
   unsigned char width;
