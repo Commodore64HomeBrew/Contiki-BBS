@@ -316,7 +316,8 @@ get_char(uint8_t c)
 			}
 		}
 		else{	
-			buf_append(&buf, &c, 1);
+			//buf_append(&buf, &c, 1);
+      uip_send(&c,1);
 			++col_num;
 			//memcpy(&s.buf->bufmem[s.buf->ptr], &c, 1);
 			//++s.buf->ptr;
