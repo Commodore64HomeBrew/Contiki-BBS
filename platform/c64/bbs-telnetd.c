@@ -267,8 +267,8 @@ get_char(uint8_t c)
 			if(s.bufptr>0){
 				--s.bufptr;
 				s.buf[(int)s.bufptr] = 0;
-				//buf_append(&buf, &c, 1);
-        uip_send(&c,1);
+				buf_append(&buf, &c, 1);
+        //uip_send(&c,1);
 			}
 			return;	
 		}
@@ -286,10 +286,10 @@ get_char(uint8_t c)
 				if(c==PETSCII_SPACE)
       			{
 					//jump to next line
-					//buf_append(&buf, &c, 1);
-					//buf_append(&buf, &cr, 1);
-          uip_send(&c,1);
-          uip_send(&cr,1);
+					buf_append(&buf, &c, 1);
+					buf_append(&buf, &cr, 1);
+          //uip_send(&c,1);
+          //uip_send(&cr,1);
 					col_num=0;
 				}
 				else
@@ -297,32 +297,32 @@ get_char(uint8_t c)
 					i=(int)s.bufptr;
 					//Erase the word
 					while(s.buf[i]!=PETSCII_SPACE && i>0){
-						//buf_append(&buf, &dl, 1);
-            uip_send(&dl,1);
+						buf_append(&buf, &dl, 1);
+            //uip_send(&dl,1);
 						--i;
 					}
 					++i;
 
 					//Jump to new line
-					//buf_append(&buf, &cr, 1);
-          uip_send(&cr,1);
+					buf_append(&buf, &cr, 1);
+          //uip_send(&cr,1);
 					//Set the column number to match wrapped word
 					col_num=(int)s.bufptr-i;
 
 					//Rewrite the word
 					for(n=i;n<(int)s.bufptr;++n){
-						//buf_append(&buf,&s.buf[n], 1);
-            uip_send(&s.buf[n],1);
+						buf_append(&buf,&s.buf[n], 1);
+            //uip_send(&s.buf[n],1);
 					}
 					//Add the new character to the word.
-					//buf_append(&buf, &c, 1);
-          uip_send(&c,1);
+					buf_append(&buf, &c, 1);
+          //uip_send(&c,1);
 				}
 			}
 		}
 		else{	
-			//buf_append(&buf, &c, 1);
-      uip_send(&c,1);
+			buf_append(&buf, &c, 1);
+      //uip_send(&c,1);
 			++col_num;
 		}
 	}
