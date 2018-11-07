@@ -29,7 +29,7 @@
 #define BBS_TIMEOUT_SEC       600
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
-#define BBS_BANNER_BUFFER    1024
+#define BBS_BANNER_BUFFER    2048
 
 #define BBS_PET40_SUFFIX       "-c"
 #define BBS_PET22_SUFFIX       "-v"

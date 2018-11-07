@@ -56,13 +56,14 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	//process_exit(&bbs_setboard_process);
 
 	shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
-	shell_output_str(&bbs_post_command, "Subject: \r\n", "");
+	//shell_output_str(&bbs_post_command, "Subject: \r\n", "");
 	
+    shell_prompt("\r\nSubject:");
 
 	
 
 	bbs_status.status=STATUS_SUBJ;
-	bbs_status.msg_size=30;
+	//bbs_status.msg_size=30;
 	PROCESS_PAUSE();
 
 	while(1) {
@@ -70,11 +71,14 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 		PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 		input = data;
 
-		if (bbs_status.status=STATUS_SUBJ){
+		if (bbs_status.status==STATUS_SUBJ){
 
-			sprintf(bbs_logbuf,"\r\n\x92\n\rFrom: %s\n\rDate: %s\n\rSubj: %s\x05\n\r", bbs_user.user_name, "Nov 2018", input->data1);
+			sprintf(bbs_logbuf,"\x1c\n\rFrom: \x05%s\x1e\n\rDate: \x05%s\x9e\n\rSubj: \05%s\n\r\n\r", bbs_user.user_name, "Nov 2018", input->data1);
 
-			shell_output_str(&bbs_post_command, "on empty line:\r\n/a=abort /s=save\r\n", "");
+			bbs_status.msg_size = strlen(bbs_logbuf);
+
+
+			shell_output_str(&bbs_post_command, "\r\n\r\nOn empty line:\r\n/a=abort /s=save\r\n", "");
 			if ( bbs_status.width == BBS_22_COL) {
 				shell_output_str(&bbs_post_command, BBS_STRING_EDITH22, "");
 			}

@@ -325,7 +325,6 @@ get_char(uint8_t c)
       uip_send(&c,1);
 			++col_num;
 		}
-
 	}
 
 
