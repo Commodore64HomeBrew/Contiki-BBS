@@ -62,8 +62,9 @@
 #define STATUS_PASSWD	2
 #define STATUS_NEWUSR 3
 #define STATUS_LOCK		4
-#define STATUS_POST		5
-#define STATUS_READ		6
+#define STATUS_SUBJ   5
+#define STATUS_POST		6
+#define STATUS_READ		7
 
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_CLRSCN          "\x93"
@@ -119,7 +120,6 @@ typedef struct {
 typedef struct {
   unsigned char status;
   unsigned char board_id;
-  //short current_msg[BBS_MAX_BOARDS+1];
   unsigned char encoding;
   unsigned char echo;
   unsigned char width;
