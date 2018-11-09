@@ -5,10 +5,9 @@
  *         (c) 2009-2015 by Niels Haedecke <n.haedecke@unitybox.de>
  */
 
-//#include "time.h"
+
 #include "contiki.h"
 #include "bbs-shell.h"
-
 #include "bbs-post.h"
 
 #include <stdio.h>
@@ -19,19 +18,9 @@ extern BBS_BOARD_REC board;
 extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
-/*
-const char * current_time(void)
-{
-    time_t mytime = time(NULL);
-    char * time_str = ctime(&mytime);
-    time_str[strlen(time_str)-1] = '\0';
+extern BBS_TIME_REC bbs_time;
+ 
 
-    return time_str;
-}
-*/
-
-
-/*extern char bbs_logbuf[BBS_MAX_MSGLINES][BBS_LINE_WIDTH];*/
 
 PROCESS(bbs_post_process, "write");
 SHELL_COMMAND(bbs_post_command, "w", "w : write a new message", &bbs_post_process);
@@ -54,7 +43,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 	//process_exit(&bbs_read_process);
 	//process_exit(&bbs_setboard_process);
-
+	if (bbs_status.echo==2){bbs_status.echo==1;}
+	
 	shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
 	//shell_output_str(&bbs_post_command, "Subject: \r\n", "");
 	
@@ -72,13 +62,16 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 		input = data;
 
 		if (bbs_status.status==STATUS_SUBJ){
-
-			sprintf(bbs_logbuf,"\x1c\n\rFrom: \x05%s\x1e\n\rDate: \x05%s\x9e\n\rSubj: \05%s\n\r\n\r", bbs_user.user_name, "Nov 2018", input->data1);
+			update_time();
+			sprintf(bbs_logbuf,"\x1c\n\rFrom: \x05%s\x1e\n\rDate: \x05%d-%d-%d\x9e\n\rSubj: \05%s\n\r\n\r", bbs_user.user_name, bbs_time.day, bbs_time.month, bbs_time.year , input->data1);
 
 			bbs_status.msg_size = strlen(bbs_logbuf);
 
 
 			shell_output_str(&bbs_post_command, "\r\n\r\nOn empty line:\r\n/a=abort /s=save\r\n", "");
+			if (bbs_status.echo>0){
+				shell_output_str(&bbs_post_command, "/r=raw toggle (ctrl chars)\r\n", "");
+			}
 			if ( bbs_status.width == BBS_22_COL) {
 				shell_output_str(&bbs_post_command, BBS_STRING_EDITH22, "");
 			}
@@ -87,6 +80,18 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			}
 
 			bbs_status.status=STATUS_POST;
+		}
+
+
+		else if (! strcmp(input->data1, "/r") ) {
+			if (bbs_status.echo==1){
+				bbs_status.echo=2;
+				shell_output_str(&bbs_post_command, "\r\nraw mode enabled (ctrl chars allowed)\r\n", "");
+			}
+			else if (bbs_status.echo==2){
+				bbs_status.echo=1;
+				shell_output_str(&bbs_post_command, "\r\nraw mode disabled\r\n", "");
+			}
 		}
 
 
@@ -145,6 +150,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 	//bbs_setboard_init();
 	//bbs_read_init();
+	if (bbs_status.echo==2){bbs_status.echo==1;}
 
 	PROCESS_END();
 }

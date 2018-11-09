@@ -55,7 +55,7 @@
 #define BBS_STRING_EDITH40 "---------+---------+---------+---------+"
 #define BBS_STRING_EDITH22 "----------+----------+"
 
-#define BBS_STRING_VERSION "0.3.0"
+#define BBS_STRING_VERSION "0.1.0"
 
 #define STATUS_UNLOCK 0
 #define STATUS_HANDLE	1
@@ -67,7 +67,6 @@
 #define STATUS_READ		7
 
 #define PETSCII_LOWER           "\x0e"
-#define PETSCII_CLRSCN          "\x93"
 #define PETSCII_WHITE           "\x05"
 #define ISO_nl       	0x0a
 #define ISO_cr       	0x0d
@@ -77,6 +76,8 @@
 #define PETSCII_LEFT 	0x9d
 #define PETSCII_RIGHT 	0x1d
 #define PETSCII_SPACE 	0x20
+#define PETSCII_CLRSCN  0x93
+#define PETSCII_HOME  0x13 
 
 #define poke(A,X) (*(unsigned char *)A) = (X)
 #define peek(A) (*(unsigned char *)A)
@@ -86,23 +87,18 @@ typedef struct {
   char  board_name[40];
   short telnet_port;
   unsigned char max_boards;
-  
   unsigned char subs_device;
   char subs_prefix[10];
-
   unsigned char sys_device;
   char sys_prefix[10];
-
   unsigned char user_device;
   char user_prefix[10];
-
+  char sub_names[8][20];
 } BBS_BOARD_REC;
 
 
 typedef struct {
   short msg_id[BBS_MAX_BOARDS+1];
-  /*char bbs_name[20];
-  char bbs_sysop[20];*/
 } BBS_CONFIG_REC;
 
 typedef struct {  
@@ -128,6 +124,15 @@ typedef struct {
   char prompt[40];
   char encoding_suffix[3];
 } BBS_STATUS_REC;
+
+typedef struct {
+  unsigned char year;
+  unsigned char month;
+  unsigned char day;
+  unsigned char hour;
+  unsigned char minute;
+} BBS_TIME_REC;
+
 
 typedef struct {
   short file[10][2];

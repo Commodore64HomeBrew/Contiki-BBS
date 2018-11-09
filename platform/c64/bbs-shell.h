@@ -86,6 +86,11 @@ struct shell_command {
   struct shell_command *child;
 };
 
+
+void update_time(void);
+
+
+
 void set_prompt(void);
 
 

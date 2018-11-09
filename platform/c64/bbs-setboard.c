@@ -19,7 +19,7 @@
 extern BBS_BOARD_REC board;
 extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
-//extern BBS_USER_REC bbs_user;
+extern BBS_USER_STATS bbs_usrstats;
 
 
 void bbs_sub_banner(void)
@@ -55,6 +55,13 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   shell_prompt(szBuff);
   */
 
+  for (num=1; num<BBS_MAX_BOARDS;num++){
+    sprintf(message, "%s --> %d", board.sub_names[num], bbs_config.msg_id[num] - bbs_usrstats.current_msg[num]);
+    shell_output_str(NULL,PETSCII_WHITE, message);
+  }
+
+
+
   shell_output_str(NULL,"", PETSCII_WHITE);
   sprintf(message, "\n\rselect board (1-%d):", board.max_boards);
 
@@ -66,9 +73,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   if(num>0 && num <=board.max_boards){
 
     bbs_status.board_id = num;
-    shell_output_str(NULL, PETSCII_CLRSCN, "");
-
-	set_prompt();
+    set_prompt();
     bbs_sub_banner();
   }
 

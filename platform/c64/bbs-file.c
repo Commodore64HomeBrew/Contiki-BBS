@@ -138,7 +138,7 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
 
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void em_load(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned short file_num) 
 {
   unsigned char *buffer;
@@ -175,23 +175,23 @@ void em_load(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsig
   //+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	PageCount = em_pagecount ();
-    /* Fill all pages */
+    // Fill all pages 
   n=0;
 	I=0;
     //for (I = 0; I < PageCount; ++I) {
 	bbs_em.file[0][0] = I;	
 	while (n<fsize && I < PageCount){
 		++I;
-    	/* Set the next page: */
+    	// Set the next page:
 		page = em_use (I);
 
 
-        /* Copy the buffer to em one page at a time: */
+        // Copy the buffer to em one page at a time:
 
 	    for (i = 0; i < PAGE_SIZE; ++i, ++page, ++n) {
 	        *page = buffer[n];
 	    }
-	    /* Now commit the page to extended memory: */
+	    //Now commit the page to extended memory: 
         em_commit ();
     }
 
@@ -200,8 +200,9 @@ void em_load(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsig
 	if (buffer != NULL)
 	 free(buffer);
 }
-
+*/
 /*---------------------------------------------------------------------------*/
+/*
 void em_out(unsigned short file_num)
 {
 
@@ -217,7 +218,7 @@ void em_out(unsigned short file_num)
 
   if(bbs_em.file[file_num][1] <= PageCount){
     n=0;
-    /* Check all pages */
+    // Check all pages
     for (I = bbs_em.file[file_num][0]; I <= bbs_em.file[file_num][1]; ++I) {
 
         em_buf = em_map(I);
@@ -228,7 +229,7 @@ void em_out(unsigned short file_num)
           buffer[n] = *em_buf;
         }
 
-        /* Get the buffer and compare it */
+        // Get the buffer and compare it
         //cmp (I, em_map (I), PAGE_SIZE, I);
 
     }
@@ -236,7 +237,7 @@ void em_out(unsigned short file_num)
   shell_output_str(NULL, "\n\r", buffer);
 }
 
-
+*/
 /*---------------------------------------------------------------------------*/
 
 /*int ssWriteSEQFile(ST_FILE *pstFile, short ssMode, void *pvBuffer, unsigned int uiBuffSize)

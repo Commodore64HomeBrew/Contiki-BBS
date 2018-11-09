@@ -24,7 +24,7 @@ LIST(commands);
 
 int shell_event_input;
 static struct process *front_process;
-static unsigned long time_offset;
+static unsigned long time_offset, last_time;
 /*static struct etimer bbs_login_timer;*/
 
 BBS_BOARD_REC board;
@@ -32,7 +32,7 @@ BBS_CONFIG_REC bbs_config;
 BBS_STATUS_REC bbs_status;
 BBS_USER_REC bbs_user;
 BBS_USER_STATS bbs_usrstats;
-
+BBS_TIME_REC bbs_time;
 unsigned short bbs_locked=0;
 
 /*---------------------------------------------------------------------------*/
@@ -56,6 +56,48 @@ SHELL_COMMAND(quit_command, "q", "q : exit bbs",
 PROCESS(bbs_login_process, "login");
 SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
 PROCESS(bbs_timer_process, "timer");
+
+
+void update_time(void) {
+  unsigned long now_time;
+
+  now_time = peek(162) + peek(161)*256 + peek(160)*65536;
+
+  bbs_time.hour = now_time/216000;
+
+  if (bbs_time.minute==60){
+    bbs_time.minute=1;
+  }
+  else{
+    ++bbs_time.minute;
+  }
+
+  if (last_time > now_time) {
+
+    if (bbs_time.day==30){
+
+      //if(bbs_status.month==2 && bbs_status.day==28 && (bbs_status.year % 4) == 0)
+
+        //bbs_status.day
+      
+      bbs_time.day=1;
+
+      if(bbs_time.month==12){
+        bbs_time.month=1;
+        ++bbs_time.year;
+      }
+      else{
+        ++bbs_time.month;
+      }
+    }
+    else{
+      ++bbs_time.day;
+    }
+  }
+
+  last_time = now_time;
+//function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
+}
 
 /*---------------------------------------------------------------------------*/
 void bbs_defaults(void)
@@ -123,6 +165,20 @@ static void bbs_init(void)
   /* read BBS base configuration */
   fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
 
+
+  sprintf(board.sub_names[1], "the lounge          ");
+  sprintf(board.sub_names[2], "science and tech    ");
+  sprintf(board.sub_names[3], "la musique          ");
+  sprintf(board.sub_names[4], "hardware            ");
+  sprintf(board.sub_names[5], "software and games  ");
+  sprintf(board.sub_names[6], "vic64 and scene news");
+  sprintf(board.sub_names[7], "the great outdoors  ");
+  sprintf(board.sub_names[8], "member intros       ");
+
+
+
+
+
   if (fsize == 0) {
     log_message("[bbs] ", "config file not found, using defaults");
     /* set sub msg counts */
@@ -134,6 +190,14 @@ static void bbs_init(void)
 	bbs_config.msg_id[6]=139;
 	bbs_config.msg_id[7]=160;
 	bbs_config.msg_id[8]=29;
+
+
+  bbs_time.minute=0;
+  bbs_time.hour=0;
+  bbs_time.day=9;
+  bbs_time.year=2018;
+
+
 
 
 	/*for (i=0; i<=board.max_boards; i++) {
