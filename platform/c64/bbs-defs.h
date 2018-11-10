@@ -81,8 +81,8 @@
 #define PETSCII_CLRSCN  0x93
 #define PETSCII_HOME  0x13 
 
-#define poke(A,X) (*(unsigned char *)A) = (X)
-#define peek(A) (*(unsigned char *)A)
+#define poke(A,X) (*(unsigned short *)A) = (X)
+#define peek(A) (*(unsigned short *)A)
 
 
 typedef struct {
@@ -95,7 +95,7 @@ typedef struct {
   char sys_prefix[10];
   unsigned char user_device;
   char user_prefix[10];
-  char sub_names[8][20];
+  char sub_names[9][20];
 } BBS_BOARD_REC;
 
 
@@ -128,7 +128,8 @@ typedef struct {
 } BBS_STATUS_REC;
 
 typedef struct {
-  unsigned char year;
+  unsigned long offset;
+  unsigned short year;
   unsigned char month;
   unsigned char day;
   unsigned char hour;
@@ -140,13 +141,13 @@ typedef struct {
   short file[10][2];
 } BBS_EM_REC;
 
-
+/*
 typedef struct {
   char bufmem[BBS_BUFFER_SIZE];
   int ptr;
   int size;
 } BBS_BUFFER;
-
+*/
 
 
 #endif /* __BBSDEFS_H_ */

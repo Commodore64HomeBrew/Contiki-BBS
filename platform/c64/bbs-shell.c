@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdio.h>
 
+
 LIST(commands);
 
 int shell_event_input;
@@ -106,7 +107,6 @@ static void bbs_init(void)
   unsigned char file[25];
 
 
-
   sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
   board.telnet_port = 6400;
   board.max_boards = 8;
@@ -125,19 +125,58 @@ static void bbs_init(void)
 
   /* read BBS base configuration */
 
-  sprintf(board.sub_names[1], "the lounge        ");
-  sprintf(board.sub_names[2], "science & tech    ");
-  sprintf(board.sub_names[3], "la musique        ");
-  sprintf(board.sub_names[4], "hardware          ");
-  sprintf(board.sub_names[5], "software and games");
-  sprintf(board.sub_names[6], "vic64 & scene news");
-  sprintf(board.sub_names[7], "the great outdoors");
-  sprintf(board.sub_names[8], "member intros     ");
+  sprintf(board.sub_names[1], "the lounge     ");
+  sprintf(board.sub_names[2], "science & tech ");
+  sprintf(board.sub_names[3], "la musique     ");
+  sprintf(board.sub_names[4], "hardware corner");
+  sprintf(board.sub_names[5], "games & warez  ");
+  sprintf(board.sub_names[6], "vic64 news     ");
+  sprintf(board.sub_names[7], "great outdoors ");
+  sprintf(board.sub_names[8], "member intros  ");
 
-  bbs_time.minute=0;
-  bbs_time.hour=0;
-  bbs_time.day=9;
+  bbs_time.minute=36;
+  bbs_time.hour=1;
+  bbs_time.day=10;
+  bbs_time.month=11;
   bbs_time.year=2018;
+
+  bbs_time.offset = (bbs_time.minute*60 + bbs_time.hour*3600) - clock_seconds();
+
+  //clock_set_seconds(bbs_time.minute*60 + bbs_time.hour*3600);
+  //clock_set_seconds(2000);
+  //now_time = (peek(162) + peek(161)*256 + peek(160)*65536)/60;
+  //POKE(0xdc0b,10); // REM SET HOURS
+  //POKE(0xdc0a,10); //REM SET MINUTES
+  //POKE(0xdc09,0); //REM SET SECONDS
+
+//https://www.atarimagazines.com/compute/issue43/237_1_VIC_64_Clock.php
+/*
+200 REM CLOCK SETTING ROUTINE
+210 PRINT "{CLR}{DOWN}{RVS}SET THE CLOCK {SPACE}" : PRINT
+220 POKE 56335, PEEK(56335) AND 127 : REM {SPACE}SET TIME OF DAY CLOCK
+230 INPUT "AM OR PM"; A$
+240 A = 128 : IF LEFT$(A$, 1) = "A" THEN A = 0
+250 INPUT "HOUR"; A$ : IF LEN(A$)>2 THEN PRINT "ERROR" : GOTO 250
+260 GOSUB 500 : IF N>18 THEN PRINT "ERROR" : GOTO 250
+270 POKE 56331, A + N : REM SET HOURS
+280 INPUT "MINUTES"; A$ : IF LEN(A$)>2 THEN PRINT "ERROR" : GOTO 280
+290 GOSUB 500 : IF N>89 THEN PRINT "ERROR" : GOTO 280
+300 POKE 56330, N : REM SET MINUTES
+310 INPUT "SECONDS"; A$ : IF LEN(A$)>2 THEN PRINT "ERROR" : GOTO 310
+320 GOSUB 500 : IF N>89 THEN PRINT "ERROR" : GOTO 310
+330 POKE 56329, N : REM SET SECONDS
+340 PRINT "WHEN YOU ARE READY TO START THE CLOCK,"
+350 PRINT "PRESS ANY KEY."
+360 GET A$ : IF A$ = ""THEN 360
+370 POKE 56328,0 : REM START CLOCK
+380 END
+500 IF LEN(A$) = 1 THEN T = 0 : GOTO 520
+510 T = VAL(LEFT$(A$,1))
+520 U = VAL(RIGHT$(A$,1))
+530 N = 16 * T + U : RETURN
+*/
+
+
 
   siRet = cbm_open(10, board.sys_device, 10, file);
   if (! siRet) {
@@ -252,7 +291,7 @@ int bbs_new_user(char *data)
 
   sprintf(file, "%s:u-%s",board.user_prefix, bbs_user.user_name);
 
-	log_message("[debug] new user file: ", file);
+	log_message("[bbs] new user file: ", file);
 		
 	cbm_save (file, board.user_device, &bbs_user, sizeof(bbs_user));
 
@@ -267,38 +306,36 @@ int bbs_new_user(char *data)
 
 void bbs_login()
 {
-  //**********************************************************************
-  //This needs to go in a separate function...
-  //**********************************************************************
 
   unsigned short fsize=0;
   unsigned short siRet=0;
   unsigned char file[25];
 
   sprintf(file, "s-%s", bbs_user.user_name);
-  log_message("[debug] user stats file: ", file);
+  //log_message("[debug] user stats file: ", file);
 
   sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
 
 
   siRet = cbm_open(10, board.user_device, 10, file);
   if (! siRet) {
-    log_message("[bbs] file loaded: ", file);
+    log_message("[bbs] stats file: ", file);
     cbm_read(10, &bbs_usrstats, 2);
     cbm_read(10, &bbs_usrstats, sizeof(bbs_usrstats));
     cbm_close(10);
   }
   else{
-       log_message("[bbs] file load error: ", file);
+       log_message("[bbs] stats file load error: ", file);
   }
 
-
-
-
+  //We need a debug msg here for log on time.
+  //update_time();
+  //sprintf(post_buffer,"\x1c\n\rFrom: \x05%s\x1e\n\rDate: \x05%d:%d %d/%d/%d\x9e\n\r", bbs_user.user_name, bbs_time.hour, bbs_time.minute, bbs_time.day, bbs_time.month, bbs_time.year , input->data1);
+  
   //**********************************************************************
 	process_exit(&bbs_timer_process);
 	bbs_status.status=STATUS_LOCK;
-	log_message("[bbs] *login* ", bbs_user.user_name);
+	//log_message("[bbs] main prompt for ", bbs_user.user_name);
 
 	bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
 	//em_out(0);
@@ -308,7 +345,7 @@ void bbs_login()
 	//Display the sub banner:
 	bbs_sub_banner();
 	set_prompt();
-	//shell_prompt(bbs_status.prompt);
+	shell_prompt(bbs_status.prompt);
 	process_start(&bbs_timer_process, NULL);
 	front_process=&shell_process;
 }
@@ -1019,25 +1056,21 @@ shell_quit(void)
 /*---------------------------------------------------------------------------*/
 
 void update_time(void) {
-  unsigned long now_time;
+  unsigned long now_sec;
   char message[40];
 
-  now_time = (peek(162) + peek(161)*256 + peek(160)*65536)/60;
+  //now_time = (peek(162) + peek(161)*256 + peek(160)*65536)/60;
+  now_sec = clock_seconds() + bbs_time.offset;
 
-  sprintf(message,"clock_seconds: %d now_time: %d\n\r",clock_seconds(), now_time);
-  log_message("[bbs] time: ", message);
+  //sprintf(message,"clock_seconds: %lu now_time: %lu\n\r",clock_seconds(), now_time);
+  //log_message("[bbs] time: ", message);
 
   //bbs_time.hour = now_time/216000;
-  bbs_time.hour = clock_seconds()/3600;
+  bbs_time.hour = now_sec/3600;
+  bbs_time.minute = (now_sec/60 - bbs_time.hour*60); 
 
-  if (bbs_time.minute==60){
-    bbs_time.minute=1;
-  }
-  else{
-    ++bbs_time.minute;
-  }
 
-  if (last_time > now_time) {
+  if (last_time > now_sec) {
 
     if (bbs_time.day==30){
 
@@ -1060,12 +1093,11 @@ void update_time(void) {
     }
   }
 
-  sprintf(message,"min:%d hour:%d day:%d month:%d year:%d\n\r",bbs_time.minute, bbs_time.hour, bbs_time.day,  bbs_time.month, bbs_time.year);
+  sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
   log_message("[bbs] time: ", message);
 
 
-  //last_time = now_time;
-  last_time = clock_seconds();
+  last_time = now_sec;
 //function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
 }
 

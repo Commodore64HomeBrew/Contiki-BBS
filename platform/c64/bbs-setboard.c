@@ -29,7 +29,7 @@ void bbs_sub_banner(void)
 
   sprintf(file, "%s%d",BBS_PREFIX_SUB,bbs_status.board_id);
   bbs_banner(board.sys_prefix, file, bbs_status.encoding_suffix, board.sys_device,0);
-  sprintf(message, "\r\n%s\n\rtotal msgs: %d\n\n", board.sub_names[bbs_status.board_id], bbs_config.msg_id[bbs_status.board_id]);
+  sprintf(message, "\x05\r\n%s\n\r", board.sub_names[bbs_status.board_id]);
   shell_output_str(NULL, message, "");
 }
 
@@ -49,10 +49,11 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   PROCESS_BEGIN();
 
   bbs_banner(board.sys_prefix, BBS_BANNER_SUBS, bbs_status.encoding_suffix, board.sys_device, 0);
+  
+  shell_output_str(NULL,"\n\r","");
 
-
-  for (num=1; num<BBS_MAX_BOARDS;num++){
-    sprintf(message, "\x9e\r\n%s \x1c-> \x05%d", board.sub_names[num], bbs_config.msg_id[num] - bbs_usrstats.current_msg[num]);
+  for (num=1; num<=BBS_MAX_BOARDS;num++){
+    sprintf(message, "\x05%d: \x9e%s \x1c-> \x05%d", num, board.sub_names[num], bbs_config.msg_id[num] - bbs_usrstats.current_msg[num]);
     shell_output_str(NULL,"", message);
   }
 

@@ -24,19 +24,28 @@ extern BBS_USER_STATS bbs_usrstats;
 
 int read_msg(unsigned short num)
 {
-
+    short level_1, level_2;
     char sub_num_prefix[10];
     ST_FILE file;
 
+    level_1 = num;
+
+    /* Remove last digit from number till only one digit is left */
+    while(level_1 >= 10)
+    {
+        level_1 = level_1 / 10;
+    }
+
+
     sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
-    sprintf(sub_num_prefix, "%s%d/", board.subs_prefix, bbs_status.board_id);
+    sprintf(sub_num_prefix, "%s%d/", board.subs_prefix,bbs_status.board_id);
 
     set_prompt();
     bbs_status.status=STATUS_READ;
     bbs_banner(sub_num_prefix, file.szFileName, "", board.subs_device,1);
 
-    log_message("[debug] msg prefix: ", sub_num_prefix);
-    log_message("[debug] read msg: ", file.szFileName);
+    //log_message("[debug] msg prefix: ", sub_num_prefix);
+    //log_message("[debug] read msg: ", file.szFileName);
 
     bbs_status.status=STATUS_LOCK;
 
