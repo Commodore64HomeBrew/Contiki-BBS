@@ -58,46 +58,7 @@ SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_proc
 PROCESS(bbs_timer_process, "timer");
 
 
-void update_time(void) {
-  unsigned long now_time;
 
-  now_time = peek(162) + peek(161)*256 + peek(160)*65536;
-
-  bbs_time.hour = now_time/216000;
-
-  if (bbs_time.minute==60){
-    bbs_time.minute=1;
-  }
-  else{
-    ++bbs_time.minute;
-  }
-
-  if (last_time > now_time) {
-
-    if (bbs_time.day==30){
-
-      //if(bbs_status.month==2 && bbs_status.day==28 && (bbs_status.year % 4) == 0)
-
-        //bbs_status.day
-      
-      bbs_time.day=1;
-
-      if(bbs_time.month==12){
-        bbs_time.month=1;
-        ++bbs_time.year;
-      }
-      else{
-        ++bbs_time.month;
-      }
-    }
-    else{
-      ++bbs_time.day;
-    }
-  }
-
-  last_time = now_time;
-//function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
-}
 
 /*---------------------------------------------------------------------------*/
 void bbs_defaults(void)
@@ -141,7 +102,7 @@ static void bbs_init(void)
   //unsigned char *buffer;
   unsigned short fsize=0;
   unsigned short siRet=0;
-  unsigned short i;
+  //unsigned short i;
   unsigned char file[25];
 
 
@@ -163,58 +124,44 @@ static void bbs_init(void)
   sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
 
   /* read BBS base configuration */
-  fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
 
-
-  sprintf(board.sub_names[1], "the lounge          ");
-  sprintf(board.sub_names[2], "science and tech    ");
-  sprintf(board.sub_names[3], "la musique          ");
-  sprintf(board.sub_names[4], "hardware            ");
-  sprintf(board.sub_names[5], "software and games  ");
-  sprintf(board.sub_names[6], "vic64 and scene news");
-  sprintf(board.sub_names[7], "the great outdoors  ");
-  sprintf(board.sub_names[8], "member intros       ");
-
-
-
-
-
-  if (fsize == 0) {
-    log_message("[bbs] ", "config file not found, using defaults");
-    /* set sub msg counts */
-	bbs_config.msg_id[1]=1611;
-	bbs_config.msg_id[2]=140;
-	bbs_config.msg_id[3]=117;
-	bbs_config.msg_id[4]=536;
-	bbs_config.msg_id[5]=370;
-	bbs_config.msg_id[6]=139;
-	bbs_config.msg_id[7]=160;
-	bbs_config.msg_id[8]=29;
-
+  sprintf(board.sub_names[1], "the lounge        ");
+  sprintf(board.sub_names[2], "science & tech    ");
+  sprintf(board.sub_names[3], "la musique        ");
+  sprintf(board.sub_names[4], "hardware          ");
+  sprintf(board.sub_names[5], "software and games");
+  sprintf(board.sub_names[6], "vic64 & scene news");
+  sprintf(board.sub_names[7], "the great outdoors");
+  sprintf(board.sub_names[8], "member intros     ");
 
   bbs_time.minute=0;
   bbs_time.hour=0;
   bbs_time.day=9;
   bbs_time.year=2018;
 
-
-
-
-	/*for (i=0; i<=board.max_boards; i++) {
-	  bbs_config.msg_id[1]=0;
-	}*/
+  siRet = cbm_open(10, board.sys_device, 10, file);
+  if (! siRet) {
+    log_message("[bbs] ", "config loaded from file");
+    cbm_read(10, &bbs_config, 2);
+    cbm_read(10, &bbs_config, sizeof(bbs_config));
+    cbm_close(10);
   }
   else{
-    siRet = cbm_open(10, board.sys_device, 10, file);
-    if (! siRet) {
-      log_message("[bbs] ", "config loaded from file");
-      cbm_read(10, &bbs_config, 2);
-      cbm_read(10, &bbs_config, sizeof(bbs_config));
-      cbm_close(10);
-    }
-    else{
-    	log_message("[bbs] ", "config file error");
-    }
+
+    log_message("[bbs] ", "config file not found, using defaults");
+    /* set sub msg counts */
+    bbs_config.msg_id[1]=1611;
+    bbs_config.msg_id[2]=140;
+    bbs_config.msg_id[3]=117;
+    bbs_config.msg_id[4]=536;
+    bbs_config.msg_id[5]=370;
+    bbs_config.msg_id[6]=139;
+    bbs_config.msg_id[7]=160;
+    bbs_config.msg_id[8]=29;
+
+    /*for (i=0; i<=board.max_boards; i++) {
+      bbs_config.msg_id[1]=0;
+    }*/
   }
 
   bbs_defaults();
@@ -272,25 +219,23 @@ int bbs_get_user(char *data)
 	sprintf(file, "u-%s", bbs_user.user_name);
 	log_message("[debug] user file: ", file);
 
-	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+	//fsize=bbs_filesize(board.user_prefix, file, board.user_device);
  	sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
 
-	if (fsize == 0) {
-	 log_message("[bbs] user not found: ", bbs_user.user_name);
-	 return 2;
+
+	siRet = cbm_open(10, board.user_device, 10, file);
+	if (! siRet) {
+		log_message("[bbs] login: ", bbs_user.user_name);
+		cbm_read(10, &bbs_user, 2);
+		cbm_read(10, &bbs_user, sizeof(bbs_user));
+		cbm_close(10);
+		return 1;
 	}
 	else{
-		siRet = cbm_open(10, board.user_device, 10, file);
-		if (! siRet) {
-			log_message("[bbs] login: ", bbs_user.user_name);
-			cbm_read(10, &bbs_user, 2);
-			cbm_read(10, &bbs_user, sizeof(bbs_user));
-			cbm_close(10);
-			return 1;
-		}
-		else{log_message("[bbs] ", "config file error");}
-		return 0;
-	}
+    log_message("[bbs] user not found: ", bbs_user.user_name);
+    return 2;
+  }
+
 
 	return 0;
 
@@ -333,21 +278,23 @@ void bbs_login()
   sprintf(file, "s-%s", bbs_user.user_name);
   log_message("[debug] user stats file: ", file);
 
-  fsize=bbs_filesize(board.user_prefix, file, board.user_device);
   sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
 
-  if (fsize == 0) {
-   log_message("[bbs] file not found: ", file);
+
+  siRet = cbm_open(10, board.user_device, 10, file);
+  if (! siRet) {
+    log_message("[bbs] file loaded: ", file);
+    cbm_read(10, &bbs_usrstats, 2);
+    cbm_read(10, &bbs_usrstats, sizeof(bbs_usrstats));
+    cbm_close(10);
   }
   else{
-    siRet = cbm_open(10, board.user_device, 10, file);
-    if (! siRet) {
-      log_message("[bbs] file loaded: ", file);
-      cbm_read(10, &bbs_usrstats, 2);
-      cbm_read(10, &bbs_usrstats, sizeof(bbs_usrstats));
-      cbm_close(10);
-    }
+       log_message("[bbs] file load error: ", file);
   }
+
+
+
+
   //**********************************************************************
 	process_exit(&bbs_timer_process);
 	bbs_status.status=STATUS_LOCK;
@@ -361,7 +308,7 @@ void bbs_login()
 	//Display the sub banner:
 	bbs_sub_banner();
 	set_prompt();
-	shell_prompt(bbs_status.prompt);
+	//shell_prompt(bbs_status.prompt);
 	process_start(&bbs_timer_process, NULL);
 	front_process=&shell_process;
 }
@@ -894,12 +841,9 @@ PROCESS_THREAD(shell_process, ev, data)
       /*etimer_reset(&bbs_session_timer);*/
       ret = shell_start_command(input->data1, input->len1, NULL,
 				&started_process);
-      if(started_process != NULL &&
-	 ret == SHELL_FOREGROUND &&
-	 process_is_running(started_process)) {
-	front_process = started_process;
-	PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_EXITED &&
-				 data == started_process);
+      if(started_process != NULL && ret == SHELL_FOREGROUND && process_is_running(started_process)) {
+        front_process = started_process;
+        PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_EXITED && data == started_process);
       }
       front_process = &shell_process;
     }
@@ -909,10 +853,10 @@ PROCESS_THREAD(shell_process, ev, data)
        log_message("[bbs] *unlock3* ", "");
     }
     if(bbs_status.status>STATUS_HANDLE) {
-      /*etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);*/
+      //etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
       shell_prompt(bbs_status.prompt);
     }
-
+  
   }
   
   PROCESS_END();
@@ -1073,5 +1017,57 @@ shell_quit(void)
   shell_stop();
 }
 /*---------------------------------------------------------------------------*/
+
+void update_time(void) {
+  unsigned long now_time;
+  char message[40];
+
+  now_time = (peek(162) + peek(161)*256 + peek(160)*65536)/60;
+
+  sprintf(message,"clock_seconds: %d now_time: %d\n\r",clock_seconds(), now_time);
+  log_message("[bbs] time: ", message);
+
+  //bbs_time.hour = now_time/216000;
+  bbs_time.hour = clock_seconds()/3600;
+
+  if (bbs_time.minute==60){
+    bbs_time.minute=1;
+  }
+  else{
+    ++bbs_time.minute;
+  }
+
+  if (last_time > now_time) {
+
+    if (bbs_time.day==30){
+
+      //if(bbs_status.month==2 && bbs_status.day==28 && (bbs_status.year % 4) == 0)
+
+        //bbs_status.day
+      
+      bbs_time.day=1;
+
+      if(bbs_time.month==12){
+        bbs_time.month=1;
+        ++bbs_time.year;
+      }
+      else{
+        ++bbs_time.month;
+      }
+    }
+    else{
+      ++bbs_time.day;
+    }
+  }
+
+  sprintf(message,"min:%d hour:%d day:%d month:%d year:%d\n\r",bbs_time.minute, bbs_time.hour, bbs_time.day,  bbs_time.month, bbs_time.year);
+  log_message("[bbs] time: ", message);
+
+
+  //last_time = now_time;
+  last_time = clock_seconds();
+//function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
+}
+
 
 /** @} */

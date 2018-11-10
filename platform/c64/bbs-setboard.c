@@ -24,12 +24,12 @@ extern BBS_USER_STATS bbs_usrstats;
 
 void bbs_sub_banner(void)
 {
-  unsigned char message[40];
+  unsigned char message[80];
   unsigned char file[12];
 
   sprintf(file, "%s%d",BBS_PREFIX_SUB,bbs_status.board_id);
   bbs_banner(board.sys_prefix, file, bbs_status.encoding_suffix, board.sys_device,0);
-  sprintf(message, "\n\rtotal msgs: %d\n\n", bbs_config.msg_id[bbs_status.board_id]);
+  sprintf(message, "\r\n%s\n\rtotal msgs: %d\n\n", board.sub_names[bbs_status.board_id], bbs_config.msg_id[bbs_status.board_id]);
   shell_output_str(NULL, message, "");
 }
 
@@ -45,27 +45,22 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   unsigned short num;
   unsigned char message[40];
   //ST_FILE file;
-  //BBS_BOARD_REC board;
 
   PROCESS_BEGIN();
 
   bbs_banner(board.sys_prefix, BBS_BANNER_SUBS, bbs_status.encoding_suffix, board.sys_device, 0);
-  /*memset(szBuff, 0, sizeof(szBuff));
-  sprintf(szBuff, "(%s (%d, acl: %d) Choose board # (1-%d, 0=quit)? ", board.board_name, board.board_no, board.access_req, board.max_boards);
-  shell_prompt(szBuff);
-  */
+
 
   for (num=1; num<BBS_MAX_BOARDS;num++){
-    sprintf(message, "%s --> %d", board.sub_names[num], bbs_config.msg_id[num] - bbs_usrstats.current_msg[num]);
-    shell_output_str(NULL,PETSCII_WHITE, message);
+    sprintf(message, "\x9e\r\n%s \x1c-> \x05%d", board.sub_names[num], bbs_config.msg_id[num] - bbs_usrstats.current_msg[num]);
+    shell_output_str(NULL,"", message);
   }
 
 
-
-  shell_output_str(NULL,"", PETSCII_WHITE);
-  sprintf(message, "\n\rselect board (1-%d):", board.max_boards);
-
+  //shell_output_str(NULL,"", PETSCII_WHITE);
+  sprintf(message, "\x05\n\rselect board (1-%d):", board.max_boards);
   shell_prompt(message);
+
   PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
   input = data;
   num = atoi(input->data1);
@@ -78,35 +73,6 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   }
 
 
-
-  /* read board data */
-/*  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
-  file.ucDeviceNo=8;
-  ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), bbs_status.board_id);
-
-  memset(szBuff, 0, sizeof(szBuff));
-  sprintf(szBuff, "(%s (%d, acl: %d) Choose board # (1-%d, 0=quit)? ", board.board_name, board.board_no, board.access_req, board.max_boards);
-  shell_prompt(szBuff);
-
-  PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
-  input = data;
-  num = atoi(input->data1);
-*/
-  /* read new board data */
-/*  strcpy(file.szFileName, BBS_BOARDCFG_FILE);
-  file.ucDeviceNo=8;
-  ssReadRELFile(&file, &board, sizeof(BBS_BOARD_REC), num);
-
-  if (atoi(input->data1) < 0 || atoi(input->data1) > board.max_boards) {
-    shell_prompt("invalid board id.\n");
-  } else {
-      if (bbs_user.access_req >= board.access_req) {
-         bbs_status.board_id = num;
-         shell_prompt("ok\n");
-      } else {
-         shell_prompt("insufficient access rights.\n");
-      }
-  }*/
   PROCESS_EXIT();
    
   PROCESS_END();
@@ -125,7 +91,7 @@ PROCESS_THREAD(bbs_nextboard_process, ev, data)
 
     ++bbs_status.board_id;
 
-	set_prompt();
+    set_prompt();
     bbs_sub_banner();
   }
 

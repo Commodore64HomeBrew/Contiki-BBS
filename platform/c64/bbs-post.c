@@ -19,7 +19,7 @@ extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
 extern BBS_TIME_REC bbs_time;
- 
+extern BBS_BUFFER bbs_buf;
 
 
 PROCESS(bbs_post_process, "write");
@@ -32,8 +32,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	//static short disk_access=1;
 	//static short bytes_used=2;
 	struct shell_input *input;
-	//static char bbs_logbuf[BBS_MAX_MSGLINES*BBS_LINE_WIDTH];
-	char bbs_logbuf[BBS_BANNER_BUFFER];
+	//static char bbs_buf.bufmem[BBS_MAX_MSGLINES*BBS_LINE_WIDTH];
+	//char bbs_buf.bufmem[BBS_BUFFER_SIZE];
 
 
 
@@ -63,9 +63,9 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 		if (bbs_status.status==STATUS_SUBJ){
 			update_time();
-			sprintf(bbs_logbuf,"\x1c\n\rFrom: \x05%s\x1e\n\rDate: \x05%d-%d-%d\x9e\n\rSubj: \05%s\n\r\n\r", bbs_user.user_name, bbs_time.day, bbs_time.month, bbs_time.year , input->data1);
+			sprintf(bbs_buf.bufmem,"\x1c\n\rFrom: \x05%s\x1e\n\rDate: \x05%d-%d-%d\x9e\n\rSubj: \05%s\n\r\n\r", bbs_user.user_name, bbs_time.day, bbs_time.month, bbs_time.year , input->data1);
 
-			bbs_status.msg_size = strlen(bbs_logbuf);
+			bbs_status.msg_size = strlen(bbs_buf.bufmem);
 
 
 			shell_output_str(&bbs_post_command, "\r\n\r\nOn empty line:\r\n/a=abort /s=save\r\n", "");
@@ -112,19 +112,19 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 			/* Save the post to file */
 		
-			cbm_save (file.szFileName, board.subs_device, &bbs_logbuf, bbs_status.msg_size);
+			cbm_save (file.szFileName, board.subs_device, &bbs_buf.bufmem, bbs_status.msg_size);
 
-			log_message("[bbs] *post* ", bbs_logbuf);
+			log_message("[bbs] *post* ", bbs_buf.bufmem);
 
-			//sprintf(bbs_logbuf, "bu:%d ms:%d lb:%d", bytes_used, bbs_status.msg_size, sizeof(bbs_logbuf));
-			//log_message("[debug] *bytes-used* ", bbs_logbuf);
+			//sprintf(bbs_buf.bufmem, "bu:%d ms:%d lb:%d", bytes_used, bbs_status.msg_size, sizeof(bbs_buf.bufmem));
+			//log_message("[debug] *bytes-used* ", bbs_buf.bufmem);
 
 
 			/* Save the msg count struct to disk */
 			sprintf(file.szFileName, "@%s:%s", board.sys_prefix, BBS_CFG_FILE);
 			cbm_save (file.szFileName, board.sys_device, &bbs_config, sizeof(bbs_config));
 
-			memset(bbs_logbuf, 0, sizeof(bbs_logbuf));
+			memset(bbs_buf.bufmem, 0, sizeof(bbs_buf.bufmem));
 			//linecount=0;
 			//disk_access=1;
 
@@ -137,13 +137,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 		//bytes_used += sizeof(input->data1);
 		else {
-			strcat(bbs_logbuf, input->data1);
+			strcat(bbs_buf.bufmem, input->data1);
 		}
 
-		//log_message("[bbs] *post* ", bbs_logbuf);
+		//log_message("[bbs] *post* ", bbs_buf.bufmem);
 		/*if (linecount <= BBS_MAX_MSGLINES) {
 		   disk_access=0;
-		   strncpy(bbs_logbuf[linecount], input->data1, BBS_LINE_WIDTH);
+		   strncpy(bbs_buf.bufmem[linecount], input->data1, BBS_LINE_WIDTH);
 		   linecount++;
 		}*/
 	} 

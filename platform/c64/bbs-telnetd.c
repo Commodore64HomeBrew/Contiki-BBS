@@ -52,7 +52,7 @@ AUTOSTART_PROCESSES(&telnetd_process);
 #define TELNETD_CONF_LINELEN 80
 #endif
 #ifndef TELNETD_CONF_NUMLINES
-#define TELNETD_CONF_NUMLINES 25
+#define TELNETD_CONF_NUMLINES 1
 #endif
 
 #ifdef TELNETD_CONF_REJECT
@@ -481,8 +481,8 @@ telnetd_appcall(void *ts)
       return;
     }
     if(uip_closed() ||
-       uip_aborted() ||
-       uip_timedout()) {
+        uip_aborted() ||
+        uip_timedout()) {
       shell_stop();
       connected = 0;
     }
@@ -499,10 +499,10 @@ telnetd_appcall(void *ts)
       newdata();
     }
     if(uip_rexmit() ||
-       uip_newdata() ||
-       uip_acked() ||
-       uip_connected() ||
-       uip_poll()) {
+        uip_newdata() ||
+        uip_acked() ||
+        uip_connected() ||
+        uip_poll()) {
       senddata();
 #if TELNETD_CONF_MAX_IDLE_TIME
       if(s.numsent > 0) {

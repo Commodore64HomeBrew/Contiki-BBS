@@ -17,9 +17,10 @@
 
 BBS_EM_REC bbs_em;
 extern BBS_STATUS_REC bbs_status;
+BBS_BUFFER bbs_buf;
 
 /*---------------------------------------------------------------------------*/
-short bbs_filesize(char *prefix, char *filename, unsigned char device)
+/*short bbs_filesize(char *prefix, char *filename, unsigned char device)
 {
     struct cbm_dirent dirent;
     unsigned short fsize=0;
@@ -40,15 +41,16 @@ short bbs_filesize(char *prefix, char *filename, unsigned char device)
     cbm_close(1);
 
     return fsize*256; 
-}
+}*/
 
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
 {
-  unsigned char *buffer;
-  //char buffer[BBS_BANNER_BUFFER];
+  //unsigned char *buffer;
+  //char buffer[BBS_BUFFER_SIZE];
 
-  unsigned short fsize=0, siRet=0, len=0;
+  //unsigned short fsize=0;
+  unsigned short siRet=0, len=0;
   unsigned short i=0, j=0, col, preCol;
   unsigned short width;
   unsigned char file[25];
@@ -59,14 +61,14 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
   //log_message("[debug] ", file);
 
   //fsize=bbs_filesize(filePrefix, file, device);
-  fsize = BBS_BANNER_BUFFER;
-  sprintf(file, "%d",fsize);
-  log_message("[debug] fsize:", file);
+  //fsize = BBS_BUFFER_SIZE;
+  //sprintf(file, "%d",fsize);
+  //log_message("[debug] fsize:", file);
 
 
   sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
   //log_message("[debug] file banner2: ", file);
-
+/*
   if (fsize == 0) {
     shell_output_str(NULL, "", "error: file size\n\r");
     return;
@@ -78,8 +80,8 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
     shell_output_str(NULL, "", "error: malloc \n\r");
     return;
   }
-
-  memset(buffer, 0, fsize);
+*/
+  memset(bbs_buf.bufmem, 0, BBS_BUFFER_SIZE);
 
 
   //cbm_load(const char* name, unsigned char device, void* data)
@@ -90,36 +92,35 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
   if (! siRet) {
 
 	  if (bbs_status.status == STATUS_READ){
-			cbm_read(10, buffer, 2);
-			fsize=fsize-2;
+			cbm_read(10, bbs_buf.bufmem, 2);
 	  }
 
-    len = cbm_read(10, buffer, fsize);
+    len = cbm_read(10, bbs_buf.bufmem , BBS_BUFFER_SIZE);
     cbm_close(10);
 
 
     if (wordWrap==1){
       width = bbs_status.width;
-	  col=0;
-	  preCol=0;
+      col=0;
+      preCol=0;
       for (i=0; i<len; i++) {
 
-		if (buffer[i] == ISO_cr){
-			col=0;
-		}
+        if (bbs_buf.bufmem[i] == ISO_cr){
+        	col=0;
+        }
         else if (col == width){
 
-			//We're at the end of the row. Walk back until you find a space and then insert a CR:
-			j=i;
-		    while(buffer[j] != PETSCII_SPACE && j>preCol){
-		      --j;
-		    }
-			//Space is found; insert CR:
-		    buffer[j] = ISO_cr;
-			//Record counter position of previous line:
-			preCol=j;
-			//Set the new column counter, taking into account the wrapped word:
-		    col=i-j;
+          //We're at the end of the row. Walk back until you find a space and then insert a CR:
+          j=i;
+  		    while(bbs_buf.bufmem[j] != PETSCII_SPACE && j>preCol){
+  		      --j;
+  		    }
+          //Space is found; insert CR:
+          bbs_buf.bufmem[j] = ISO_cr;
+          //Record counter position of previous line:
+          preCol=j;
+          //Set the new column counter, taking into account the wrapped word:
+          col=i-j;
 
         }
         else{
@@ -129,10 +130,10 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
     }
   }
 
-  shell_output_str(NULL, "\n\r\x05", buffer);
+  shell_output_str(NULL, "\n\r\x05", bbs_buf.bufmem);
   
-  if (buffer != NULL)
-     free(buffer);
+  if (bbs_buf.bufmem != NULL)
+     free(bbs_buf.bufmem);
 }
 
 
