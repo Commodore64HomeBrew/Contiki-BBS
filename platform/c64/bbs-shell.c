@@ -134,8 +134,8 @@ static void bbs_init(void)
   sprintf(board.sub_names[7], "great outdoors ");
   sprintf(board.sub_names[8], "member intros  ");
 
-  bbs_time.minute=36;
-  bbs_time.hour=1;
+  bbs_time.minute=29;
+  bbs_time.hour=2;
   bbs_time.day=10;
   bbs_time.month=11;
   bbs_time.year=2018;
@@ -1071,6 +1071,8 @@ void update_time(void) {
 
 
   if (last_time > now_sec) {
+    sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+    log_message("[bbs] time: ", message);
 
     if (bbs_time.day==30){
 
@@ -1093,8 +1095,7 @@ void update_time(void) {
     }
   }
 
-  sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-  log_message("[bbs] time: ", message);
+
 
 
   last_time = now_sec;

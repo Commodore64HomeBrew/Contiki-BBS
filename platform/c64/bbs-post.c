@@ -34,7 +34,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	struct shell_input *input;
 	//static char post_buffer[BBS_MAX_MSGLINES*BBS_LINE_WIDTH];
 	char post_buffer[BBS_BUFFER_SIZE];
-
+    char sub_num_prefix[20];
+	unsigned short num;
 
 
 	ST_FILE file;
@@ -106,7 +107,25 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			/* write post */
 			++bbs_config.msg_id[bbs_status.board_id];
 
-			sprintf(file.szFileName, "%s%d:%d-%d", board.subs_prefix, bbs_status.board_id, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
+			num = bbs_config.msg_id[bbs_status.board_id];
+
+			//**********************************************************************************
+		    if(num<10){
+		      sprintf(sub_num_prefix, "%s%d/0/0/0/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2]);
+		    }
+		    else if(num<100){
+		      sprintf(sub_num_prefix, "%s%d/0/0/%c/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2], file.szFileName[3]);
+		    }
+		    else if(num<1000){
+		      sprintf(sub_num_prefix, "%s%d/0/%c/%c/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2], file.szFileName[3],file.szFileName[4]);
+		    }
+		    else if(num<10000){
+		      sprintf(sub_num_prefix, "%s%d/%c/%c/%c/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2], file.szFileName[3],file.szFileName[4],file.szFileName[5]);
+		    }
+			//**********************************************************************************
+
+
+			sprintf(file.szFileName, "%s%d:%d-%d", sub_num_prefix, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
 			log_message("[debug] file postmsg: ", file.szFileName);
 
