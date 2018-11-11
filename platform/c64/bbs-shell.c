@@ -134,6 +134,10 @@ static void bbs_init(void)
   sprintf(board.sub_names[7], "great outdoors ");
   sprintf(board.sub_names[8], "member intros  ");
 
+
+  board.dir_boost=1;
+
+
   bbs_time.minute=29;
   bbs_time.hour=2;
   bbs_time.day=10;
@@ -177,9 +181,13 @@ static void bbs_init(void)
 */
 
 
+  sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
 
-  siRet = cbm_open(10, board.sys_device, 10, file);
-  if (! siRet) {
+  /* read BBS base configuration */
+  fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
+
+  if (fsize != 0) {
+    cbm_open(10, board.sys_device, 10, file);
     log_message("[bbs] ", "config loaded from file");
     cbm_read(10, &bbs_config, 2);
     cbm_read(10, &bbs_config, sizeof(bbs_config));
@@ -256,19 +264,22 @@ int bbs_get_user(char *data)
 	strcpy(bbs_user.user_name, data);
 
 	sprintf(file, "u-%s", bbs_user.user_name);
-	log_message("[debug] user file: ", file);
 
-	//fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+
  	sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
+  log_message("[debug] user file: ", file);
 
 
-	siRet = cbm_open(10, board.user_device, 10, file);
-	if (! siRet) {
-		log_message("[bbs] login: ", bbs_user.user_name);
-		cbm_read(10, &bbs_user, 2);
-		cbm_read(10, &bbs_user, sizeof(bbs_user));
-		cbm_close(10);
-		return 1;
+  if (fsize != 0) {
+    siRet = cbm_open(10, board.user_device, 10, file);
+    if ( ! siRet ) {
+      log_message("[bbs] login: ", bbs_user.user_name);
+      cbm_read(10, &bbs_user, 2);
+      cbm_read(10, &bbs_user, sizeof(bbs_user));
+      cbm_close(10);
+    }
+    return 1;
 	}
 	else{
     log_message("[bbs] user not found: ", bbs_user.user_name);
@@ -289,6 +300,8 @@ int bbs_new_user(char *data)
 	strcpy(bbs_user.user_pwd, data);
 	bbs_user.access_req = 1;
 
+  log_message("[debug] new user file: ", bbs_user.user_pwd);
+
   sprintf(file, "%s:u-%s",board.user_prefix, bbs_user.user_name);
 
 	log_message("[bbs] new user file: ", file);
@@ -296,7 +309,7 @@ int bbs_new_user(char *data)
 	cbm_save (file, board.user_device, &bbs_user, sizeof(bbs_user));
 
 	for (i=0; i<=board.max_boards; i++) {
-	  bbs_usrstats.current_msg[i]=0;
+	  bbs_usrstats.current_msg[i]=bbs_config.msg_id[i]-20;
 	}
 
 
@@ -711,7 +724,7 @@ start_command(char *commandline, struct shell_command *child)
       c = c->next);
   
   if(c == NULL) {
-    shell_output_str(NULL, commandline, ": command not found (try 'help')");
+    shell_output_str(NULL, commandline, ": command not found (try '?')");
     command_kill(child);
     c = NULL;
   } else if(process_is_running(c->process) || child == c) {

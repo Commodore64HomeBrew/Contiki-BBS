@@ -30,7 +30,7 @@
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
 
-#define BBS_BUFFER_SIZE    2048
+#define BBS_BUFFER_SIZE    1028
 
 
 #define BBS_PET40_SUFFIX       "-c"
@@ -96,6 +96,7 @@ typedef struct {
   unsigned char user_device;
   char user_prefix[10];
   char sub_names[9][20];
+  unsigned char dir_boost; 
 } BBS_BOARD_REC;
 
 

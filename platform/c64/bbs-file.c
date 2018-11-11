@@ -20,7 +20,7 @@ extern BBS_STATUS_REC bbs_status;
 //BBS_BUFFER bbs_buf;
 
 /*---------------------------------------------------------------------------*/
-/*short bbs_filesize(char *prefix, char *filename, unsigned char device)
+short bbs_filesize(char *prefix, char *filename, unsigned char device)
 {
     struct cbm_dirent dirent;
     unsigned short fsize=0;
@@ -41,7 +41,7 @@ extern BBS_STATUS_REC bbs_status;
     cbm_close(1);
 
     return fsize*256; 
-}*/
+}
 
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
@@ -87,9 +87,9 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
   //cbm_load(const char* name, unsigned char device, void* data)
   //cbm_load(file, device, &buffer);
 
-  siRet = cbm_open(10, device, 10, file);
-
-  if (! siRet) {
+  //siRet = cbm_open(10, device, 10, file);
+cbm_open(10, device, 10, file);
+  //if (! siRet) {
 
 	  if (bbs_status.status == STATUS_READ){
 			cbm_read(10, file_buffer, 2);
@@ -129,7 +129,7 @@ void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], un
         }
       }
     }
-  }
+  //}
 
   shell_output_str(NULL, "\n\r\x05", file_buffer);
   
@@ -354,7 +354,7 @@ int siDriveStatus(ST_FILE *pstFile)
    return (int) e;
 }
 /*---------------------------------------------------------------------------*/
-int siFileExists(ST_FILE *pstFile)
+/*int siFileExists(ST_FILE *pstFile)
 {
    unsigned char ucBuff[128];
    unsigned char szTmp[15];
@@ -386,7 +386,7 @@ int siFileExists(ST_FILE *pstFile)
 
    return (int) e;
 }
-
+*/
 /*unsigned char ucCheckDeviceNo(unsigned char *ucDeviceNo)
 {
    if (*ucDeviceNo < 8 || *ucDeviceNo > 11)
