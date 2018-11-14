@@ -138,47 +138,13 @@ static void bbs_init(void)
   board.dir_boost=1;
 
 
-  bbs_time.minute=29;
-  bbs_time.hour=2;
-  bbs_time.day=10;
+  bbs_time.minute=16;
+  bbs_time.hour=26;
+  bbs_time.day=13;
   bbs_time.month=11;
   bbs_time.year=2018;
 
   bbs_time.offset = (bbs_time.minute*60 + bbs_time.hour*3600) - clock_seconds();
-
-  //clock_set_seconds(bbs_time.minute*60 + bbs_time.hour*3600);
-  //clock_set_seconds(2000);
-  //now_time = (peek(162) + peek(161)*256 + peek(160)*65536)/60;
-  //POKE(0xdc0b,10); // REM SET HOURS
-  //POKE(0xdc0a,10); //REM SET MINUTES
-  //POKE(0xdc09,0); //REM SET SECONDS
-
-//https://www.atarimagazines.com/compute/issue43/237_1_VIC_64_Clock.php
-/*
-200 REM CLOCK SETTING ROUTINE
-210 PRINT "{CLR}{DOWN}{RVS}SET THE CLOCK {SPACE}" : PRINT
-220 POKE 56335, PEEK(56335) AND 127 : REM {SPACE}SET TIME OF DAY CLOCK
-230 INPUT "AM OR PM"; A$
-240 A = 128 : IF LEFT$(A$, 1) = "A" THEN A = 0
-250 INPUT "HOUR"; A$ : IF LEN(A$)>2 THEN PRINT "ERROR" : GOTO 250
-260 GOSUB 500 : IF N>18 THEN PRINT "ERROR" : GOTO 250
-270 POKE 56331, A + N : REM SET HOURS
-280 INPUT "MINUTES"; A$ : IF LEN(A$)>2 THEN PRINT "ERROR" : GOTO 280
-290 GOSUB 500 : IF N>89 THEN PRINT "ERROR" : GOTO 280
-300 POKE 56330, N : REM SET MINUTES
-310 INPUT "SECONDS"; A$ : IF LEN(A$)>2 THEN PRINT "ERROR" : GOTO 310
-320 GOSUB 500 : IF N>89 THEN PRINT "ERROR" : GOTO 310
-330 POKE 56329, N : REM SET SECONDS
-340 PRINT "WHEN YOU ARE READY TO START THE CLOCK,"
-350 PRINT "PRESS ANY KEY."
-360 GET A$ : IF A$ = ""THEN 360
-370 POKE 56328,0 : REM START CLOCK
-380 END
-500 IF LEN(A$) = 1 THEN T = 0 : GOTO 520
-510 T = VAL(LEFT$(A$,1))
-520 U = VAL(RIGHT$(A$,1))
-530 N = 16 * T + U : RETURN
-*/
 
 
   sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
@@ -260,9 +226,15 @@ int bbs_get_user(char *data)
 	unsigned short fsize=0;
 	unsigned short siRet=0;
 	unsigned char file[25];
-	
-	strcpy(bbs_user.user_name, data);
 
+	strcpy(bbs_user.user_name, data);
+  //strcat(bbs_user.user_name, '\0');
+/*
+  if(bbs_user.user_name[0] == '\0'){
+    log_message("[bbs] blank handle ", "");
+    return 3;
+  }
+*/
 	sprintf(file, "u-%s", bbs_user.user_name);
 
 	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
@@ -294,28 +266,36 @@ int bbs_get_user(char *data)
 /*---------------------------------------------------------------------------*/
 int bbs_new_user(char *data)
 {
-	unsigned char i;
-	unsigned char file[25];
+	//unsigned char i;
+	//unsigned char file[25];
 
 	strcpy(bbs_user.user_pwd, data);
 	bbs_user.access_req = 1;
 
-  log_message("[debug] new user file: ", bbs_user.user_pwd);
-
-  sprintf(file, "%s:u-%s",board.user_prefix, bbs_user.user_name);
-
-	log_message("[bbs] new user file: ", file);
-		
-	cbm_save (file, board.user_device, &bbs_user, sizeof(bbs_user));
-
-	for (i=0; i<=board.max_boards; i++) {
-	  bbs_usrstats.current_msg[i]=bbs_config.msg_id[i]-20;
-	}
-
-
 
 	return 1;
 }
+
+
+
+/*---------------------------------------------------------------------------*/
+
+int bbs_save_user()
+{
+  unsigned char i;
+  unsigned char file[25];
+
+  sprintf(file, "%s:u-%s",board.user_prefix, bbs_user.user_name);
+
+  cbm_save (file, board.user_device, &bbs_user, sizeof(bbs_user));
+
+  for (i=0; i<=board.max_boards; i++) {
+    bbs_usrstats.current_msg[i]=bbs_config.msg_id[i]-20;
+  }
+
+  return 1;
+}
+
 
 void bbs_login()
 {
@@ -475,9 +455,27 @@ PROCESS_THREAD(bbs_login_process, ev, data)
           }
           case STATUS_NEWUSR: {
            		bbs_new_user(input->data1);
-          		bbs_login();
+              
+              shell_output_str(NULL,"\n\r\n\rhandle:   " , bbs_user.user_name);
+              shell_output_str(NULL,"\n\rpassword: " , bbs_user.user_pwd);
+
+              bbs_status.status=STATUS_CONFUSR;
+              shell_prompt("\n\r\n\rcorrect (y/n): ");
           	break;
           }
+          case STATUS_CONFUSR: {
+
+            if(! strcmp(input->data1, "y") || ! strcmp(input->data1, "Y")){
+              bbs_save_user();
+              bbs_login();
+            }
+            else{
+              shell_prompt("\n\rhandle: ");
+              bbs_status.status=STATUS_HANDLE;
+            }
+            break;
+          }
+
        }
     }
   } /* end ... while */
@@ -1072,13 +1070,15 @@ void update_time(void) {
   unsigned long now_sec;
   char message[40];
 
-  //now_time = (peek(162) + peek(161)*256 + peek(160)*65536)/60;
   now_sec = clock_seconds() + bbs_time.offset;
+
+  if (now_sec >  86400){
+    now_sec = now_sec - 86400;
+  }
 
   //sprintf(message,"clock_seconds: %lu now_time: %lu\n\r",clock_seconds(), now_time);
   //log_message("[bbs] time: ", message);
 
-  //bbs_time.hour = now_time/216000;
   bbs_time.hour = now_sec/3600;
   bbs_time.minute = (now_sec/60 - bbs_time.hour*60); 
 
@@ -1107,9 +1107,6 @@ void update_time(void) {
       ++bbs_time.day;
     }
   }
-
-
-
 
   last_time = now_sec;
 //function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
