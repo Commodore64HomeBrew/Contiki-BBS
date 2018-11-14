@@ -138,8 +138,8 @@ static void bbs_init(void)
   board.dir_boost=1;
 
 
-  bbs_time.minute=16;
-  bbs_time.hour=26;
+  bbs_time.minute=14;
+  bbs_time.hour=1;
   bbs_time.day=13;
   bbs_time.month=11;
   bbs_time.year=2018;
@@ -240,7 +240,7 @@ int bbs_get_user(char *data)
 	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
 
  	sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
-  log_message("[debug] user file: ", file);
+  //log_message("[debug] user file: ", file);
 
 
   if (fsize != 0) {
@@ -312,7 +312,7 @@ void bbs_login()
 
   siRet = cbm_open(10, board.user_device, 10, file);
   if (! siRet) {
-    log_message("[bbs] stats file: ", file);
+    //log_message("[debug] stats file: ", file);
     cbm_read(10, &bbs_usrstats, 2);
     cbm_read(10, &bbs_usrstats, sizeof(bbs_usrstats));
     cbm_close(10);
@@ -358,7 +358,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
     if (ev == PROCESS_EVENT_TIMER) {
        bbs_unlock();
-       log_message("[bbs] *unlock0* ", "");
+       //log_message("[debug] *unlock0* ", "");
     }
     if (ev == shell_event_input) {
       input = data;
@@ -390,7 +390,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
-              log_message("[debug] encoding: ", input->data1);
+              //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
               bbs_status.echo=1;
               //bbs_status.width=BBS_40_COL;
@@ -616,7 +616,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   //This needs to go in a separate function...
   //**********************************************************************
   sprintf(file.szFileName, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
-  log_message("[debug] user stats file: ", file.szFileName);
+  //log_message("[debug] user stats file: ", file.szFileName);
 
   cbm_save (file.szFileName, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
   //**********************************************************************
@@ -625,7 +625,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   bbs_banner(board.sys_prefix, BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, board.sys_device,0);
   log_message("[bbs] *logout* ", bbs_user.user_name);
   bbs_unlock();
-  log_message("[bbs] *unlock2* ", "");
+  //log_message("[debug] *unlock2* ", "");
 
   PROCESS_END();
 }

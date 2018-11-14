@@ -17,6 +17,8 @@
 
 BBS_EM_REC bbs_em;
 extern BBS_STATUS_REC bbs_status;
+extern BBS_BOARD_REC board;
+
 //BBS_BUFFER bbs_buf;
 
 /*---------------------------------------------------------------------------*/
@@ -44,7 +46,7 @@ short bbs_filesize(char *prefix, char *filename, unsigned char device)
 }
 
 /*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
+void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
 {
   unsigned char *file_buffer;
   //char file_buffer[BBS_BUFFER_SIZE];
@@ -137,6 +139,32 @@ cbm_open(10, device, 10, file);
      free(file_buffer);
 }
 
+/*---------------------------------------------------------------------------*/
+const char * file_path(char *file, unsigned short num)
+{
+  unsigned char sub_num_prefix[20];
+    
+    if(board.dir_boost==1){
+
+      if(num<10){
+        sprintf(sub_num_prefix, "%s%d/0/0/0/%c/", board.subs_prefix,bbs_status.board_id, file[2]);
+      }
+      else if(num<100){
+        sprintf(sub_num_prefix, "%s%d/0/0/%c/%c/", board.subs_prefix,bbs_status.board_id, file[2], file[3]);
+      }
+      else if(num<1000){
+        sprintf(sub_num_prefix, "%s%d/0/%c/%c/%c/", board.subs_prefix,bbs_status.board_id, file[2], file[3],file[4]);
+      }
+      else if(num<10000){
+        sprintf(sub_num_prefix, "%s%d/%c/%c/%c/%c/", board.subs_prefix,bbs_status.board_id, file[2], file[3],file[4],file[5]);
+      }
+    }
+    else {
+      sprintf(sub_num_prefix, "%s%d/", board.subs_prefix,bbs_status.board_id);
+    }
+
+    return sub_num_prefix;
+}
 
 
 /*---------------------------------------------------------------------------*/

@@ -9,6 +9,8 @@
 #include "contiki.h"
 #include "bbs-shell.h"
 #include "bbs-post.h"
+#include "bbs-file.h"
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +22,8 @@ extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
 extern BBS_TIME_REC bbs_time;
 //extern BBS_BUFFER bbs_buf;
+
+
 
 
 PROCESS(bbs_post_process, "write");
@@ -34,7 +38,6 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	struct shell_input *input;
 	//static char post_buffer[BBS_MAX_MSGLINES*BBS_LINE_WIDTH];
 	char post_buffer[BBS_BUFFER_SIZE];
-    char sub_num_prefix[20];
 	unsigned short num;
 
 
@@ -110,9 +113,9 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 			num = bbs_config.msg_id[bbs_status.board_id];
 
-
+			
 		    sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
-		    
+		    /*
 		    if(board.dir_boost==1){
 
 		      if(num<10){
@@ -134,9 +137,10 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
    			log_message("[debug] msg prefix: ", sub_num_prefix);
     		log_message("[debug] msg name: ", file.szFileName);
+			*/
+		    sprintf(file.szFileName, "%s:%d-%d", file_path(file.szFileName,num), bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
-
-		    sprintf(file.szFileName, "%s:%d-%d", sub_num_prefix, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
+		    //sprintf(file.szFileName, "%s:%d-%d", sub_num_prefix, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
 			log_message("[debug] file postmsg: ", file.szFileName);
 

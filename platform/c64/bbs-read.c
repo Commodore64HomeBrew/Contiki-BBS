@@ -9,6 +9,7 @@
 #include "contiki.h"
 #include "bbs-shell.h"
 #include "bbs-read.h"
+#include "bbs-file.h"
 #include "bbs-telnetd.h"
 
 #include <stdio.h>
@@ -24,49 +25,29 @@ extern BBS_USER_STATS bbs_usrstats;
 
 int read_msg(unsigned short num)
 {
-    short level_1, level_2;
+    //short level_1, level_2;
     char sub_num_prefix[20];
     ST_FILE file;
 
-    level_1 = num;
+    //level_1 = num;
 
     /* Remove last digit from number till only one digit is left */
-    while(level_1 >= 10)
+    /*while(level_1 >= 10)
     {
         level_1 = level_1 / 10;
-    }
-
-
-    //sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
+    }*/
 
 
     sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
     
-    if(board.dir_boost==1){
-
-      if(num<10){
-        sprintf(sub_num_prefix, "%s%d/0/0/0/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2]);
-      }
-      else if(num<100){
-        sprintf(sub_num_prefix, "%s%d/0/0/%c/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2], file.szFileName[3]);
-      }
-      else if(num<1000){
-        sprintf(sub_num_prefix, "%s%d/0/%c/%c/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2], file.szFileName[3],file.szFileName[4]);
-      }
-      else if(num<10000){
-        sprintf(sub_num_prefix, "%s%d/%c/%c/%c/%c/", board.subs_prefix,bbs_status.board_id, file.szFileName[2], file.szFileName[3],file.szFileName[4],file.szFileName[5]);
-      }
-    }
-    else {
-      sprintf(sub_num_prefix, "%s%d/", board.subs_prefix,bbs_status.board_id);
-    }
-
     set_prompt();
     bbs_status.status=STATUS_READ;
+
+    strcpy(sub_num_prefix, file_path(file.szFileName, num));
     bbs_banner(sub_num_prefix, file.szFileName, "", board.subs_device,1);
 
-    log_message("[debug] msg prefix: ", sub_num_prefix);
-    log_message("[debug] msg name: ", file.szFileName);
+    //log_message("[debug] msg prefix: ", sub_num_prefix);
+    //log_message("[debug] msg name: ", file.szFileName);
 
     bbs_status.status=STATUS_LOCK;
 
