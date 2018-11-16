@@ -15,7 +15,7 @@
 #include "bbs-encodings.h"
 #include "bbs-setboard.h"
 #include "bbs-file.h"
-#include <em.h>
+//#include <em.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -103,8 +103,9 @@ static void bbs_init(void)
   //unsigned char *buffer;
   unsigned short fsize=0;
   unsigned short siRet=0;
-  //unsigned short i;
+  unsigned long set_time;
   unsigned char file[25];
+  unsigned char message[40];
 
 
   sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
@@ -138,14 +139,18 @@ static void bbs_init(void)
   board.dir_boost=1;
 
 
-  bbs_time.minute=14;
-  bbs_time.hour=1;
-  bbs_time.day=13;
+  bbs_time.minute=45;
+  bbs_time.hour=17;
+  bbs_time.day=15;
   bbs_time.month=11;
   bbs_time.year=2018;
 
-  bbs_time.offset = (bbs_time.minute*60 + bbs_time.hour*3600) - clock_seconds();
+  set_time = bbs_time.minute*60 + bbs_time.hour*3600;
 
+  bbs_time.offset =  set_time - clock_seconds();
+  sprintf(message, "set:%li clock:%li offset:%li", set_time, clock_seconds(), bbs_time.offset);
+
+  log_message("[debug] ", message);
 
   sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
 
@@ -1080,7 +1085,7 @@ void update_time(void) {
   //log_message("[bbs] time: ", message);
 
   bbs_time.hour = now_sec/3600;
-  bbs_time.minute = (now_sec/60 - bbs_time.hour*60); 
+  bbs_time.minute = now_sec/60 - bbs_time.hour*60; 
 
 
   if (last_time > now_sec) {
