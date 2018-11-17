@@ -8,7 +8,7 @@
 #ifndef __BBSDEFS_H_
 #define __BBSDEFS_H_
 
-#define BBS_COPYRIGHT_STRING "\n\r        Magnetar BBS 0.1.0 \n\r     (c) 2018-> by K. Casteels\n\r           based on Contiki BBS,\n\r     (c) 2009-2015 by N. Haedecke\n\r           based on Contiki OS,\n\r     (c) 2003-2013 by Adam Dunkels\n\r"
+#define BBS_COPYRIGHT_STRING "\n\r        magnetar bbs 0.1.0 \n\r     (c) 2018-> by k. casteels\n\r           based on contiki bbs,\n\r     (c) 2009-2015 by n. haedecke\n\r           based on contiki os,\n\r     (c) 2003-2013 by adam dunkels\n\r"
 
 //#define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
 #define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\r\n\r>  "
@@ -123,6 +123,7 @@ typedef struct {
   unsigned char encoding;
   unsigned char echo;
   unsigned char width;
+  unsigned char lines;
   unsigned short msg_size;
   char last_caller[12];
   char prompt[40];

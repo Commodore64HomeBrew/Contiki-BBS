@@ -142,13 +142,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 		    //sprintf(file.szFileName, "%s:%d-%d", sub_num_prefix, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
-			log_message("[debug] file postmsg: ", file.szFileName);
 
 			/* Save the post to file */
 		
 			cbm_save (file.szFileName, board.subs_device, &post_buffer, bbs_status.msg_size);
 
-			log_message("[bbs] *post* ", post_buffer);
+			log_message("post: ", post_buffer);
+			log_message("write: ", file.szFileName);
 
 			//sprintf(post_buffer, "bu:%d ms:%d lb:%d", bytes_used, bbs_status.msg_size, sizeof(post_buffer));
 			//log_message("[debug] *bytes-used* ", post_buffer);

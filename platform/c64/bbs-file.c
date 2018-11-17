@@ -53,12 +53,14 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 
   unsigned short fsize;
   unsigned short siRet=0, len=0;
-  unsigned short i=0, j=0, col, preCol;
+  unsigned short i=0, j=0;
+  unsigned short line=0;
+  unsigned short col, preCol;
   unsigned short width;
   unsigned char file[25];
 
   sprintf(file, "%s%s",szBannerFile, fileSuffix);
-  log_message("[debug] read file: ", file);
+  log_message("read: ", file);
 
   //log_message("[debug] ", file);
 
@@ -90,7 +92,7 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   //cbm_load(file, device, &buffer);
 
   //siRet = cbm_open(10, device, 10, file);
-cbm_open(10, device, 10, file);
+  cbm_open(10, device, 10, file);
   //if (! siRet) {
 
 	  if (bbs_status.status == STATUS_READ){
@@ -107,9 +109,18 @@ cbm_open(10, device, 10, file);
       col=0;
       preCol=0;
       for (i=0; i<len; i++) {
+        /*
+        if (line == bbs_status.lines) {
+            line=0;
+            shell_output_str(NULL, "\n\r\x05", file_buffer);
+            shell_prompt("\n\rreturn to continue");
+        }
+        */
+
 
         if (file_buffer[i] == ISO_cr){
         	col=0;
+          ++line;
         }
         else if (col == width){
 
@@ -124,6 +135,7 @@ cbm_open(10, device, 10, file);
           preCol=j;
           //Set the new column counter, taking into account the wrapped word:
           col=i-j;
+          ++line;
 
         }
         else{
