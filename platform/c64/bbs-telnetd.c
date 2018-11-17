@@ -483,7 +483,8 @@ telnetd_appcall(void *ts)
     if(uip_closed() ||
         uip_aborted() ||
         uip_timedout()) {
-      shell_stop();
+      shell_quit();
+      //shell_stop();
       connected = 0;
     }
     if(uip_acked()) {
