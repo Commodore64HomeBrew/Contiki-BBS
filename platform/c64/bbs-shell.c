@@ -35,12 +35,13 @@ BBS_USER_REC bbs_user;
 BBS_USER_STATS bbs_usrstats;
 BBS_TIME_REC bbs_time;
 unsigned short bbs_locked=0;
+unsigned short set_step=0;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(shell_process, "Shell");
 PROCESS(shell_server_process, "Shell server");
 PROCESS(bbs_version_process, "version");
-SHELL_COMMAND(bbs_version_command, "v", "v : show version and copyright", 
+SHELL_COMMAND(bbs_version_command, "v", "v : show version info", 
               &bbs_version_process);
 PROCESS(help_command_process, "help");
 SHELL_COMMAND(help_command, "?", "? : shows this help",
@@ -58,6 +59,9 @@ PROCESS(bbs_login_process, "login");
 SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
 PROCESS(bbs_timer_process, "timer");
 
+PROCESS(bbs_settime_process, "settime");
+//SHELL_COMMAND(bbs_settime_command, "t", "t : set time", &bbs_settime_process);
+SHELL_COMMAND(bbs_settime_command, "t", "", &bbs_settime_process);
 
 
 
@@ -140,8 +144,8 @@ static void bbs_init(void)
 
 
   bbs_time.minute=17;
-  bbs_time.hour=0;
-  bbs_time.day=17;
+  bbs_time.hour=8;
+  bbs_time.day=18;
   bbs_time.month=11;
   bbs_time.year=2018;
 
@@ -158,14 +162,14 @@ static void bbs_init(void)
 
   if (fsize != 0) {
     cbm_open(10, board.sys_device, 10, file);
-    log_message("", "config loaded from file");
+    log_message("\x99", "config loaded from file");
     cbm_read(10, &bbs_config, 2);
     cbm_read(10, &bbs_config, sizeof(bbs_config));
     cbm_close(10);
   }
   else{
 
-    log_message("", "config file not found, using defaults");
+    log_message("\x96", "config file not found, using defaults");
     /* set sub msg counts */
     bbs_config.msg_id[1]=1611;
     bbs_config.msg_id[2]=140;
@@ -194,30 +198,36 @@ static void bbs_init(void)
 void bbs_splash(unsigned short mode) 
 {
   if (mode==BBS_MODE_CONSOLE)
-    log_message("",BBS_COPYRIGHT_STRING);
+    log_message("\x05",BBS_COPYRIGHT_STRING);
   else
     shell_output_str(&bbs_version_command,"",BBS_COPYRIGHT_STRING);
 }
 /*---------------------------------------------------------------------------*/
 void bbs_lock(void)
 {
+
+  log_message("\x1c","bbs lock");
+
   //Change border colour to red
   bordercolor(2);
   //Blank the screen to speed things up
   //poke(0xd011, peek(0xd011) & 0xef);
-
+  
+  bbs_locked=1;
   bbs_defaults();
   process_start(&bbs_timer_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
 void bbs_unlock(void)
 {
+
+  log_message("\x1e","bbs unlock");
+
   //Change border colour to black
   bordercolor(0);
   //Turn on the screen again
   //poke(0xd011, peek(0xd011) | 0x  10);
 
-  log_message("", "bbs unlock");
   bbs_status.status=STATUS_UNLOCK;
   bbs_locked=0;
   bbs_defaults();
@@ -250,7 +260,7 @@ int bbs_get_user(char *data)
   if (fsize != 0) {
     siRet = cbm_open(10, board.user_device, 10, file);
     if ( ! siRet ) {
-      log_message("login: ", bbs_user.user_name);
+      log_message("\x99login: ", bbs_user.user_name);
       cbm_read(10, &bbs_user, 2);
       cbm_read(10, &bbs_user, sizeof(bbs_user));
       cbm_close(10);
@@ -258,7 +268,7 @@ int bbs_get_user(char *data)
     return 1;
 	}
 	else{
-    log_message("user not found: ", bbs_user.user_name);
+    log_message("\x96user not found: ", bbs_user.user_name);
     return 2;
   }
 
@@ -322,7 +332,7 @@ void bbs_login()
     cbm_close(10);
   }
   else{
-       log_message("stats file load error: ", file);
+       log_message("\x96stats file load error: ", file);
   }
 
   //We need a debug msg here for log on time.
@@ -337,7 +347,9 @@ void bbs_login()
 	bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
 	//em_out(0);
 
-	shell_output_str(NULL, "\r\nlast caller: ", bbs_status.last_caller);
+	shell_output_str(NULL, "\r\n\x9clast caller: \x9e", bbs_status.last_caller);
+  shell_output_str(NULL, "\r\n\x05? \x9fto list commands\r\n", "");
+
 	strcpy(bbs_status.last_caller, bbs_user.user_name);
 	//Display the sub banner:
 	bbs_sub_banner();
@@ -362,7 +374,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
     if (ev == PROCESS_EVENT_TIMER) {
        bbs_unlock();
-       //log_message("[debug] *unlock0* ", "");
+       log_message("\x9a","event timer");
     }
     if (ev == shell_event_input) {
       input = data;
@@ -451,7 +463,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       			else {
       			  shell_output_str(&bbs_login_command, "login failed.", "");
       			  bbs_unlock();
-      			  log_message("", "login failed");
+      			  log_message("\x96", "login failed");
       			}
       			break;
           }
@@ -462,7 +474,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             } else {
               shell_output_str(&bbs_login_command, "wrong password", "");
               bbs_unlock();
-              log_message("", "wrong password ");
+              log_message("\x96", "wrong password ");
             }
             break;
           }
@@ -636,12 +648,76 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 
 
   bbs_banner(board.sys_prefix, BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, board.sys_device,0);
-  log_message("logout: ", bbs_user.user_name);
+  log_message("\x05logout: ", bbs_user.user_name);
   bbs_unlock();
   //log_message("[debug] *unlock2* ", "");
 
   PROCESS_END();
 }
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(bbs_settime_process, ev, data)
+{
+  struct shell_input *input;
+  unsigned long set_time;
+  unsigned short num;
+  char message[40];
+  PROCESS_BEGIN();
+
+  sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+  shell_output_str(NULL, "\n\rold time: ", message);
+  log_message("\x9eold time: ", message);
+
+  shell_prompt("year:");
+  set_step=1;
+
+  while(1) {
+
+    PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+
+    if (ev == shell_event_input) {
+      input = data;
+      num = atoi(input->data1);
+
+      if(set_step==1) {
+        bbs_time.year=num;
+        set_step=2;
+        shell_prompt("month:");
+      }
+      else if (set_step==2) {
+        bbs_time.month=num;
+        set_step=3;
+        shell_prompt("day:");
+      }
+      else if (set_step==3) {
+        bbs_time.day=num;
+        set_step=4;
+        shell_prompt("hour:");
+      }
+      else if (set_step==4) {
+        bbs_time.hour=num;
+        set_step=5;
+        shell_prompt("minute:");
+      }
+      else if (set_step==5) {
+        bbs_time.minute=num;
+        set_step=0;
+        sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+        shell_output_str(NULL, "\n\t\rnew time: ", message);
+        log_message("\x9enew time: ", message);
+
+        set_time = bbs_time.minute*60 + bbs_time.hour*3600;
+        bbs_time.offset =  set_time - clock_seconds();
+        break;
+      }
+    }
+  }
+  PROCESS_EXIT();
+  PROCESS_END();
+
+}
+
+
+
 /*---------------------------------------------------------------------------*/
 static void
 replace_braces(char *commandline)
@@ -910,8 +986,8 @@ PROCESS_THREAD(shell_process, ev, data)
     }
 
     if (ev == PROCESS_EVENT_TIMER){
-       bbs_unlock();
-       log_message("", "timer event");
+      log_message("\x9a", "timer event2");
+      bbs_unlock();
     }
     if(bbs_status.status>STATUS_HANDLE) {
       //etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
@@ -965,6 +1041,8 @@ shell_init(void)
   shell_register_command(&help_command);
   shell_register_command(&quit_command);
   shell_register_command(&bbs_version_command);
+  shell_register_command(&bbs_settime_command);
+
 
   /* local console eye candy */
   clrscr();
@@ -1037,13 +1115,13 @@ shell_start(void)
   /*bbs_status.board_id=1;
   bbs_config.msg_id=1;
   process_start(&bbs_timer_process, NULL);*/
-  bbs_lock();
   
   if(bbs_locked == 1) {
-    shell_exit(); 
-    log_message("","busy");
+    shell_exit(); //This disconnects the user!
+    log_message("\x96","busy");
   } else {
-    bbs_locked=1;
+    //bbs_locked=1;
+    bbs_lock();
 
     shell_output_str(NULL, PETSCII_LOWER, board.board_name);
 
@@ -1059,7 +1137,7 @@ void
 shell_stop(void)
 {
 
-  log_message("", "shell stop");
+  log_message("\x9e", "shell stop");
 
   bbs_unlock();
   killall();
@@ -1095,7 +1173,7 @@ void update_time(void) {
 
   if (last_time > now_sec) {
     sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-    log_message("time: ", message);
+    log_message("\x9etime: ", message);
 
     if (bbs_time.day==30){
 

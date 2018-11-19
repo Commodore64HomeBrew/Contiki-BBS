@@ -29,13 +29,13 @@ void bbs_sub_banner(void)
 
   sprintf(file, "%s%d",BBS_PREFIX_SUB,bbs_status.board_id);
   bbs_banner(board.sys_prefix, file, bbs_status.encoding_suffix, board.sys_device,0);
-  sprintf(message, "\x05\r\n%s\n\r", board.sub_names[bbs_status.board_id]);
+  sprintf(message, "\x05%s\n\r", board.sub_names[bbs_status.board_id]);
   shell_output_str(NULL, message, "");
 }
 
 
 PROCESS(bbs_setboard_process, "board");
-SHELL_COMMAND(bbs_setboard_command, "s", "s : select active board", &bbs_setboard_process);
+SHELL_COMMAND(bbs_setboard_command, "s", "s : select msg board", &bbs_setboard_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_setboard_process, ev, data)
 {
@@ -53,7 +53,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
   shell_output_str(NULL,"\n\r","");
 
   for (num=1; num<=BBS_MAX_BOARDS;num++){
-    sprintf(message, "\x05%d: \x9e%s \x1c-> \x05%d", num, board.sub_names[num], bbs_config.msg_id[num] - bbs_usrstats.current_msg[num]);
+    sprintf(message, "\x05%d:\x9e%s\x1c-\x05%d", num, board.sub_names[num], bbs_config.msg_id[num] - bbs_usrstats.current_msg[num]);
     shell_output_str(NULL,"", message);
   }
 
@@ -82,7 +82,7 @@ PROCESS_THREAD(bbs_setboard_process, ev, data)
 
 
 PROCESS(bbs_nextboard_process, "next");
-SHELL_COMMAND(bbs_nextboard_command, "+", "+ : next sub board", &bbs_nextboard_process);
+SHELL_COMMAND(bbs_nextboard_command, "+", "+ : next msg board", &bbs_nextboard_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_nextboard_process, ev, data)
 {
@@ -103,7 +103,7 @@ PROCESS_THREAD(bbs_nextboard_process, ev, data)
 /*---------------------------------------------------------------------------*/
 
 PROCESS(bbs_prevboard_process, "previous");
-SHELL_COMMAND(bbs_prevboard_command, "-", "- : previous sub board", &bbs_prevboard_process);
+SHELL_COMMAND(bbs_prevboard_command, "-", "- : previous msg board", &bbs_prevboard_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_prevboard_process, ev, data)
 {

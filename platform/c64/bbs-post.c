@@ -45,6 +45,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 	ST_FILE file;
 
 	PROCESS_BEGIN();
+	
+	log_message("\x9a","posting msg...");
 
 	//process_exit(&bbs_read_process);
 	//process_exit(&bbs_setboard_process);
@@ -101,6 +103,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 
 		else if (! strcmp(input->data1, "/a") ) {
+			log_message("\x96","post abort!");
 			//linecount=0;
 			//disk_access=1;
 			PROCESS_EXIT();
@@ -147,8 +150,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 		
 			cbm_save (file.szFileName, board.subs_device, &post_buffer, bbs_status.msg_size);
 
-			log_message("post: ", post_buffer);
-			log_message("write: ", file.szFileName);
+			log_message("\x05post: ", post_buffer);
+			log_message("\x99write: ", file.szFileName);
 
 			//sprintf(post_buffer, "bu:%d ms:%d lb:%d", bytes_used, bbs_status.msg_size, sizeof(post_buffer));
 			//log_message("[debug] *bytes-used* ", post_buffer);

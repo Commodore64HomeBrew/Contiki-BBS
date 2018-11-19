@@ -30,7 +30,7 @@
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
 
-#define BBS_BUFFER_SIZE    1800
+#define BBS_BUFFER_SIZE    1400
 
 
 #define BBS_PET40_SUFFIX       "-c"

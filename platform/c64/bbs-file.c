@@ -60,7 +60,7 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   unsigned char file[25];
 
   sprintf(file, "%s%s",szBannerFile, fileSuffix);
-  log_message("read: ", file);
+  log_message("\x9fread: ", file);
 
   //log_message("[debug] ", file);
 
