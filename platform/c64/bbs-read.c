@@ -92,7 +92,7 @@ PROCESS_THREAD(bbs_read_process, ev, data)
 
 PROCESS(bbs_nextmsg_process, "nextmsg");
 SHELL_COMMAND(bbs_nextmsg1_command, "\x0d", "", &bbs_nextmsg_process);
-SHELL_COMMAND(bbs_nextmsg2_command, "\x0a", "CR : read next message", &bbs_nextmsg_process);
+SHELL_COMMAND(bbs_nextmsg2_command, "\x0a", "ret : read next message", &bbs_nextmsg_process);
 
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_nextmsg_process, ev, data)

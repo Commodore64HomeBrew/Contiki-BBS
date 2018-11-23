@@ -199,6 +199,7 @@ shell_default_output(const char *str1, int len1, const char *str2, int len2)
 void
 shell_exit(void)
 {
+  log_message("\x9e", "shell exit");
   s.state = STATE_CLOSE;
 }
 /*---------------------------------------------------------------------------*/
@@ -483,7 +484,7 @@ telnetd_appcall(void *ts)
     if(uip_closed() ||
         uip_aborted() ||
         uip_timedout()) {
-      //shell_quit();
+      log_message("\x9e", "telnetd stop");
       shell_stop();
       connected = 0;
     }

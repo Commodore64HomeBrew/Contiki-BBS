@@ -11,7 +11,7 @@
 #define BBS_COPYRIGHT_STRING "\n\r        magnetar bbs 0.1.0 \n\r     (c) 2018-> by k. casteels\n\r           based on contiki bbs,\n\r     (c) 2009-2015 by n. haedecke\n\r           based on contiki os,\n\r     (c) 2003-2013 by adam dunkels\n\r"
 
 //#define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
-#define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\r\n\r>  "
+#define BBS_ENCODING_STRING "\n\rpetscii - 80col (8)\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\r\n\r>  "
 
 
 #define BBS_LOCKMODE_OFF        0
@@ -22,7 +22,7 @@
 
 #define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        20
-
+#define BBS_80_COL             79
 #define BBS_40_COL	           39
 #define BBS_22_COL	           21
 #define BBS_LINE_WIDTH         40
@@ -32,7 +32,7 @@
 
 #define BBS_BUFFER_SIZE    1400
 
-
+#define BBS_PET80_SUFFIX       "-c"
 #define BBS_PET40_SUFFIX       "-c"
 #define BBS_PET22_SUFFIX       "-v"
 #define BBS_ASCII_SUFFIX       "-a"

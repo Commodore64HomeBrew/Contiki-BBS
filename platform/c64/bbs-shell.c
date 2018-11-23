@@ -347,8 +347,10 @@ void bbs_login()
 	bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
 	//em_out(0);
 
-	shell_output_str(NULL, "\r\n\x9clast caller: \x9e", bbs_status.last_caller);
-  shell_output_str(NULL, "\r\n\x05? \x9fto list commands\r\n", "");
+	shell_output_str(NULL, "\x9clast caller: \x9e", bbs_status.last_caller);
+  shell_output_str(NULL, "\r\n\x05? \x9fto list commands", "");
+  shell_output_str(NULL, "\x05s \x9eselect msg board\r\n", "");
+
 
 	strcpy(bbs_status.last_caller, bbs_user.user_name);
 	//Display the sub banner:
@@ -382,16 +384,16 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
           case STATUS_UNLOCK: {
 
-            /*
+
             if(! strcmp(input->data1, "8")){
               //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=0;
               //bbs_status.echo=1;
               bbs_status.width=BBS_80_COL;
               strcpy(bbs_status.encoding_suffix, BBS_PET80_SUFFIX);
-            */
+            }
 
-            if(! strcmp(input->data1, "4")){
+            else if(! strcmp(input->data1, "4")){
               //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=0;
               //bbs_status.echo=1;
@@ -622,7 +624,7 @@ PROCESS_THREAD(help_command_process, ev, data)
   struct shell_command *c;
   PROCESS_BEGIN();
 
-  shell_output_str(&help_command, "Available commands:", "");
+  shell_output_str(&help_command, "available commands:", "");
   for(c = list_head(commands);
       c != NULL;
       c = c->next) {
@@ -1146,6 +1148,7 @@ shell_stop(void)
 void
 shell_quit(void)
 {
+  log_message("\x9e", "shell quit");
   process_exit(&bbs_login_process);
   process_exit(&bbs_timer_process);
   process_exit(&shell_process);
@@ -1156,7 +1159,7 @@ shell_quit(void)
 
 void update_time(void) {
   unsigned long now_sec;
-  char message[40];
+  //char message[40];
 
   now_sec = clock_seconds() + bbs_time.offset;
 
@@ -1172,8 +1175,8 @@ void update_time(void) {
 
 
   if (last_time > now_sec) {
-    sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-    log_message("\x9etime: ", message);
+    //sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+    //log_message("\x9etime: ", message);
 
     if (bbs_time.day==30){
 
