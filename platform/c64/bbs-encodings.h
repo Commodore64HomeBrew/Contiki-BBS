@@ -47,12 +47,9 @@
  *
  */
 
-#ifndef PETSCIICONV_H_
-#define PETSCIICONV_H_
+#include "contiki.h"
 
-#ifdef WITH_PETSCII
-
-#include "contiki-conf.h"
+//#include "contiki-conf.h"
 
 /**
  * Convert a text buffer from PETSCII to ASCII.
@@ -60,20 +57,16 @@
  * \param buf A pointer to the buffer which is to be converted.
  * \param len The length of the buffer to be converted.
  */
-void petsciiconv_toascii(char *buf, unsigned int len);
+//void petsciiconv_toascii(char *buf, unsigned int len);
+void petscii_to_ascii(char *buf, unsigned int len);
+
 /**
  * Convert a text buffer from ASCII to PETSCII.
  *
  * \param buf A pointer to the buffer which is to be converted.
  * \param len The length of the buffer to be converted.
  */
-void petsciiconv_topetscii(char *buf, unsigned int len);
+//void petsciiconv_topetscii(char *buf, unsigned int len);
+void ascii_to_petscii(char *buf, unsigned int len);
 
-#else /* WITH_PETSCII */
 
-#define petsciiconv_toascii(buf, len)
-#define petsciiconv_topetscii(buf, len)
-
-#endif /* WITH_PETSCII */
-
-#endif /* PETSCIICONV_H_ */

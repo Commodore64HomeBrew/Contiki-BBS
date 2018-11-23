@@ -10,7 +10,7 @@ TARGET = c64
 
 #PROJECTDIRS = ../.. $(CONTIKI)/apps/telnetd
 
-PROJECT_SOURCEFILES = bbs-shell.c bbs-file.c bbs-read.c bbs-post.c bbs-setboard.c bbs-telnetd.c
+PROJECT_SOURCEFILES = bbs-shell.c bbs-file.c bbs-read.c bbs-post.c bbs-setboard.c bbs-telnetd.c bbs-encodings.c
 
 DEFINES = WITH_LOGGING,WITH_BOOST,TELNETD_CONF_REJECT,TELNETD_CONF_MAX_IDLE_TIME=0
 
