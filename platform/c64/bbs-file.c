@@ -51,7 +51,7 @@ short bbs_filesize(char *prefix, char *filename, unsigned char device)
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap)//, unsigned char encodeToggle) 
 {
-  unsigned char *file_buffer;
+  //unsigned char *file_buffer;
   //char file_buffer[BBS_BUFFER_SIZE];
 
   unsigned short fsize;
@@ -81,14 +81,14 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
     return;
   }
 */
-  file_buffer = (char*) malloc(fsize);
+  //file_buffer = (char*) malloc(fsize);
 /*
   if (buffer == NULL) {
     shell_output_str(NULL, "", "error: malloc \n\r");
     return;
   }
 */
-  memset(file_buffer, 0, fsize);
+  memset(buf.bufmem, 0, fsize);
 
 
   //cbm_load(const char* name, unsigned char device, void* data)
@@ -99,11 +99,11 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   //if (! siRet) {
 
 	  if (bbs_status.status == STATUS_READ){
-			cbm_read(10, file_buffer, 2);
+			cbm_read(10, buf.bufmem, 2);
       fsize=fsize-2;
 	  }
 
-    len = cbm_read(10, file_buffer , fsize);
+    len = cbm_read(10, buf.bufmem , fsize);
     cbm_close(10);
 
 
@@ -115,13 +115,13 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
         /*
         if (line == bbs_status.lines) {
             line=0;
-            shell_output_str(NULL, "\n\r\x05", file_buffer);
+            shell_output_str(NULL, "\n\r\x05", buf.bufmem);
             shell_prompt("\n\rreturn to continue");
         }
         */
 
 
-        if (file_buffer[i] == ISO_cr){
+        if (buf.bufmem[i] == ISO_cr){
         	col=0;
           ++line;
         }
@@ -129,11 +129,11 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 
           //We're at the end of the row. Walk back until you find a space and then insert a CR:
           j=i;
-  		    while(file_buffer[j] != PETSCII_SPACE && j>preCol){
+  		    while(buf.bufmem[j] != PETSCII_SPACE && j>preCol){
   		      --j;
   		    }
           //Space is found; insert CR:
-          file_buffer[j] = ISO_cr;
+          buf.bufmem[j] = ISO_cr;
           //Record counter position of previous line:
           preCol=j;
           //Set the new column counter, taking into account the wrapped word:
@@ -156,10 +156,12 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 
   //uip_send(file_buffer, strlen(file_buffer));
 
-  shell_output_str(NULL, "\n\r\x05", file_buffer);
+  //shell_output_str(NULL, "\n\r\x05", file_buffer);
 
-  if (file_buffer != NULL)
-     free(file_buffer);
+	buf.ptr = strlen(buf.bufmem);
+
+  if (buf.bufmem != NULL)
+     free(buf.bufmem);
 }
 
 /*---------------------------------------------------------------------------*/

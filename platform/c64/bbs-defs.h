@@ -59,15 +59,15 @@
 
 #define BBS_STRING_VERSION "0.1.0"
 
-#define STATUS_UNLOCK  0
-#define STATUS_HANDLE	 1
-#define STATUS_PASSWD	 2
-#define STATUS_NEWUSR  3
-#define STATUS_CONFUSR 4
-#define STATUS_LOCK		 5
-#define STATUS_SUBJ    6
-#define STATUS_POST		 7
-#define STATUS_READ		 8
+#define STATUS_UNLOCK	0
+#define STATUS_HANDLE	1
+#define STATUS_PASSWD	2
+#define STATUS_NEWUSR	3
+#define STATUS_CONFUSR	4
+#define STATUS_LOCK		5
+#define STATUS_SUBJ		6
+#define STATUS_POST		7
+#define STATUS_READ		8
 
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_WHITE           "\x05"
@@ -147,8 +147,8 @@ typedef struct {
 
 typedef struct {
   char bufmem[BBS_BUFFER_SIZE];
-  int ptr;
-  int size;
+  unsigned long ptr;
+  unsigned long size;
 } BBS_BUFFER;
 
 
