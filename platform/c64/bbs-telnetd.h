@@ -48,4 +48,6 @@ void telnetd_gui_output(const char *str1, int len1, const char *str2, int len2);
 void telnetd_gui_quit(void);
 void telnetd_quit(void);
 
+int buf_append(const char *data, int len);
+
 #endif /* TELNETD_H_ */

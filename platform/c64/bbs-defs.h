@@ -30,7 +30,7 @@
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
 
-#define BBS_BUFFER_SIZE    1400
+#define BBS_BUFFER_SIZE    1200
 
 #define BBS_PET80_SUFFIX       "-c"
 #define BBS_PET40_SUFFIX       "-c"
@@ -144,13 +144,12 @@ typedef struct {
   short file[10][2];
 } BBS_EM_REC;
 
-/*
+
 typedef struct {
   char bufmem[BBS_BUFFER_SIZE];
   int ptr;
   int size;
 } BBS_BUFFER;
-*/
 
 
 #endif /* __BBSDEFS_H_ */

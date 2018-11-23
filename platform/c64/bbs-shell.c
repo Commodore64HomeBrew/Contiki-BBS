@@ -651,7 +651,8 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 
   bbs_banner(board.sys_prefix, BBS_BANNER_LOGOUT, bbs_status.encoding_suffix, board.sys_device,0);
   log_message("\x05logout: ", bbs_user.user_name);
-  bbs_unlock();
+  shell_stop();
+  //bbs_unlock();
   //log_message("[debug] *unlock2* ", "");
 
   PROCESS_END();
@@ -1138,9 +1139,7 @@ shell_start(void)
 void
 shell_stop(void)
 {
-
   log_message("\x9e", "shell stop");
-
   bbs_unlock();
   killall();
 }

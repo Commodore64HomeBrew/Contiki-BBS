@@ -9,6 +9,7 @@
 #include "bbs-file.h"
 #include "bbs-defs.h"
 #include "bbs-telnetd.h"
+#include "contiki-net.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +20,9 @@ BBS_EM_REC bbs_em;
 extern BBS_STATUS_REC bbs_status;
 extern BBS_BOARD_REC board;
 
-//BBS_BUFFER bbs_buf;
+extern BBS_BUFFER buf;
+//extern telnetd_buf buf;
+//static telnetd_buf buf;
 
 /*---------------------------------------------------------------------------*/
 short bbs_filesize(char *prefix, char *filename, unsigned char device)
@@ -46,7 +49,7 @@ short bbs_filesize(char *prefix, char *filename, unsigned char device)
 }
 
 /*---------------------------------------------------------------------------*/
-void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap) 
+void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap)//, unsigned char encodeToggle) 
 {
   unsigned char *file_buffer;
   //char file_buffer[BBS_BUFFER_SIZE];
@@ -144,9 +147,17 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
       }
     }
   //}
+/*
+  if(encodeToggle==1){
+    if(bbs_status.encoding==1){petscii_to_ascii(&buf->bufmem[buf->ptr], copylen);}
+  }
+*/
+  //buf_append(file_buffer, len(file_buffer));
+
+  //uip_send(file_buffer, strlen(file_buffer));
 
   shell_output_str(NULL, "\n\r\x05", file_buffer);
-  
+
   if (file_buffer != NULL)
      free(file_buffer);
 }

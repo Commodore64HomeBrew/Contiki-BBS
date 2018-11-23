@@ -108,54 +108,51 @@ struct telnetd_buf {
   int size;
 };
 
-static struct telnetd_buf buf;
+//static struct telnetd_buf buf;
+BBS_BUFFER buf;
 
 static uint8_t connected;
 
 /*---------------------------------------------------------------------------*/
 static void
-buf_init(struct telnetd_buf *buf)
+buf_init()
 {
-  buf->ptr = 0;
-  buf->size = TELNETD_CONF_NUMLINES * TELNETD_CONF_LINELEN;
+  buf.ptr = 0;
+  buf.size = TELNETD_CONF_NUMLINES * TELNETD_CONF_LINELEN;
 }
 /*---------------------------------------------------------------------------*/
-static int
-buf_append(struct telnetd_buf *buf, const char *data, int len)
+int
+buf_append(const char *data, int len)
 {
+  //struct telnetd_buf *buf;
   int copylen;
 
   //PRINTF("buf_append len %d (%d) '%.*s'\n", len, buf->ptr, len, data);
-  copylen = MIN(len, buf->size - buf->ptr);
-  memcpy(&buf->bufmem[buf->ptr], data, copylen);
-  if(bbs_status.encoding==1){petscii_to_ascii(&buf->bufmem[buf->ptr], copylen);}
-  buf->ptr += copylen;
+  copylen = MIN(len, buf.size - buf.ptr);
+  memcpy(&buf.bufmem[buf.ptr], data, copylen);
+  if(bbs_status.encoding==1){petscii_to_ascii(&buf.bufmem[buf.ptr], copylen);}
+  buf.ptr += copylen;
 
   return copylen;
 }
 /*---------------------------------------------------------------------------*/
 static void
-buf_copyto(struct telnetd_buf *buf, char *to, int len)
+buf_copyto(char *to, int len)
 {
-  memcpy(to, &buf->bufmem[0], len);
+  memcpy(to, &buf.bufmem[0], len);
 }
 /*---------------------------------------------------------------------------*/
 static void
-buf_pop(struct telnetd_buf *buf, int len)
+buf_pop(int len)
 {
   int poplen;
 
   //PRINTF("buf_pop len %d (%d)\n", len, buf->ptr);
-  poplen = MIN(len, buf->ptr);
-  memcpy(&buf->bufmem[0], &buf->bufmem[poplen], buf->ptr - poplen);
-  buf->ptr -= poplen;
+  poplen = MIN(len, buf.ptr);
+  memcpy(&buf.bufmem[0], &buf.bufmem[poplen], buf.ptr - poplen);
+  buf.ptr -= poplen;
 }
-/*---------------------------------------------------------------------------*/
-static int
-buf_len(struct telnetd_buf *buf)
-{
-  return buf->ptr;
-}
+
 /*---------------------------------------------------------------------------*/
 void
 telnetd_quit(void)
@@ -171,13 +168,16 @@ telnetd_quit(void)
 void
 shell_prompt(char *str)
 {
-  buf_append(&buf, str, (int)strlen(str));
+  buf_append(str, (int)strlen(str));
 }
 /*---------------------------------------------------------------------------*/
 void
 shell_default_output(const char *str1, int len1, const char *str2, int len2)
 {
   static const char crnl[2] = {ISO_cr, ISO_nl};
+  
+  //if(bbs_status.encoding==1){petscii_to_ascii(&str1, len1);}
+  //if(bbs_status.encoding==1){petscii_to_ascii(&str2, len2);}
 
   if(len1 > 0 && str1[len1 - 1] == '\n') {
     --len1;
@@ -191,9 +191,9 @@ shell_default_output(const char *str1, int len1, const char *str2, int len2)
 #if TELNETD_CONF_GUI
   telnetd_gui_output(str1, len1, str2, len2);
 #endif /* TELNETD_CONF_GUI */
-  buf_append(&buf, str1, len1);
-  buf_append(&buf, str2, len2);
-  buf_append(&buf, crnl, sizeof(crnl));
+  buf_append(str1, len1);
+  buf_append(str2, len2);
+  buf_append(crnl, sizeof(crnl));
 }
 /*---------------------------------------------------------------------------*/
 void
@@ -236,16 +236,16 @@ PROCESS_THREAD(telnetd_process, ev, data)
 static void
 acked(void)
 {
-  buf_pop(&buf, s.numsent);
+  buf_pop(s.numsent);
 }
 /*---------------------------------------------------------------------------*/
 static void
 senddata(void)
 {
   int len;
-  len = MIN(buf_len(&buf), uip_mss());
+  len = MIN(buf.ptr, uip_mss());
   //PRINTF("senddata len %d\n", len);
-  buf_copyto(&buf, uip_appdata, len);
+  buf_copyto(uip_appdata, len);
   uip_send(uip_appdata, len);
   s.numsent = len;
 }
@@ -268,7 +268,7 @@ get_char(uint8_t c)
 			if(s.bufptr>0){
 				--s.bufptr;
 				s.buf[(int)s.bufptr] = 0;
-				buf_append(&buf, &c, 1);
+				buf_append(&c, 1);
         		//uip_send(&c,1);
 			}
 			return;	
@@ -287,8 +287,8 @@ get_char(uint8_t c)
 				if(c==PETSCII_SPACE)
       			{
 					//jump to next line
-					buf_append(&buf, &c, 1);
-					buf_append(&buf, &cr, 1);
+					buf_append(&c, 1);
+					buf_append(&cr, 1);
           			//uip_send(&c,1);
           			//uip_send(&cr,1);
 					col_num=0;
@@ -298,37 +298,37 @@ get_char(uint8_t c)
 					i=(int)s.bufptr;
 					//Erase the word
 					while(s.buf[i]!=PETSCII_SPACE && i>0){
-						buf_append(&buf, &dl, 1);
+						buf_append(&dl, 1);
             			//uip_send(&dl,1);
 						--i;
 					}
 					++i;
 
 					//Jump to new line
-					buf_append(&buf, &cr, 1);
+					buf_append(&cr, 1);
           			//uip_send(&cr,1);
 					//Set the column number to match wrapped word
 					col_num=(int)s.bufptr-i;
 
 					//Rewrite the word
 					for(n=i;n<(int)s.bufptr;++n){
-						buf_append(&buf,&s.buf[n], 1);
+						buf_append(&s.buf[n], 1);
             			//uip_send(&s.buf[n],1);
 					}
 					//Add the new character to the word.
-					buf_append(&buf, &c, 1);
+					buf_append(&c, 1);
           			//uip_send(&c,1);
 				}
 			}
 		}
 		else{	
-			buf_append(&buf, &c, 1);
+			buf_append(&c, 1);
       		//uip_send(&c,1);
 			++col_num;
 		}
 	}
   else if(bbs_status.echo==2){
-      buf_append(&buf, &c, 1);
+      buf_append(&c, 1);
       //uip_send(&c,1);
       ++col_num;
   }
@@ -378,7 +378,7 @@ sendopt(uint8_t option, uint8_t value)
   line[2] = value;
   line[3] = 0;
   if(bbs_status.encoding==1){ascii_to_petscii(line, 4);}
-  buf_append(&buf, line, 4);
+  buf_append(line, 4);
 }
 /*---------------------------------------------------------------------------*/
 static void
@@ -459,7 +459,7 @@ telnetd_appcall(void *ts)
 {
   if(uip_connected()) {
     if(!connected) {
-      buf_init(&buf);
+      buf_init();
       s.bufptr = 0;
       s.state = STATE_NORMAL;
       connected = 1;
