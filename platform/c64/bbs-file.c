@@ -160,8 +160,9 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 
 	buf.ptr = strlen(buf.bufmem);
 
-  if (buf.bufmem != NULL)
+  /*if (buf.bufmem != NULL)
      free(buf.bufmem);
+	*/
 }
 
 /*---------------------------------------------------------------------------*/
