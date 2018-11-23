@@ -101,13 +101,13 @@ static struct telnetd_state s;
 uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;
-
+/*
 struct telnetd_buf {
   char bufmem[TELNETD_CONF_NUMLINES * TELNETD_CONF_LINELEN];
   int ptr;
   int size;
 };
-
+*/
 //static struct telnetd_buf buf;
 BBS_BUFFER buf;
 
