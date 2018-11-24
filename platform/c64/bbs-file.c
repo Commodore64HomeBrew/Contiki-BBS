@@ -9,6 +9,7 @@
 #include "bbs-file.h"
 #include "bbs-defs.h"
 #include "bbs-telnetd.h"
+#include "bbs-encodings.h"
 #include "contiki-net.h"
 
 #include <stdio.h>
@@ -90,7 +91,8 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 */
   memset(buf.bufmem, 0, fsize);
 
-
+  buf.bufmem[0]= ISO_cr;
+  --fsize;	
   //cbm_load(const char* name, unsigned char device, void* data)
   //cbm_load(file, device, &buffer);
 
@@ -99,19 +101,22 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   //if (! siRet) {
 
 	  if (bbs_status.status == STATUS_READ){
-			cbm_read(10, buf.bufmem, 2);
+			cbm_read(10, &buf.bufmem[1], 2);
       fsize=fsize-2;
 	  }
 
-    len = cbm_read(10, buf.bufmem , fsize);
+    //len = cbm_read(10, buf.bufmem , fsize);
+	buf.ptr = cbm_read(10, &buf.bufmem[1] , fsize) + 1;
     cbm_close(10);
 
+
+	//buf.ptr = strlen(buf.bufmem);
 
     if (wordWrap==1){
       width = bbs_status.width;
       col=0;
       preCol=0;
-      for (i=0; i<len; i++) {
+      for (i=0; i<buf.ptr; i++) {
         /*
         if (line == bbs_status.lines) {
             line=0;
@@ -145,20 +150,22 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
           ++col;
         }
       }
+      if(bbs_status.encoding==1){petscii_to_ascii(&buf.bufmem[1], buf.ptr);}
     }
   //}
-/*
-  if(encodeToggle==1){
-    if(bbs_status.encoding==1){petscii_to_ascii(&buf->bufmem[buf->ptr], copylen);}
-  }
-*/
+
+
+
+
+
+
+
   //buf_append(file_buffer, len(file_buffer));
 
   //uip_send(file_buffer, strlen(file_buffer));
 
   //shell_output_str(NULL, "\n\r\x05", file_buffer);
 
-	buf.ptr = strlen(buf.bufmem);
 
   /*if (buf.bufmem != NULL)
      free(buf.bufmem);

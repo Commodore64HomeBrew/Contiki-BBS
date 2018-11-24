@@ -907,7 +907,7 @@ shell_input(char *commandline, int commandline_len)
 }
 /*---------------------------------------------------------------------------*/
 void
-shell_output_str(struct shell_command *c, char *text1, const char *text2)
+shell_output_str(struct shell_command *c, char *text1, char *text2)
 {
   if(c != NULL && c->child != NULL) {
     input_to_child_command(c->child, text1, (int)strlen(text1),

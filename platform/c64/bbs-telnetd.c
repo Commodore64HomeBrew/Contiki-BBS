@@ -130,7 +130,7 @@ buf_append(const char *data, int len)
   //PRINTF("buf_append len %d (%d) '%.*s'\n", len, buf->ptr, len, data);
   copylen = MIN(len, buf.size - buf.ptr);
   memcpy(&buf.bufmem[buf.ptr], data, copylen);
-  if(bbs_status.encoding==1){petscii_to_ascii(&buf.bufmem[buf.ptr], copylen);}
+  //if(bbs_status.encoding==1){petscii_to_ascii(&buf.bufmem[buf.ptr], copylen);}
   buf.ptr += copylen;
 
   return copylen;
@@ -172,12 +172,14 @@ shell_prompt(char *str)
 }
 /*---------------------------------------------------------------------------*/
 void
-shell_default_output(const char *str1, int len1, const char *str2, int len2)
+shell_default_output(char *str1, int len1,char *str2, int len2)
 {
   static const char crnl[2] = {ISO_cr, ISO_nl};
   
-  //if(bbs_status.encoding==1){petscii_to_ascii(&str1, len1);}
-  //if(bbs_status.encoding==1){petscii_to_ascii(&str2, len2);}
+  if(bbs_status.encoding==1){
+	petscii_to_ascii(&str1[0], len1);
+  	petscii_to_ascii(&str2[0], len2);
+  }
 
   if(len1 > 0 && str1[len1 - 1] == '\n') {
     --len1;

@@ -193,8 +193,8 @@ void shell_prompt(char *prompt);
  *             part (a dynamically generated string).
  *
  */
-void shell_default_output(const char *data1, int size1,
-			  const char *data2, int size2);
+void shell_default_output(char *data1, int size1,
+			  char *data2, int size2);
 
 /**
  * \brief      Request shell exit
@@ -271,7 +271,7 @@ void shell_output(struct shell_command *c,
  *
  */
 void shell_output_str(struct shell_command *c,
-		      char *str1, const char *str2);
+		      char *str1, char *str2);
 
 /**
  * \brief      Register a command with the shell
