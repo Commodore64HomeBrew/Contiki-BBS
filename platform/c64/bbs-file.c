@@ -62,37 +62,25 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   unsigned short col, preCol;
   unsigned short width;
   unsigned char file[25];
+  unsigned short ptr; 
 
   sprintf(file, "%s%s",szBannerFile, fileSuffix);
   log_message("\x9fread: ", file);
 
   //log_message("[debug] ", file);
-
+  ptr = buf.ptr;
   //fsize=bbs_filesize(filePrefix, file, device);
-  fsize = BBS_BUFFER_SIZE;
+  fsize = BBS_BUFFER_SIZE-ptr;
   //sprintf(file, "%d",fsize);
   //log_message("[debug] fsize:", file);
 
 
   sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
   //log_message("[debug] file banner2: ", file);
-/*
-  if (fsize == 0) {
-    shell_output_str(NULL, "", "error: file size\n\r");
-    return;
-  }
-*/
-  //file_buffer = (char*) malloc(fsize);
-/*
-  if (buffer == NULL) {
-    shell_output_str(NULL, "", "error: malloc \n\r");
-    return;
-  }
-*/
-  memset(buf.bufmem, 0, fsize);
 
-  buf.bufmem[0]= ISO_cr;
-  --fsize;	
+  //memset(buf.bufmem, 0, fsize);
+
+
   //cbm_load(const char* name, unsigned char device, void* data)
   //cbm_load(file, device, &buffer);
 
@@ -100,76 +88,70 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   cbm_open(10, device, 10, file);
   //if (! siRet) {
 
-	  if (bbs_status.status == STATUS_READ){
-			cbm_read(10, &buf.bufmem[1], 2);
-      fsize=fsize-2;
-	  }
+	  /*if (bbs_status.status == STATUS_READ){
+			cbm_read(10, &buf.bufmem[2], 2);
+      //fsize=fsize-2;
+	  }*/
 
-    //len = cbm_read(10, buf.bufmem , fsize);
-	buf.ptr = cbm_read(10, &buf.bufmem[1] , fsize) + 1;
-    cbm_close(10);
 
+  if (bbs_status.status == STATUS_READ){
+    buf.ptr += cbm_read(10, &buf.bufmem[ptr] , fsize);
+    
+    if(bbs_status.encoding==1){
+      petscii_to_ascii(&buf.bufmem[ptr], buf.ptr-ptr);
+    }
+  }
+  else{
+    buf.ptr += cbm_read(10, &buf.bufmem[ptr+2] , fsize) + 2;
+  }
+
+  buf.bufmem[ptr]= ISO_cr;
+  buf.bufmem[ptr+1]= ISO_cr;
+  //fsize = fsize-2;  
+  
+  cbm_close(10);
 
 	//buf.ptr = strlen(buf.bufmem);
 
-    if (wordWrap==1){
-      width = bbs_status.width;
-      col=0;
-      preCol=0;
-      for (i=0; i<buf.ptr; i++) {
-        /*
-        if (line == bbs_status.lines) {
-            line=0;
-            shell_output_str(NULL, "\n\r\x05", buf.bufmem);
-            shell_prompt("\n\rreturn to continue");
-        }
-        */
-
-
-        if (buf.bufmem[i] == ISO_cr){
-        	col=0;
-          ++line;
-        }
-        else if (col == width){
-
-          //We're at the end of the row. Walk back until you find a space and then insert a CR:
-          j=i;
-  		    while(buf.bufmem[j] != PETSCII_SPACE && j>preCol){
-  		      --j;
-  		    }
-          //Space is found; insert CR:
-          buf.bufmem[j] = ISO_cr;
-          //Record counter position of previous line:
-          preCol=j;
-          //Set the new column counter, taking into account the wrapped word:
-          col=i-j;
-          ++line;
-
-        }
-        else{
-          ++col;
-        }
+  if (wordWrap==1){
+    width = bbs_status.width;
+    col=0;
+    preCol=0;
+    for (i=ptr; i<buf.ptr; i++) {
+      /*
+      if (line == bbs_status.lines) {
+          line=0;
+          shell_output_str(NULL, "\n\r\x05", buf.bufmem);
+          shell_prompt("\n\rreturn to continue");
       }
-      if(bbs_status.encoding==1){petscii_to_ascii(&buf.bufmem[1], buf.ptr);}
+      */
+
+
+      if (buf.bufmem[i] == ISO_cr){
+      	col=0;
+        ++line;
+      }
+      else if (col == width){
+
+        //We're at the end of the row. Walk back until you find a space and then insert a CR:
+        j=i;
+		    while(buf.bufmem[j] != PETSCII_SPACE && j>preCol){
+		      --j;
+		    }
+        //Space is found; insert CR:
+        buf.bufmem[j] = ISO_cr;
+        //Record counter position of previous line:
+        preCol=j;
+        //Set the new column counter, taking into account the wrapped word:
+        col=i-j;
+        ++line;
+
+      }
+      else{
+        ++col;
+      }
     }
-  //}
-
-
-
-
-
-
-
-  //buf_append(file_buffer, len(file_buffer));
-
-  //uip_send(file_buffer, strlen(file_buffer));
-
-  //shell_output_str(NULL, "\n\r\x05", file_buffer);
-
-
-  /*if (buf.bufmem != NULL)
-     free(buf.bufmem);
-	*/
+  }
 }
 
 /*---------------------------------------------------------------------------*/
