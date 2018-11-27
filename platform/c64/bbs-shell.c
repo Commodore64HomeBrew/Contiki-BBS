@@ -34,6 +34,8 @@ BBS_STATUS_REC bbs_status;
 BBS_USER_REC bbs_user;
 BBS_USER_STATS bbs_usrstats;
 BBS_TIME_REC bbs_time;
+extern TELNETD_STATE s;
+
 unsigned short bbs_locked=0;
 unsigned short set_step=0;
 
@@ -143,11 +145,11 @@ static void bbs_init(void)
   board.dir_boost=1;
 
 
-  bbs_time.minute=17;
-  bbs_time.hour=8;
-  bbs_time.day=18;
-  bbs_time.month=11;
-  bbs_time.year=2018;
+  bbs_time.minute=0;
+  bbs_time.hour=0;
+  bbs_time.day=1;
+  bbs_time.month=8;
+  bbs_time.year=1982;
 
   set_time = bbs_time.minute*60 + bbs_time.hour*3600;
 
@@ -227,7 +229,8 @@ void bbs_unlock(void)
   bordercolor(0);
   //Turn on the screen again
   //poke(0xd011, peek(0xd011) | 0x  10);
-
+  
+  s.connected = 0;
   bbs_status.status=STATUS_UNLOCK;
   bbs_locked=0;
   bbs_defaults();
@@ -375,7 +378,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input || ev == PROCESS_EVENT_TIMER);
 
     if (ev == PROCESS_EVENT_TIMER) {
-       bbs_unlock();
+       //bbs_unlock();
+       shell_stop();
        log_message("\x9a","event timer");
     }
     if (ev == shell_event_input) {
@@ -413,14 +417,14 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
               bbs_status.echo=0;
-              //bbs_status.width=BBS_40_COL;
+              bbs_status.width=BBS_80_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
               //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
               bbs_status.echo=1;
-              //bbs_status.width=BBS_40_COL;
+              bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
 
@@ -464,7 +468,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       			}
       			else {
       			  shell_output_str(&bbs_login_command, "login failed.", "");
-      			  bbs_unlock();
+      			  //bbs_unlock();
+              shell_stop();
       			  log_message("\x96", "login failed");
       			}
       			break;
@@ -475,7 +480,8 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             	bbs_login();
             } else {
               shell_output_str(&bbs_login_command, "wrong password", "");
-              bbs_unlock();
+              //bbs_unlock();
+              shell_stop();
               log_message("\x96", "wrong password ");
             }
             break;
@@ -990,7 +996,8 @@ PROCESS_THREAD(shell_process, ev, data)
 
     if (ev == PROCESS_EVENT_TIMER){
       log_message("\x9a", "timer event2");
-      bbs_unlock();
+      shell_stop();
+      //bbs_unlock();
     }
     if(bbs_status.status>STATUS_HANDLE) {
       //etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);

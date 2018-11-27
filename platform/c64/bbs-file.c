@@ -100,20 +100,27 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
     if(bbs_status.encoding==1){
       petscii_to_ascii(&buf.bufmem[ptr], buf.ptr-ptr);
     }
+
+    buf.bufmem[buf.ptr++]= ISO_cr;
+    buf.bufmem[buf.ptr]= ISO_nl;
+
   }
   else{
     buf.ptr += cbm_read(10, &buf.bufmem[ptr+2] , fsize) + 2;
   }
 
   buf.bufmem[ptr]= ISO_cr;
-  buf.bufmem[ptr+1]= ISO_cr;
+  buf.bufmem[ptr+1]= ISO_nl;
+
   //fsize = fsize-2;  
   
   cbm_close(10);
 
 	//buf.ptr = strlen(buf.bufmem);
 
-  if (wordWrap==1){
+  //if (wordWrap==1){
+  if (wordWrap==1 && bbs_status.encoding==0){
+
     width = bbs_status.width;
     col=0;
     preCol=0;
@@ -139,7 +146,12 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 		      --j;
 		    }
         //Space is found; insert CR:
-        buf.bufmem[j] = ISO_cr;
+        if(bbs_status.encoding==1){
+          buf.bufmem[j] = ISO_nl;
+        }
+        else{
+          buf.bufmem[j] = ISO_cr;
+        }
         //Record counter position of previous line:
         preCol=j;
         //Set the new column counter, taking into account the wrapped word:

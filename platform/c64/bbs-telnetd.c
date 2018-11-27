@@ -47,14 +47,14 @@ extern BBS_STATUS_REC bbs_status;
 PROCESS(telnetd_process, "Telnet server");
 
 AUTOSTART_PROCESSES(&telnetd_process);
-
+/*
 #ifndef TELNETD_CONF_LINELEN
 #define TELNETD_CONF_LINELEN 80
 #endif
 #ifndef TELNETD_CONF_NUMLINES
 #define TELNETD_CONF_NUMLINES 25
 #endif
-
+*/
 #ifdef TELNETD_CONF_REJECT
 extern char telnetd_reject_text[];
 #else
@@ -65,10 +65,11 @@ static char telnetd_reject_text[] =
 #ifndef TELNETD_CONF_MAX_IDLE_TIME
 #define TELNETD_CONF_MAX_IDLE_TIME (CLOCK_SECOND * 30)
 #endif
-
+/*
 struct telnetd_state {
   char buf[TELNETD_CONF_LINELEN + 1];
   char bufptr;
+  char connected;
   uint16_t numsent;
   uint8_t state;
 #define STATE_NORMAL 0
@@ -80,9 +81,9 @@ struct telnetd_state {
 #define STATE_CLOSE  6
 #if TELNETD_CONF_MAX_IDLE_TIME
   struct timer silence_timer;
-#endif /* TELNETD_CONF_MAX_IDLE_TIME */
+#endif // TELNETD_CONF_MAX_IDLE_TIME
 };
-static struct telnetd_state s;
+*/
 
 #define TELNET_IAC   255
 #define TELNET_WILL  251
@@ -109,9 +110,11 @@ struct telnetd_buf {
 };
 */
 //static struct telnetd_buf buf;
+TELNETD_STATE s;
+
 BBS_BUFFER buf;
 
-static uint8_t connected;
+//static uint8_t connected;
 
 /*---------------------------------------------------------------------------*/
 static void
@@ -461,11 +464,11 @@ void
 telnetd_appcall(void *ts)
 {
   if(uip_connected()) {
-    if(!connected) {
+    if(!s.connected) {
       buf_init();
       s.bufptr = 0;
       s.state = STATE_NORMAL;
-      connected = 1;
+      s.connected = 1;
       shell_start();
 #if TELNETD_CONF_MAX_IDLE_TIME
       timer_set(&s.silence_timer, TELNETD_CONF_MAX_IDLE_TIME);
@@ -489,7 +492,7 @@ telnetd_appcall(void *ts)
         uip_timedout()) {
       log_message("\x9e", "telnetd stop");
       shell_stop();
-      connected = 0;
+      //s.connected = 0;
     }
     if(uip_acked()) {
 #if TELNETD_CONF_MAX_IDLE_TIME
