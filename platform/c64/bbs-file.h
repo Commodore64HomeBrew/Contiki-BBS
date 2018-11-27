@@ -30,7 +30,7 @@ typedef struct
 	char szFileName[MAX_FILENAME];
 	unsigned char ucDeviceNo;
 } ST_FILE;
-short bbs_filesize(char *prefix, char *filename, unsigned char device);
+//short bbs_filesize(char *prefix, char *filename, unsigned char device);
 void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap);
 
 const char * file_path(char *file, unsigned short num);

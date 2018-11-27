@@ -26,7 +26,7 @@ extern BBS_BUFFER buf;
 //static telnetd_buf buf;
 
 /*---------------------------------------------------------------------------*/
-short bbs_filesize(char *prefix, char *filename, unsigned char device)
+/*short bbs_filesize(char *prefix, char *filename, unsigned char device)
 {
     struct cbm_dirent dirent;
     unsigned short fsize=0;
@@ -47,7 +47,7 @@ short bbs_filesize(char *prefix, char *filename, unsigned char device)
     cbm_close(1);
 
     return fsize*256; 
-}
+}*/
 
 /*---------------------------------------------------------------------------*/
 void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap)//, unsigned char encodeToggle) 

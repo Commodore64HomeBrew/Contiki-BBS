@@ -157,17 +157,19 @@ static void bbs_init(void)
   //sprintf(message, "set:%li clock:%li offset:%li", set_time, clock_seconds(), bbs_time.offset);
   //log_message("time ", message);
 
-  sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
 
   /* read BBS base configuration */
-  fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
+  //fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
 
-  if (fsize != 0) {
-    cbm_open(10, board.sys_device, 10, file);
+  sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
+
+  cbm_open(10, board.sys_device, 10, file);
+  cbm_read(10, &bbs_config, 2);
+  fsize = cbm_read(10, &bbs_config, sizeof(bbs_config));
+  cbm_close(10);
+
+  if (fsize > 0) {
     log_message("\x99", "config loaded from file");
-    cbm_read(10, &bbs_config, 2);
-    cbm_read(10, &bbs_config, sizeof(bbs_config));
-    cbm_close(10);
   }
   else{
 
@@ -252,13 +254,12 @@ int bbs_get_user(char *data)
     return 3;
   }
 */
+  /*
 	sprintf(file, "u-%s", bbs_user.user_name);
 
 	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
 
  	sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
-  //log_message("[debug] user file: ", file);
-
 
   if (fsize != 0) {
     siRet = cbm_open(10, board.user_device, 10, file);
@@ -274,7 +275,22 @@ int bbs_get_user(char *data)
     log_message("\x96user not found: ", bbs_user.user_name);
     return 2;
   }
+  */
+  sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
 
+  siRet = cbm_open(10, board.user_device, 10, file);
+  cbm_read(10, &bbs_user, 2);
+  fsize = cbm_read(10, &bbs_user, sizeof(bbs_user));
+  cbm_close(10);
+
+  if (fsize > 0) {
+    log_message("\x99login: ", bbs_user.user_name);
+    return 1;
+  }
+  else{
+    log_message("\x96user not found: ", bbs_user.user_name);
+    return 2;
+  }
 
 	return 0;
 
