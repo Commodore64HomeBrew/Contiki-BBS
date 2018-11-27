@@ -26,7 +26,7 @@
 #define BBS_40_COL	           39
 #define BBS_22_COL	           21
 #define BBS_LINE_WIDTH         40
-#define BBS_TIMEOUT_SEC      1800
+#define BBS_TIMEOUT_SEC      3600
 #define BBS_LOGIN_TIMEOUT_SEC  60
 
 
@@ -62,6 +62,8 @@
 
 #define TELNETD_CONF_LINELEN 80
 #define TELNETD_CONF_NUMLINES 25
+
+#define TELNETD_CONF_MAX_IDLE_TIME (CLOCK_SECOND * 120)
 
 
 
@@ -164,16 +166,6 @@ typedef struct {
   char connected;
   long numsent;
   short state;
-#define STATE_NORMAL 0
-#define STATE_IAC    1
-#define STATE_WILL   2
-#define STATE_WONT   3
-#define STATE_DO     4
-#define STATE_DONT   5
-#define STATE_CLOSE  6
-#if TELNETD_CONF_MAX_IDLE_TIME
-  struct timer silence_timer;
-#endif /* TELNETD_CONF_MAX_IDLE_TIME */
 } TELNETD_STATE;
 
 #endif /* __BBSDEFS_H_ */
