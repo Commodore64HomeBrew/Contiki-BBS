@@ -463,9 +463,7 @@ telnetd_appcall(void *ts)
       s.state = STATE_NORMAL;
       s.connected = 1;
       shell_start();
-//#if TELNETD_CONF_MAX_IDLE_TIME
-      timer_set(&silence_timer, TELNETD_CONF_MAX_IDLE_TIME);
-//#endif /* TELNETD_CONF_MAX_IDLE_TIME */
+      timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       ts = (char *)0;
     } else {
       uip_send(telnetd_reject_text, strlen(telnetd_reject_text));
@@ -488,15 +486,11 @@ telnetd_appcall(void *ts)
       //s.connected = 0;
     }
     if(uip_acked()) {
-//#if TELNETD_CONF_MAX_IDLE_TIME
-      timer_set(&silence_timer, TELNETD_CONF_MAX_IDLE_TIME);
-//#endif /* TELNETD_CONF_MAX_IDLE_TIME */
+      timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       acked();
     }
     if(uip_newdata()) {
-//#if TELNETD_CONF_MAX_IDLE_TIME
-      timer_set(&silence_timer, TELNETD_CONF_MAX_IDLE_TIME);
-//#endif /* TELNETD_CONF_MAX_IDLE_TIME */
+      timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       newdata();
     }
     if(uip_rexmit() ||
@@ -505,20 +499,16 @@ telnetd_appcall(void *ts)
         uip_connected() ||
         uip_poll()) {
       senddata();
-//#if TELNETD_CONF_MAX_IDLE_TIME
       if(s.numsent > 0) {
-	timer_set(&silence_timer, TELNETD_CONF_MAX_IDLE_TIME);
+	timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       }
-//#endif /* TELNETD_CONF_MAX_IDLE_TIME */
     }
-//#if TELNETD_CONF_MAX_IDLE_TIME
     if(uip_poll()) {
       if(timer_expired(&silence_timer)) {
         uip_close();
         tcp_markconn(uip_conn, NULL);
       }
     }
-//#endif /* TELNETD_CONF_MAX_IDLE_TIME */
   }
 }
 /*---------------------------------------------------------------------------*/

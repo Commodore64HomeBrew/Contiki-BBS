@@ -8,6 +8,7 @@
 #ifndef __BBSDEFS_H_
 #define __BBSDEFS_H_
 
+#define BBS_STRING_VERSION "0.1.0"
 #define BBS_COPYRIGHT_STRING "\n\r        magnetar bbs 0.1.0 \n\r     (c) 2018-> by k. casteels\n\r           based on contiki bbs,\n\r     (c) 2009-2015 by n. haedecke\n\r           based on contiki os,\n\r     (c) 2003-2013 by adam dunkels\n\r"
 
 //#define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
@@ -26,11 +27,16 @@
 #define BBS_40_COL	           39
 #define BBS_22_COL	           21
 #define BBS_LINE_WIDTH         40
-#define BBS_TIMEOUT_SEC      3600
-#define BBS_LOGIN_TIMEOUT_SEC  60
-
+#define TELNETD_CONF_LINELEN 80
+#define TELNETD_CONF_NUMLINES 25
 
 #define BBS_BUFFER_SIZE    1500
+
+#define BBS_SESSION_TIMEOUT (CLOCK_SECOND * 3600)
+#define BBS_LOGIN_TIMEOUT   (CLOCK_SECOND * 60)
+#define BBS_IDLE_TIMEOUT    (CLOCK_SECOND * 120)
+
+
 
 #define BBS_PET80_SUFFIX       "-c"
 #define BBS_PET40_SUFFIX       "-c"
@@ -56,16 +62,6 @@
 //#define BBS_STRING_LINEMAX "  enter message (max. 40 chars per line)"
 #define BBS_STRING_EDITH40 "---------+---------+---------+---------+"
 #define BBS_STRING_EDITH22 "----------+----------+"
-
-#define BBS_STRING_VERSION "0.1.0"
-
-
-#define TELNETD_CONF_LINELEN 80
-#define TELNETD_CONF_NUMLINES 25
-
-#define TELNETD_CONF_MAX_IDLE_TIME (CLOCK_SECOND * 120)
-
-
 
 
 #define STATUS_UNLOCK	0

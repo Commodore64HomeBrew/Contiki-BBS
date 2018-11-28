@@ -561,9 +561,9 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
 
   PROCESS_BEGIN();
   if (bbs_status.status>STATUS_HANDLE)
-     etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
+     etimer_set(&bbs_session_timer, BBS_SESSION_TIMEOUT);
   else
-     etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
+     etimer_set(&bbs_session_timer, BBS_LOGIN_TIMEOUT);
 
   while (1) {
 
@@ -578,15 +578,15 @@ PROCESS_THREAD(bbs_timer_process, ev, data)
         sprintf(szBuff, "session timeout.");
         shell_output_str(NULL, szBuff, "");
         if (bbs_status.status>STATUS_HANDLE)
-           etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
+           etimer_set(&bbs_session_timer, BBS_SESSION_TIMEOUT);
         else
-           etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
+           etimer_set(&bbs_session_timer, BBS_LOGIN_TIMEOUT);
      } else {
        if (ev == shell_event_input) 
          if (bbs_status.status>STATUS_HANDLE)
-            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
+            etimer_set(&bbs_session_timer, BBS_SESSION_TIMEOUT);
          else
-            etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_LOGIN_TIMEOUT_SEC);
+            etimer_set(&bbs_session_timer, BBS_LOGIN_TIMEOUT);
      }
   }
 
@@ -991,7 +991,7 @@ PROCESS_THREAD(shell_process, ev, data)
   /* Let the system start up before showing the prompt. */
   PROCESS_PAUSE();
   
-  /*etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);*/
+  /*etimer_set(&bbs_session_timer, BBS_SESSION_TIMEOUT);*/
 
   while(1) {
   
@@ -1016,7 +1016,7 @@ PROCESS_THREAD(shell_process, ev, data)
       //bbs_unlock();
     }
     if(bbs_status.status>STATUS_HANDLE) {
-      //etimer_set(&bbs_session_timer, CLOCK_SECOND * BBS_TIMEOUT_SEC);
+      //etimer_set(&bbs_session_timer, BBS_SESSION_TIMEOUT);
       shell_prompt(bbs_status.prompt);
     }
   
