@@ -53,6 +53,7 @@
 #define BBS_BANNER_MENU        "menu"
 #define BBS_BANNER_SUBS        "subs"
 
+#define BBS_LOG_FILE           "bbs.log"
 
 #define BBS_EMD_FILE           "c64-ram.emd"
 #define BBS_CFG_FILE           "bbs-cfg"

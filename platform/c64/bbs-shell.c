@@ -67,6 +67,7 @@ SHELL_COMMAND(bbs_settime_command, "t", "", &bbs_settime_process);
 
 
 
+
 /*---------------------------------------------------------------------------*/
 void bbs_defaults(void)
 {
@@ -196,6 +197,11 @@ static void bbs_init(void)
 
   //em_load(board.sys_prefix, BBS_BANNER_LOGIN, "", board.sys_device, 0);
   
+}
+
+void bbs_log(char *message ){
+
+  cbm_save (BBS_LOG_FILE, board.sys_device, &message, strlen(message));
 }
 
 /*---------------------------------------------------------------------------*/
