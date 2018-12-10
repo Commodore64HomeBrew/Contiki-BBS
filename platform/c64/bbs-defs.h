@@ -75,7 +75,6 @@
 #define STATUS_POST		7
 #define STATUS_READ		8
 
-#define BLANK                   ""
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_WHITE           "\x05"
 #define ISO_nl       	0x0a

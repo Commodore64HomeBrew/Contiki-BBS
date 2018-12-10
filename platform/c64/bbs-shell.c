@@ -542,7 +542,7 @@ static void
 command_kill(struct shell_command *c)
 {
   if(c != NULL) {
-    shell_output_str(&killall_command, "Stopping command ", c->command);
+    //shell_output_str(&killall_command, "Stopping command ", c->command);
     process_exit(c->process);
   }
 }
@@ -682,7 +682,7 @@ PROCESS_THREAD(shell_exit_process, ev, data)
     sprintf(prefix,"%sq/4/", board.sys_prefix);
     sprintf(file.szFileName,"%d", ((rand() % 64)+1));
 
-    bbs_banner(prefix, file.szFileName, BLANK, board.sys_device,0);
+    bbs_banner(prefix, file.szFileName, "", board.sys_device,0);
 
   }
   else{
