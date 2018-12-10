@@ -665,6 +665,8 @@ PROCESS_THREAD(help_command_process, ev, data)
 PROCESS_THREAD(shell_exit_process, ev, data)
 {
   ST_FILE file;
+  char prefix[20];
+
   PROCESS_BEGIN();
 
   //**********************************************************************
@@ -676,14 +678,19 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   cbm_save (file.szFileName, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
   //**********************************************************************
 
-  if (bbs_status.encoding==1 && bbs_status.width > 22){
-    sprintf(file.szFileName,"%d-%s", BBS_BANNER_LOGOUT, (rand() % 65));
+  if (bbs_status.encoding==0 && bbs_status.width > 22){
+    sprintf(prefix,"%sq/4/", board.sys_prefix);
+    sprintf(file.szFileName,"%d", ((rand() % 64)+1));
+
+    bbs_banner(prefix, file.szFileName, BLANK, board.sys_device,0);
+
   }
   else{
     sprintf(file.szFileName,"%s", BBS_BANNER_LOGOUT);
+    bbs_banner(board.sys_prefix, file.szFileName, bbs_status.encoding_suffix, board.sys_device,0);
+
   }
 
-  bbs_banner(board.sys_prefix, file.szFileName, bbs_status.encoding_suffix, board.sys_device,0);
   log_message("\x05logout: ", bbs_user.user_name);
   shell_stop();
   //bbs_unlock();

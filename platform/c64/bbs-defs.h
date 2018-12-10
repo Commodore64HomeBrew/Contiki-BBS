@@ -30,7 +30,7 @@
 #define TELNETD_CONF_LINELEN 80
 #define TELNETD_CONF_NUMLINES 25
 
-#define BBS_BUFFER_SIZE    1500
+#define BBS_BUFFER_SIZE    1550
 
 #define BBS_SESSION_TIMEOUT (CLOCK_SECOND * 3600)
 #define BBS_LOGIN_TIMEOUT   (CLOCK_SECOND * 60)
@@ -75,6 +75,7 @@
 #define STATUS_POST		7
 #define STATUS_READ		8
 
+#define BLANK                   ""
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_WHITE           "\x05"
 #define ISO_nl       	0x0a
