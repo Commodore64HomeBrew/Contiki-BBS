@@ -162,7 +162,11 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
       	col=0;
         ++line;
       }
+      else if (c==0x05 || c==0x1c || c==0x1e || c==0x1f|| c==0x81 || c==0x90 || c==0x95 || c==0x96 || c==0x97 || c==0x98 || c==0x99 || c==0x9a || c==0x9b || c==0x9c || c==0x9e || c==0x9f){
+        //nothing
+      }
       else if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT || c==PETSCII_CLRSCN || c==PETSCII_HOME){
+
 
         if(c==PETSCII_LEFT){
           if(col>0){--col;}
