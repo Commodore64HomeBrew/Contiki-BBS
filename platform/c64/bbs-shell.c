@@ -71,8 +71,9 @@ SHELL_COMMAND(bbs_settime_command, "t", "", &bbs_settime_process);
 /*---------------------------------------------------------------------------*/
 void bbs_defaults(void)
 {
-  bbs_status.encoding=1;
+  bbs_status.encoding=0;
   bbs_status.echo=1;
+  bbs_status.wrap=1;
   bbs_status.width=BBS_40_COL;
   bbs_status.status=STATUS_UNLOCK;
   bbs_status.board_id=1;
@@ -236,7 +237,7 @@ void bbs_unlock(void)
   //Change border colour to black
   bordercolor(0);
   //Turn on the screen again
-  //poke(0xd011, peek(0xd011) | 0x  10);
+  //poke(0xd011, peek(0xd011) | 0x10);
   
   s.connected = 0;
   bbs_status.status=STATUS_UNLOCK;
@@ -413,22 +414,24 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
             if(! strcmp(input->data1, "8")){
               //log_message("[debug] encoding: ", input->data1);
-              bbs_status.encoding=0;
+              //bbs_status.encoding=0;
               //bbs_status.echo=1;
+              //bbs_status.wrap=1;
               bbs_status.width=BBS_80_COL;
               strcpy(bbs_status.encoding_suffix, BBS_PET80_SUFFIX);
             }
 
             else if(! strcmp(input->data1, "4")){
               //log_message("[debug] encoding: ", input->data1);
-              bbs_status.encoding=0;
+              //bbs_status.encoding=0;
               //bbs_status.echo=1;
+              //bbs_status.wrap=1;
               //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_PET40_SUFFIX);
             }
             else if(! strcmp(input->data1, "2")){
               //log_message("[debug] encoding: ", input->data1);
-              bbs_status.encoding=0;
+              //bbs_status.encoding=0;
               //bbs_status.echo=1;
               bbs_status.width=BBS_22_COL;
               strcpy(bbs_status.encoding_suffix, BBS_PET22_SUFFIX);
@@ -439,14 +442,16 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
               bbs_status.echo=0;
+              bbs_status.wrap=0;
               bbs_status.width=BBS_80_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
             else if(! strcmp(input->data1, "e") || ! strcmp(input->data1, "E")){
               //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=1;
-              bbs_status.echo=1;
-              bbs_status.width=BBS_40_COL;
+              //bbs_status.echo=1;
+              bbs_status.wrap=0;
+              //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
 
@@ -454,6 +459,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               //log_message("[debug] encoding: ", input->data1);
               bbs_status.encoding=2;
               //bbs_status.echo=1;
+              //bbs_status.wrap=1;
               //bbs_status.width=BBS_40_COL;
               strcpy(bbs_status.encoding_suffix, BBS_ASCII_SUFFIX);
             }
@@ -464,6 +470,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
               break;
             }
             bbs_banner(board.sys_prefix, BBS_BANNER_LOGIN, bbs_status.encoding_suffix, board.sys_device,0);
+            shell_output_str(NULL, "\r\nnew users enter a new handle.", "");
             shell_prompt("\n\rhandle: ");
             bbs_status.status=STATUS_HANDLE;
             break;
@@ -471,7 +478,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
           case STATUS_HANDLE: {
             if((int)strlen(input->data1)>12){
-              shell_output_str(NULL, "\r\nhandle can't be longer than 12 characters\n\r", "");
+              shell_output_str(NULL, "\r\nhandle can't be longer than 12 chars.", "");
               shell_prompt("\n\rhandle: ");
               bbs_status.status=STATUS_HANDLE;
               break;
@@ -484,7 +491,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       			    bbs_status.status=STATUS_PASSWD;
       			}
       			else if ( return_code == 2 ) {
-                shell_output_str(NULL,"\n\rnew user.\n\rplease enter a password.\n\r\n\r" , "");
+                shell_output_str(NULL,"\n\rnew user.\n\rplease enter a password.\n\r" , "");
       			    shell_prompt("\n\rpassword: ");
       			    bbs_status.status=STATUS_NEWUSR;
       			}
@@ -501,10 +508,10 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             if(! strcmp(input->data1, bbs_user.user_pwd)) {
             	bbs_login();
             } else {
-              shell_output_str(&bbs_login_command, "wrong password", "");
+              shell_output_str(&bbs_login_command, "wrong password.", "");
               //bbs_unlock();
               shell_stop();
-              log_message("\x96", "wrong password ");
+              log_message("\x96", "wrong password");
             }
             break;
           }

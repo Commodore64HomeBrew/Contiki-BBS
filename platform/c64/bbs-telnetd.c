@@ -280,7 +280,7 @@ get_char(uint8_t c)
 
 		if(col_num>=bbs_status.width){
 
-			if(c != ISO_cr)
+			if(c != ISO_cr && c!= ISO_nl)
     		{
 			
 				if(c==PETSCII_SPACE)

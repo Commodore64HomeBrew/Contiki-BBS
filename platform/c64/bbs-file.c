@@ -62,7 +62,11 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   unsigned short col, preCol;
   unsigned short width;
   unsigned char file[25];
-  unsigned short ptr; 
+  unsigned short ptr;
+  unsigned char c;
+
+  //Blank the screen to speed things up
+  poke(0xd011, peek(0xd011) & 0xef);
 
   sprintf(file, "%s%s",szBannerFile, fileSuffix);
   log_message("\x9fread: ", file);
@@ -118,8 +122,7 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 
 	//buf.ptr = strlen(buf.bufmem);
 
-  //if (wordWrap==1){
-  if (wordWrap==1 && bbs_status.encoding==0){
+  if (wordWrap==1){
 
     width = bbs_status.width;
     col=0;
@@ -132,19 +135,15 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
           shell_prompt("\n\rreturn to continue");
       }
       */
+      c=buf.bufmem[i];
 
-
-      if (buf.bufmem[i] == ISO_cr){
-      	col=0;
-        ++line;
-      }
-      else if (col == width){
+      if (col == width){
 
         //We're at the end of the row. Walk back until you find a space and then insert a CR:
         j=i;
-		    while(buf.bufmem[j] != PETSCII_SPACE && j>preCol){
-		      --j;
-		    }
+        while(buf.bufmem[j] != PETSCII_SPACE && j>preCol){
+          --j;
+        }
         //Space is found; insert CR:
         if(bbs_status.encoding==1){
           buf.bufmem[j] = ISO_nl;
@@ -159,11 +158,39 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
         ++line;
 
       }
+      else if (c == ISO_cr || c == ISO_nl){
+      	col=0;
+        ++line;
+      }
+      else if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT || c==PETSCII_CLRSCN || c==PETSCII_HOME){
+
+        if(c==PETSCII_LEFT){
+          if(col>0){--col;}
+        }
+        else if(c==PETSCII_RIGHT){
+          ++col;
+        }
+        else if(c==PETSCII_UP){
+          if(line>0){--line;}
+          col=0;
+        }
+        else if(c==PETSCII_DOWN){
+          ++line;
+          col=0;
+        }
+        else if(c==PETSCII_HOME || c==PETSCII_CLRSCN){
+          col=0;
+          line=0;
+        }
+      }
       else{
         ++col;
       }
     }
   }
+
+  //Turn on the screen again
+  poke(0xd011, peek(0xd011) | 0x10);
 }
 
 /*---------------------------------------------------------------------------*/

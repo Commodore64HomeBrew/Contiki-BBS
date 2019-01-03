@@ -44,7 +44,7 @@ int read_msg(unsigned short num)
     bbs_status.status=STATUS_READ;
 
     strcpy(sub_num_prefix, file_path(file.szFileName, num));
-    bbs_banner(sub_num_prefix, file.szFileName, "", board.subs_device,1);
+    bbs_banner(sub_num_prefix, file.szFileName, "", board.subs_device, bbs_status.wrap);
 
     //log_message("[debug] msg prefix: ", sub_num_prefix);
     //log_message("[debug] msg name: ", file.szFileName);

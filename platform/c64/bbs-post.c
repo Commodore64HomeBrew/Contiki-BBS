@@ -77,7 +77,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 			shell_output_str(&bbs_post_command, "\r\n\r\nOn empty line:\r\n/a=abort /s=save\r\n", "");
 			if (bbs_status.echo>0){
-				shell_output_str(&bbs_post_command, "/r=raw toggle (ctrl chars)\r\n", "");
+				shell_output_str(&bbs_post_command, "/r=raw toggle (ctrl chars, no word wrap)\r\n", "");
 			}
 			if ( bbs_status.width == BBS_22_COL) {
 				shell_output_str(&bbs_post_command, BBS_STRING_EDITH22, "");
@@ -93,7 +93,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 		else if (! strcmp(input->data1, "/r") ) {
 			if (bbs_status.echo==1){
 				bbs_status.echo=2;
-				shell_output_str(&bbs_post_command, "\r\nraw mode enabled (ctrl chars allowed)\r\n", "");
+				shell_output_str(&bbs_post_command, "\r\nraw mode enabled\r\n", "");
 			}
 			else if (bbs_status.echo==2){
 				bbs_status.echo=1;

@@ -128,6 +128,7 @@ typedef struct {
   unsigned char board_id;
   unsigned char encoding;
   unsigned char echo;
+  unsigned char wrap;
   unsigned char width;
   unsigned char lines;
   unsigned short msg_size;
