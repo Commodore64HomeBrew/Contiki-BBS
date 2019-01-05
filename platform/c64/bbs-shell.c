@@ -117,7 +117,7 @@ static void bbs_init(void)
 
 
   sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
-  board.telnet_port = 6400;
+  board.telnet_port = 2200;
   board.max_boards = 8;
 
   board.subs_device = 8;

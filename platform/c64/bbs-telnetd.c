@@ -326,62 +326,31 @@ get_char(uint8_t c)
 			++col_num;
 		}
 	}
-  else if(bbs_status.echo==2){
-      buf_append(&c, 1);
-      //uip_send(&c,1);
-      ++col_num;
-  }
+	else if(bbs_status.echo==2){
+	  buf_append(&c, 1);
+	  //uip_send(&c,1);
+	  ++col_num;
+	}
 
-  if(bbs_status.status==STATUS_POST){
-    s.buf[(int)s.bufptr] = c;
-    ++s.bufptr;
 
-    if(s.bufptr == sizeof(s.buf) || c == ISO_cr || c == ISO_nl) {
+	s.buf[(int)s.bufptr] = c;
+	++s.bufptr;
 
-      bbs_status.msg_size += s.bufptr;
-      s.buf[(int)s.bufptr] = 0;
-      if(bbs_status.encoding==1){ascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
-      //if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
-      //PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
-      shell_input(s.buf, s.bufptr);
-      s.bufptr = 0;
+	if(s.bufptr == sizeof(s.buf) || c == ISO_cr || c == ISO_nl) {
 
-      if(c == ISO_cr || c == ISO_nl){col_num = 0;}
-    }
-    return;
-  }
-
-	if(c != ISO_nl && c != ISO_cr)  {
-
-		s.buf[(int)s.bufptr] = c;
-		++s.bufptr;
-
-		if(s.bufptr == sizeof(s.buf)) {
-			bbs_status.msg_size += s.bufptr;
-			s.buf[(int)s.bufptr] = 0;
-			if(bbs_status.encoding==1){ascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
-			//if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
-			//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
-			shell_input(s.buf, s.bufptr);
-			s.bufptr = 0;
+		if((c == ISO_cr || c == ISO_nl) && bbs_status.status!=STATUS_POST && s.bufptr>0){
+			--s.bufptr;
+			col_num = 0;
 		}
-		return;
-	}
-	else if ((c == ISO_cr) && s.bufptr == 0){
-		s.buf[(int)s.bufptr] = c;
-		++s.bufptr;
-	}
-	  
 
-	if(((c == ISO_cr) && s.bufptr > 0)) {
 		bbs_status.msg_size += s.bufptr;
-	    s.buf[(int)s.bufptr] = 0;
+		s.buf[(int)s.bufptr] = 0;
 		if(bbs_status.encoding==1){ascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
-		//else if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
+		//if(bbs_status.encoding==2){atascii_to_petscii(s.buf, TELNETD_CONF_LINELEN);}
 		//PRINTF("telnetd: get_char '%.*s'\n", s.bufptr, s.buf);
 		shell_input(s.buf, s.bufptr);
 		s.bufptr = 0;
-		col_num = 0;
+
 	}
 
 }

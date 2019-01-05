@@ -46,7 +46,13 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 	PROCESS_BEGIN();
 	
-	log_message("\x9a","posting msg...");
+	//log_message("\x9a","posting msg...");
+
+	//Change border colour to cyan
+	bordercolor(3);
+
+	//Blank the screen to speed things up
+  	poke(0xd011, peek(0xd011) & 0xef);
 
 	//process_exit(&bbs_read_process);
 	//process_exit(&bbs_setboard_process);
@@ -143,7 +149,17 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			//linecount=0;
 			//disk_access=1;
 
+			//Clean things up:
+
 			bbs_status.status=STATUS_LOCK;
+
+			if (bbs_status.echo==2){bbs_status.echo==1;}
+
+			//Turn on the screen again
+			poke(0xd011, peek(0xd011) | 0x10);
+
+			//Change border colour to red
+			bordercolor(2);
 
 			set_prompt();
 			PROCESS_EXIT();
@@ -165,7 +181,9 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 	//bbs_setboard_init();
 	//bbs_read_init();
-	if (bbs_status.echo==2){bbs_status.echo==1;}
+
+
+
 
 	PROCESS_END();
 }
