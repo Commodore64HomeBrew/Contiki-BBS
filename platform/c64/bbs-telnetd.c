@@ -336,12 +336,15 @@ get_char(uint8_t c)
 	s.buf[(int)s.bufptr] = c;
 	++s.bufptr;
 
-	if(s.bufptr == sizeof(s.buf) || c == ISO_cr || c == ISO_nl) {
+	//if(s.bufptr == sizeof(s.buf) || c == ISO_cr || c == ISO_nl) {
+  if(s.bufptr == TELNETD_CONF_LINELEN || c == ISO_cr || c == ISO_nl) {
 
-		if((c == ISO_cr || c == ISO_nl) && bbs_status.status!=STATUS_POST && s.bufptr>1){
-			--s.bufptr;
-			col_num = 0;
-		}
+    if(bbs_status.status!=STATUS_POST){
+      if((c == ISO_cr || c == ISO_nl) && s.bufptr>1){
+        --s.bufptr;
+        col_num = 0;
+      }
+    }
 
 		bbs_status.msg_size += s.bufptr;
 		s.buf[(int)s.bufptr] = 0;
@@ -378,7 +381,9 @@ newdata(void)
   //PRINTF("newdata len %d '%.*s'\n", len, len, (char *)uip_appdata);
 
   ptr = uip_appdata;
-  while(len > 0 && s.bufptr < sizeof(s.buf)) {
+  //while(len > 0 && s.bufptr < sizeof(s.buf)) {
+  while(len > 0 && s.bufptr < TELNETD_CONF_LINELEN) {
+
     c = *ptr;
     //PRINTF("newdata char '%c' %d %d state %d\n", c, c, len, s.state);
     ++ptr;

@@ -24,7 +24,19 @@ extern BBS_TIME_REC bbs_time;
 //extern BBS_BUFFER bbs_buf;
 
 
+void end_post(void){
+	bbs_status.status=STATUS_LOCK;
 
+	if (bbs_status.echo==2){bbs_status.echo==1;}
+
+	//Turn on the screen again
+	poke(0xd011, peek(0xd011) | 0x10);
+
+	//Change border colour to red
+	bordercolor(2);
+
+	set_prompt();
+}
 
 PROCESS(bbs_post_process, "write");
 SHELL_COMMAND(bbs_post_command, "w", "w : write a new message", &bbs_post_process);
@@ -112,7 +124,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			log_message("\x96","post abort!");
 			//linecount=0;
 			//disk_access=1;
-			bbs_status.status=STATUS_LOCK;
+			end_post();
 			PROCESS_EXIT();
 		}
 
@@ -151,17 +163,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 			//Clean things up:
 
-			bbs_status.status=STATUS_LOCK;
+			end_post();
 
-			if (bbs_status.echo==2){bbs_status.echo==1;}
-
-			//Turn on the screen again
-			poke(0xd011, peek(0xd011) | 0x10);
-
-			//Change border colour to red
-			bordercolor(2);
-
-			set_prompt();
 			PROCESS_EXIT();
 		}
 
@@ -193,3 +196,4 @@ bbs_post_init(void)
 {
   shell_register_command(&bbs_post_command);
 }
+

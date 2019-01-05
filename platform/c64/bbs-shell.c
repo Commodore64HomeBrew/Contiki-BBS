@@ -687,9 +687,16 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   //**********************************************************************
 
   if (bbs_status.encoding==0 && bbs_status.width > 22){
+    //Set the directory:
     sprintf(prefix,"%sq/4/", board.sys_prefix);
+
+    //Seed the random number generator with the system clock seconds:
+    srand(clock_seconds());
+
+    //Pick a random file:
     sprintf(file.szFileName,"%d", ((rand() % 64)+1));
 
+    //Send the file:
     bbs_banner(prefix, file.szFileName, "", board.sys_device,0);
 
   }
