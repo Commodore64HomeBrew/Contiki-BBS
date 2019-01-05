@@ -338,7 +338,7 @@ get_char(uint8_t c)
 
 	if(s.bufptr == sizeof(s.buf) || c == ISO_cr || c == ISO_nl) {
 
-		if((c == ISO_cr || c == ISO_nl) && bbs_status.status!=STATUS_POST && s.bufptr>0){
+		if((c == ISO_cr || c == ISO_nl) && bbs_status.status!=STATUS_POST && s.bufptr>1){
 			--s.bufptr;
 			col_num = 0;
 		}
