@@ -108,7 +108,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 		}
 
 
-		else if (! strcmp(input->data1, "/r\x0a") || ! strcmp(input->data1, "/r\x0d")) {
+		else if (! strcmp(input->data1, "/r\x0a\x0d") || ! strcmp(input->data1, "/r\x0d\x0a")) {
 			if (bbs_status.echo==1){
 				bbs_status.echo=2;
 				shell_output_str(&bbs_post_command, "\r\nraw mode enabled\r\n", "");
@@ -120,7 +120,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 		}
 
 
-		else if (! strcmp(input->data1, "/a\x0a") || ! strcmp(input->data1, "/a\x0d")) {
+		else if (! strcmp(input->data1, "/a\x0a\x0d") || ! strcmp(input->data1, "/a\x0d\x0a")) {
 			log_message("\x96","post abort!");
 			//linecount=0;
 			//disk_access=1;
@@ -128,7 +128,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			PROCESS_EXIT();
 		}
 
-		else if (! strcmp(input->data1,"/s\x0a") || ! strcmp(input->data1,"/s\x0d")){// || linecount >= BBS_MAX_MSGLINES) {
+		else if (! strcmp(input->data1,"/s\x0a\x0d") || ! strcmp(input->data1,"/s\x0d\x0a")){// || linecount >= BBS_MAX_MSGLINES) {
 
 			/* write post */
 			++bbs_config.msg_id[bbs_status.board_id];

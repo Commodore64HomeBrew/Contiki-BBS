@@ -332,19 +332,24 @@ get_char(uint8_t c)
 	  ++col_num;
 	}
 
-
-	s.buf[(int)s.bufptr] = c;
-	++s.bufptr;
+	if(c != ISO_nl){
+		s.buf[(int)s.bufptr] = c;
+		++s.bufptr;
+	}
 
 	//if(s.bufptr == sizeof(s.buf) || c == ISO_cr || c == ISO_nl) {
-  if(s.bufptr == TELNETD_CONF_LINELEN || c == ISO_cr || c == ISO_nl) {
+	if(s.bufptr == TELNETD_CONF_LINELEN || c == ISO_cr) {
 
-    if(bbs_status.status!=STATUS_POST){
-      if((c == ISO_cr || c == ISO_nl) && s.bufptr>1){
-        --s.bufptr;
-        col_num = 0;
-      }
-    }
+		if(bbs_status.status!=STATUS_POST){
+		  if((c == ISO_cr) && s.bufptr>1){
+			--s.bufptr;
+			col_num = 0;
+		  }
+		}
+		else if(c == ISO_cr){
+			s.buf[(int)s.bufptr] = ISO_nl;
+			++s.bufptr;
+		}
 
 		bbs_status.msg_size += s.bufptr;
 		s.buf[(int)s.bufptr] = 0;
