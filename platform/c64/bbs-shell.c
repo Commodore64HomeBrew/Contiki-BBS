@@ -231,7 +231,7 @@ void bbs_lock(void)
 /*---------------------------------------------------------------------------*/
 void bbs_unlock(void)
 {
-  char message[20];
+  //char message[20];
   log_message("\x1e","bbs unlock");
 
   //Change border colour to black
@@ -246,9 +246,9 @@ void bbs_unlock(void)
   process_exit(&bbs_timer_process);
   shell_exit();
 
-  update_time();
-  sprintf(message,"%d:%d %d/%d/%d", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-  log_message("\x1e", message);
+  //update_time();
+  //sprintf(message,"%d:%d %d/%d/%d", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+  //log_message("\x1e", message);
 }
 /*---------------------------------------------------------------------------*/
 int bbs_get_user(char *data)
@@ -769,11 +769,11 @@ PROCESS_THREAD(bbs_settime_process, ev, data)
         set_step=0;
         sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
         shell_output_str(NULL, "\n\t\rnew time: ", message);
-        log_message("\x9enew time: ", message);
+        //log_message("\x9enew time: ", message);
 
         set_time = (unsigned long)bbs_time.minute*60 + (unsigned long)bbs_time.hour*3600;
         clock_offset =  set_time - clock_seconds();
-		update_time();
+		    update_time();
         break;
       }
     }
@@ -1223,7 +1223,7 @@ shell_quit(void)
 
 void update_time(void) {
   unsigned long now_sec;
-  //char message[40];
+  char message[40];
 
   now_sec = clock_seconds() + clock_offset;
 
@@ -1264,8 +1264,8 @@ void update_time(void) {
   last_time = now_sec;
 	
   //gotoxy(25,0);
-  //sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-  //log_message("\x9e", message);
+  sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+  log_message("\x9e", message);
 
 //function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
 }

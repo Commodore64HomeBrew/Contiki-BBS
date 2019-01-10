@@ -479,6 +479,7 @@ telnetd_appcall(void *ts)
         uip_aborted() ||
         uip_timedout()) {
       log_message("\x9e", "telnetd stop");
+      update_time();
       shell_stop();
       //s.connected = 0;
     }
