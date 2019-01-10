@@ -138,7 +138,6 @@ typedef struct {
 } BBS_STATUS_REC;
 
 typedef struct {
-  unsigned long offset;
   unsigned short year;
   unsigned char month;
   unsigned char day;

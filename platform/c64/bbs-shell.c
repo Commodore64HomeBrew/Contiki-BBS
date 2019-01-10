@@ -25,7 +25,7 @@ LIST(commands);
 
 int shell_event_input;
 static struct process *front_process;
-static unsigned long time_offset, last_time;
+static unsigned long timer_offset, clock_offset, last_time;
 /*static struct etimer bbs_login_timer;*/
 
 BBS_BOARD_REC board;
@@ -153,10 +153,10 @@ static void bbs_init(void)
   bbs_time.month=8;
   bbs_time.year=1982;
 
-  set_time = bbs_time.minute*60 + bbs_time.hour*3600;
+  set_time = (unsigned long)bbs_time.minute*60 + (unsigned long)bbs_time.hour*3600;
 
-  bbs_time.offset =  set_time - clock_seconds();
-  //sprintf(message, "set:%li clock:%li offset:%li", set_time, clock_seconds(), bbs_time.offset);
+  clock_offset =  set_time - clock_seconds();
+  //sprintf(message, "set:%li clock:%li offset:%li", set_time, clock_seconds(), clock_offset);
   //log_message("time ", message);
 
 
@@ -231,7 +231,7 @@ void bbs_lock(void)
 /*---------------------------------------------------------------------------*/
 void bbs_unlock(void)
 {
-
+  char message[20];
   log_message("\x1e","bbs unlock");
 
   //Change border colour to black
@@ -245,6 +245,10 @@ void bbs_unlock(void)
   //bbs_defaults();
   process_exit(&bbs_timer_process);
   shell_exit();
+
+  update_time();
+  sprintf(message,"%d:%d %d/%d/%d", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+  log_message("\x1e", message);
 }
 /*---------------------------------------------------------------------------*/
 int bbs_get_user(char *data)
@@ -707,6 +711,9 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   }
 
   log_message("\x05logout: ", bbs_user.user_name);
+  //sprintf(prefix,"%d:%d %d/%d/%d", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+  //log_message("\x9e", prefix);
+  
   shell_stop();
   //bbs_unlock();
   //log_message("[debug] *unlock2* ", "");
@@ -764,8 +771,9 @@ PROCESS_THREAD(bbs_settime_process, ev, data)
         shell_output_str(NULL, "\n\t\rnew time: ", message);
         log_message("\x9enew time: ", message);
 
-        set_time = bbs_time.minute*60 + bbs_time.hour*3600;
-        bbs_time.offset =  set_time - clock_seconds();
+        set_time = (unsigned long)bbs_time.minute*60 + (unsigned long)bbs_time.hour*3600;
+        clock_offset =  set_time - clock_seconds();
+		update_time();
         break;
       }
     }
@@ -1159,13 +1167,13 @@ shell_strtolong(const char *str, const char **retstr)
 unsigned long
 shell_time(void)
 {
-  return clock_seconds() + time_offset;
+  return clock_seconds() + timer_offset;
 }
 /*---------------------------------------------------------------------------*/
 void
 shell_set_time(unsigned long seconds)
 {
-  time_offset = seconds - clock_seconds();
+  timer_offset = seconds - clock_seconds();
 }
 /*---------------------------------------------------------------------------*/
 void
@@ -1217,14 +1225,11 @@ void update_time(void) {
   unsigned long now_sec;
   //char message[40];
 
-  now_sec = clock_seconds() + bbs_time.offset;
+  now_sec = clock_seconds() + clock_offset;
 
   if (now_sec >  86400){
     now_sec = now_sec - 86400;
   }
-
-  //sprintf(message,"clock_seconds: %lu now_time: %lu\n\r",clock_seconds(), now_time);
-  //log_message("time: ", message);
 
   bbs_time.hour = now_sec/3600;
   bbs_time.minute = now_sec/60 - bbs_time.hour*60; 
@@ -1234,11 +1239,12 @@ void update_time(void) {
     //sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
     //log_message("\x9etime: ", message);
 
+	//Run the midnight routine...
+
     if (bbs_time.day==30){
 
+	  //Future code to handle leap years:
       //if(bbs_status.month==2 && bbs_status.day==28 && (bbs_status.year % 4) == 0)
-
-        //bbs_status.day
       
       bbs_time.day=1;
 
@@ -1256,6 +1262,11 @@ void update_time(void) {
   }
 
   last_time = now_sec;
+	
+  //gotoxy(25,0);
+  //sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+  //log_message("\x9e", message);
+
 //function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
 }
 
