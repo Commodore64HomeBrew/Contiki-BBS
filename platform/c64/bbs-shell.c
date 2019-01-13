@@ -63,7 +63,7 @@ PROCESS(bbs_timer_process, "timer");
 
 PROCESS(bbs_settime_process, "settime");
 //SHELL_COMMAND(bbs_settime_command, "t", "t : set time", &bbs_settime_process);
-SHELL_COMMAND(bbs_settime_command, "t", "", &bbs_settime_process);
+SHELL_COMMAND(bbs_settime_command, "t", "t : current time", &bbs_settime_process);
 
 
 
@@ -729,52 +729,55 @@ PROCESS_THREAD(bbs_settime_process, ev, data)
   char message[40];
   PROCESS_BEGIN();
 
+  update_time();
   sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-  shell_output_str(NULL, "\n\rold time: ", message);
-  log_message("\x9eold time: ", message);
+  shell_output_str(NULL, "\n\rcurrent time: ", message);
 
-  shell_prompt("year:");
-  set_step=1;
+  if (! strcmp(bbs_user.user_name, "alterus")) {
 
-  while(1) {
+    shell_prompt("year:");
+    set_step=1;
 
-    PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+    while(1) {
 
-    if (ev == shell_event_input) {
-      input = data;
-      num = atoi(input->data1);
+      PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 
-      if(set_step==1) {
-        bbs_time.year=num;
-        set_step=2;
-        shell_prompt("month:");
-      }
-      else if (set_step==2) {
-        bbs_time.month=num;
-        set_step=3;
-        shell_prompt("day:");
-      }
-      else if (set_step==3) {
-        bbs_time.day=num;
-        set_step=4;
-        shell_prompt("hour:");
-      }
-      else if (set_step==4) {
-        bbs_time.hour=num;
-        set_step=5;
-        shell_prompt("minute:");
-      }
-      else if (set_step==5) {
-        bbs_time.minute=num;
-        set_step=0;
-        sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-        shell_output_str(NULL, "\n\t\rnew time: ", message);
-        //log_message("\x9enew time: ", message);
+      if (ev == shell_event_input) {
+        input = data;
+        num = atoi(input->data1);
 
-        set_time = (unsigned long)bbs_time.minute*60 + (unsigned long)bbs_time.hour*3600;
-        clock_offset =  set_time - clock_seconds();
-		    update_time();
-        break;
+        if(set_step==1) {
+          bbs_time.year=num;
+          set_step=2;
+          shell_prompt("month:");
+        }
+        else if (set_step==2) {
+          bbs_time.month=num;
+          set_step=3;
+          shell_prompt("day:");
+        }
+        else if (set_step==3) {
+          bbs_time.day=num;
+          set_step=4;
+          shell_prompt("hour:");
+        }
+        else if (set_step==4) {
+          bbs_time.hour=num;
+          set_step=5;
+          shell_prompt("minute:");
+        }
+        else if (set_step==5) {
+          bbs_time.minute=num;
+          set_step=0;
+          sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
+          shell_output_str(NULL, "\n\t\rnew time: ", message);
+          //log_message("\x9enew time: ", message);
+
+          set_time = (unsigned long)bbs_time.minute*60 + (unsigned long)bbs_time.hour*3600;
+          clock_offset =  set_time - clock_seconds();
+  		    update_time();
+          break;
+        }
       }
     }
   }

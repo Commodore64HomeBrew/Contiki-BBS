@@ -23,10 +23,9 @@
 
 #define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        20
-#define BBS_80_COL             79
-#define BBS_40_COL	           39
-#define BBS_22_COL	           21
-#define BBS_LINE_WIDTH         40
+#define BBS_80_COL             78
+#define BBS_40_COL	           38
+#define BBS_22_COL	           20
 #define TELNETD_CONF_LINELEN 80
 #define TELNETD_CONF_NUMLINES 25
 
