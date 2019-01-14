@@ -158,8 +158,6 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			cbm_save (file.szFileName, board.sys_device, &bbs_config, sizeof(bbs_config));
 
 			memset(post_buffer, 0, sizeof(post_buffer));
-			//linecount=0;
-			//disk_access=1;
 
 			//Clean things up:
 
@@ -168,18 +166,11 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			PROCESS_EXIT();
 		}
 
-
-		//bytes_used += sizeof(input->data1);
 		else {
 			strcat(post_buffer, input->data1);
 		}
 
-		//log_message("[bbs] *post* ", post_buffer);
-		/*if (linecount <= BBS_MAX_MSGLINES) {
-		   disk_access=0;
-		   strncpy(post_buffer[linecount], input->data1, BBS_LINE_WIDTH);
-		   linecount++;
-		}*/
+
 	} 
 
 	//bbs_setboard_init();

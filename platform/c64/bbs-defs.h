@@ -123,6 +123,13 @@ typedef struct {
 } BBS_USER_STATS;
 
 typedef struct {
+  char last_callers[12][5];
+  short total_calls;
+  char daily_calls[38];
+  char daily_msgs[38];
+} BBS_SYSTEM_STATS;
+
+typedef struct {
   unsigned char status;
   unsigned char board_id;
   unsigned char encoding;
