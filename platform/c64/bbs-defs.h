@@ -11,7 +11,6 @@
 #define BBS_STRING_VERSION "0.1.0"
 #define BBS_COPYRIGHT_STRING "\n\r        magnetar bbs 0.1.0 \n\r     (c) 2018-> by k. casteels\n\r           based on contiki bbs,\n\r     (c) 2009-2015 by n. haedecke\n\r           based on contiki os,\n\r     (c) 2003-2013 by adam dunkels\n\r"
 
-//#define BBS_ENCODING_STRING "\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\ratascii w/echo  (t)\n\r\n\r>  "
 #define BBS_ENCODING_STRING "\n\rpetscii - 80col (8)\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\r\n\r>  "
 
 
@@ -23,13 +22,13 @@
 
 #define BBS_MAX_BOARDS          8
 #define BBS_MAX_MSGLINES        20
-#define BBS_80_COL             78
-#define BBS_40_COL	           38
-#define BBS_22_COL	           20
-#define TELNETD_CONF_LINELEN 80
-#define TELNETD_CONF_NUMLINES 25
+#define BBS_80_COL             	78
+#define BBS_40_COL	           	38
+#define BBS_22_COL	           	20
+#define TELNETD_CONF_LINELEN 	80
+#define TELNETD_CONF_NUMLINES 	25
 
-#define BBS_BUFFER_SIZE    1550
+#define BBS_BUFFER_SIZE    		1550
 
 #define BBS_SESSION_TIMEOUT (CLOCK_SECOND * 3600)
 #define BBS_LOGIN_TIMEOUT   (CLOCK_SECOND * 60)
@@ -52,7 +51,12 @@
 #define BBS_BANNER_MENU        "menu"
 #define BBS_BANNER_SUBS        "subs"
 
-#define BBS_LOG_FILE           "bbs.log"
+
+#define BBS_STATS_DAYS			38
+#define BBS_STATS_USRS			5
+#define BBS_STATS_FILE         "bbs-stats"
+
+#define BBS_LOG_FILE           "bbs-log"
 
 #define BBS_EMD_FILE           "c64-ram.emd"
 #define BBS_CFG_FILE           "bbs-cfg"
@@ -90,7 +94,6 @@
 #define poke(A,X) (*(unsigned short *)A) = (X)
 #define peek(A) (*(unsigned short *)A)
 
-
 typedef struct {
   char  board_name[40];
   short telnet_port;
@@ -123,10 +126,13 @@ typedef struct {
 } BBS_USER_STATS;
 
 typedef struct {
-  char last_callers[12][5];
-  short total_calls;
-  char daily_calls[38];
-  char daily_msgs[38];
+  unsigned char last_callers[12][BBS_STATS_USRS];
+  unsigned char caller_ptr;
+  unsigned short total_calls;
+  unsigned short total_msgs;
+  unsigned short daily_calls[BBS_STATS_DAYS];
+  unsigned short daily_msgs[BBS_STATS_DAYS];
+  unsigned char day_ptr;
 } BBS_SYSTEM_STATS;
 
 typedef struct {

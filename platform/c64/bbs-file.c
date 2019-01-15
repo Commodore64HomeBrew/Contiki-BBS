@@ -73,30 +73,14 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 
   //log_message("[debug] ", file);
   ptr = buf.ptr;
-  //fsize=bbs_filesize(filePrefix, file, device);
+
   fsize = BBS_BUFFER_SIZE-ptr;
-  //sprintf(file, "%d",fsize);
-  //log_message("[debug] fsize:", file);
+
 
 
   sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
-  //log_message("[debug] file banner2: ", file);
 
-  //memset(buf.bufmem, 0, fsize);
-
-
-  //cbm_load(const char* name, unsigned char device, void* data)
-  //cbm_load(file, device, &buffer);
-
-  //siRet = cbm_open(10, device, 10, file);
   cbm_open(10, device, 10, file);
-  //if (! siRet) {
-
-	  /*if (bbs_status.status == STATUS_READ){
-			cbm_read(10, &buf.bufmem[2], 2);
-      //fsize=fsize-2;
-	  }*/
-
 
   if (bbs_status.status == STATUS_READ){
     buf.ptr += cbm_read(10, &buf.bufmem[ptr] , fsize);
@@ -116,11 +100,9 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   buf.bufmem[ptr]= ISO_cr;
   buf.bufmem[ptr+1]= ISO_nl;
 
-  //fsize = fsize-2;  
   
   cbm_close(10);
 
-	//buf.ptr = strlen(buf.bufmem);
 
   if (wordWrap==1){
 
@@ -128,13 +110,7 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
     col=0;
     preCol=0;
     for (i=ptr; i<buf.ptr; i++) {
-      /*
-      if (line == bbs_status.lines) {
-          line=0;
-          shell_output_str(NULL, "\n\r\x05", buf.bufmem);
-          shell_prompt("\n\rreturn to continue");
-      }
-      */
+
       c=buf.bufmem[i];
 
       if (col == width){
@@ -414,7 +390,7 @@ int ssReadSEQFile(ST_FILE *pstFile, void *pvBuffer, unsigned int uiBuffSize)
 
 
 /*---------------------------------------------------------------------------*/
-int siDriveStatus(ST_FILE *pstFile)
+/*int siDriveStatus(ST_FILE *pstFile)
 {
    unsigned char ucBuff[128];
    unsigned char msg[40];
@@ -435,10 +411,10 @@ int siDriveStatus(ST_FILE *pstFile)
       return -1;
    }
 
-   /*printf("\n%hhu,%s,%hhu,%hhu\n", (int) e, msg, (int) t, (int) s);*/
+   //printf("\n%hhu,%s,%hhu,%hhu\n", (int) e, msg, (int) t, (int) s);
 
    return (int) e;
-}
+}*/
 /*---------------------------------------------------------------------------*/
 /*int siFileExists(ST_FILE *pstFile)
 {

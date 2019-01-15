@@ -23,6 +23,9 @@
 
 LIST(commands);
 
+//Month names:                   J   F   M   A   M   J   J   A   S   O   N   D
+unsigned char month_days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
 int shell_event_input;
 static struct process *front_process;
 static unsigned long timer_offset, clock_offset, last_time;
@@ -33,6 +36,7 @@ BBS_CONFIG_REC bbs_config;
 BBS_STATUS_REC bbs_status;
 BBS_USER_REC bbs_user;
 BBS_USER_STATS bbs_usrstats;
+BBS_SYSTEM_STATS bbs_sysstats;
 BBS_TIME_REC bbs_time;
 extern TELNETD_STATE s;
 
@@ -191,6 +195,30 @@ static void bbs_init(void)
     }*/
   }
 
+
+  /* read BBS stats file */
+  sprintf(file, "%s:%s",board.sys_prefix, BBS_STATS_FILE);
+
+  cbm_open(10, board.sys_device, 10, file);
+  cbm_read(10, &bbs_sysstats, 2);
+
+  fsize = cbm_read(10, &bbs_sysstats, sizeof(bbs_sysstats));
+  cbm_close(10);
+
+  if (fsize > 0) {
+    log_message("\x99", "stats loaded from file");
+  }
+  else{
+    log_message("\x96", "stats file not found, using defaults");
+	//bbs_sysstats.last_callers[12][BBS_STATS_USRS];
+	bbs_sysstats.caller_ptr=0;
+	bbs_sysstats.total_calls=0;
+	bbs_sysstats.total_msgs=0;
+	//bbs_sysstats.daily_calls[BBS_STATS_DAYS];
+	//bbs_sysstats.daily_msgs[BBS_STATS_DAYS];
+	bbs_sysstats.day_ptr=0;
+  }
+
   bbs_defaults();
   set_prompt();
 
@@ -199,12 +227,47 @@ static void bbs_init(void)
   //em_load(board.sys_prefix, BBS_BANNER_LOGIN, "", board.sys_device, 0);
   
 }
+/*---------------------------------------------------------------------------*/
+void 
+update_stats(void){
 
-void bbs_log(char *message ){
+	unsigned char file[25];
+	unsigned char s;
+	unsigned short new_total_msgs=0;	
+
+	++bbs_sysstats.day_ptr;
+	if(bbs_sysstats.day_ptr>BBS_STATS_DAYS){
+		bbs_sysstats.day_ptr=0;
+	}
+
+	for(s=0; s<BBS_MAX_BOARDS; ++s){
+		new_total_msgs += bbs_config.msg_id[s];
+	}
+
+
+	bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr] = new_total_msgs - bbs_sysstats.total_msgs;
+
+	bbs_sysstats.total_msgs = new_total_msgs;
+
+ 	sprintf(file, "%s:%s",board.sys_prefix, BBS_STATS_FILE);
+	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
+}
+/*---------------------------------------------------------------------------*/
+void
+display_stats(void){
+	unsigned char message[80];
+
+	sprintf(message,"total msgs: %hu\n\r", bbs_sysstats.total_msgs);
+	shell_output_str(NULL, message, "");
+
+	sprintf(message,"1: %hu\n\r", bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr]);
+	shell_output_str(NULL, message, "");
+}
+/*---------------------------------------------------------------------------*/
+/*void bbs_log(char *message ){
 
   cbm_save (BBS_LOG_FILE, board.sys_device, &message, strlen(message));
-}
-
+}*/
 /*---------------------------------------------------------------------------*/
 void bbs_splash(unsigned short mode) 
 {
@@ -258,53 +321,24 @@ int bbs_get_user(char *data)
 	unsigned char file[25];
 
 	strcpy(bbs_user.user_name, data);
-  //strcat(bbs_user.user_name, '\0');
-/*
-  if(bbs_user.user_name[0] == '\0'){
-    log_message("blank handle ", "");
-    return 3;
-  }
-*/
-  /*
-	sprintf(file, "u-%s", bbs_user.user_name);
 
-	fsize=bbs_filesize(board.user_prefix, file, board.user_device);
+	sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
 
- 	sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
+	siRet = cbm_open(10, board.user_device, 10, file);
+	cbm_read(10, &bbs_user, 2);
+	fsize = cbm_read(10, &bbs_user, sizeof(bbs_user));
+	cbm_close(10);
 
-  if (fsize != 0) {
-    siRet = cbm_open(10, board.user_device, 10, file);
-    if ( ! siRet ) {
-      log_message("\x99login: ", bbs_user.user_name);
-      cbm_read(10, &bbs_user, 2);
-      cbm_read(10, &bbs_user, sizeof(bbs_user));
-      cbm_close(10);
-    }
-    return 1;
+	if (fsize > 0) {
+		log_message("\x99login: ", bbs_user.user_name);
+		return 1;
 	}
 	else{
-    log_message("\x96user not found: ", bbs_user.user_name);
-    return 2;
-  }
-  */
-  sprintf(file, "%s:u-%s", board.user_prefix, bbs_user.user_name);
-
-  siRet = cbm_open(10, board.user_device, 10, file);
-  cbm_read(10, &bbs_user, 2);
-  fsize = cbm_read(10, &bbs_user, sizeof(bbs_user));
-  cbm_close(10);
-
-  if (fsize > 0) {
-    log_message("\x99login: ", bbs_user.user_name);
-    return 1;
-  }
-  else{
-    log_message("\x96user not found: ", bbs_user.user_name);
-    return 2;
-  }
+		log_message("\x96user not found: ", bbs_user.user_name);
+		return 2;
+	}
 
 	return 0;
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -378,9 +412,10 @@ void bbs_login()
 	//em_out(0);
 
 	shell_output_str(NULL, "\x9clast caller: \x9e", bbs_status.last_caller);
-  shell_output_str(NULL, "\r\n\x05? \x9fto list commands", "");
-  shell_output_str(NULL, "\x05s \x9eselect msg board\r\n", "");
+	shell_output_str(NULL, "\r\n\x05? \x9fto list commands", "");
+	shell_output_str(NULL, "\x05s \x9eselect msg board\r\n", "");
 
+	display_stats();
 
 	strcpy(bbs_status.last_caller, bbs_user.user_name);
 	//Display the sub banner:
@@ -711,12 +746,16 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   }
 
   log_message("\x05logout: ", bbs_user.user_name);
+
+
   //sprintf(prefix,"%d:%d %d/%d/%d", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
   //log_message("\x9e", prefix);
   
   shell_stop();
   //bbs_unlock();
   //log_message("[debug] *unlock2* ", "");
+
+  update_stats();
 
   PROCESS_END();
 }
@@ -1224,7 +1263,8 @@ shell_quit(void)
 }
 /*---------------------------------------------------------------------------*/
 
-void update_time(void) {
+void
+update_time(void) {
   unsigned long now_sec;
   char message[40];
 
@@ -1239,12 +1279,11 @@ void update_time(void) {
 
 
   if (last_time > now_sec) {
-    //sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-    //log_message("\x9etime: ", message);
 
-	//Run the midnight routine...
+	//Run the midnight routine:
+	update_stats();
 
-    if (bbs_time.day==30){
+    if (bbs_time.day==month_days[bbs_time.month-1]){
 
 	  //Future code to handle leap years:
       //if(bbs_status.month==2 && bbs_status.day==28 && (bbs_status.year % 4) == 0)
@@ -1270,8 +1309,13 @@ void update_time(void) {
   sprintf(message,"%d:%d %d/%d/%d\n\r", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
   log_message("\x9e", message);
 
-//function f(x) { return 28 + (x + Math.floor(x/8)) % 2 + 2 % x + 2 * Math.floor(1/x); }
 }
+
+
+
+
+
+
 
 
 /** @} */
