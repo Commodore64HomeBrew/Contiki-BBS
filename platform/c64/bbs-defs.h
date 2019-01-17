@@ -95,38 +95,38 @@
 #define peek(A) (*(unsigned short *)A)
 
 typedef struct {
-  char  board_name[40];
-  short telnet_port;
+  unsigned char  board_name[40];
+  unsigned short telnet_port;
   unsigned char max_boards;
   unsigned char subs_device;
-  char subs_prefix[10];
+  unsigned char subs_prefix[10];
   unsigned char sys_device;
-  char sys_prefix[10];
+  unsigned char sys_prefix[10];
   unsigned char user_device;
-  char user_prefix[10];
-  char sub_names[9][20];
+  unsigned char user_prefix[10];
+  unsigned char sub_names[9][20];
   unsigned char dir_boost; 
 } BBS_BOARD_REC;
 
 
 typedef struct {
-  short msg_id[BBS_MAX_BOARDS+1];
+  unsigned short msg_id[BBS_MAX_BOARDS+1];
 } BBS_CONFIG_REC;
 
 typedef struct {  
-  char  user_name[12];
-  char  user_pwd[20];
+  unsigned char  user_name[12];
+  unsigned char  user_pwd[20];
   unsigned char  access_req;
 } BBS_USER_REC;
 
 typedef struct {
-  short num_calls;
-  int last_call;
-  short current_msg[BBS_MAX_BOARDS+1];
+  unsigned short num_calls;
+  unsigned short last_call;
+  unsigned short current_msg[BBS_MAX_BOARDS+1];
 } BBS_USER_STATS;
 
 typedef struct {
-  unsigned char last_callers[12][BBS_STATS_USRS];
+  unsigned char last_callers[BBS_STATS_USRS][12];
   unsigned char caller_ptr;
   unsigned short total_calls;
   unsigned short total_msgs;
@@ -144,9 +144,8 @@ typedef struct {
   unsigned char width;
   unsigned char lines;
   unsigned short msg_size;
-  char last_caller[12];
-  char prompt[40];
-  char encoding_suffix[3];
+  unsigned char prompt[40];
+  unsigned char encoding_suffix[3];
 } BBS_STATUS_REC;
 
 typedef struct {
@@ -159,22 +158,22 @@ typedef struct {
 
 
 typedef struct {
-  short file[10][2];
+  unsigned short file[10][2];
 } BBS_EM_REC;
 
 
 typedef struct {
-  char bufmem[BBS_BUFFER_SIZE];
+  unsigned char bufmem[BBS_BUFFER_SIZE];
   unsigned long ptr;
   unsigned long size;
 } BBS_BUFFER;
 
 typedef struct {
-  char buf[TELNETD_CONF_LINELEN + 1];
-  char bufptr;
-  char connected;
-  long numsent;
-  short state;
+  unsigned char buf[TELNETD_CONF_LINELEN + 1];
+  unsigned char bufptr;
+  unsigned char connected;
+  unsigned long numsent;
+  unsigned short state;
 } TELNETD_STATE;
 
 #endif /* __BBSDEFS_H_ */

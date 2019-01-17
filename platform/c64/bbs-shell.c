@@ -104,9 +104,7 @@ void set_prompt(void)
 		else{
 			sprintf(bbs_status.prompt, "\r\nsub:%d ret=%d / %d> ", bbs_status.board_id, next_msg, bbs_config.msg_id[bbs_status.board_id]);
 		}
-	}
-
-	
+	}	
 }
 
 /*---------------------------------------------------------------------------*/
@@ -219,8 +217,9 @@ static void bbs_init(void)
 	bbs_sysstats.day_ptr=0;
   }
 
+
   bbs_defaults();
-  set_prompt();
+  //set_prompt();
 
   //siRet = em_load_driver (BBS_EMD_FILE);
 
@@ -240,7 +239,7 @@ update_stats(void){
 		bbs_sysstats.day_ptr=0;
 	}
 
-	for(s=0; s<BBS_MAX_BOARDS; ++s){
+	for(s=1; s<BBS_MAX_BOARDS; ++s){
 		new_total_msgs += bbs_config.msg_id[s];
 	}
 
@@ -249,19 +248,51 @@ update_stats(void){
 
 	bbs_sysstats.total_msgs = new_total_msgs;
 
- 	sprintf(file, "%s:%s",board.sys_prefix, BBS_STATS_FILE);
+ 	sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
 	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
 }
 /*---------------------------------------------------------------------------*/
 void
 display_stats(void){
 	unsigned char message[80];
+	unsigned char i,k;
+	unsigned short total_msgs=0, user_msgs=0, unread_msgs=0;
 
-	sprintf(message,"total msgs: %hu\n\r", bbs_sysstats.total_msgs);
+	//**********************************************************************
+	shell_output_str(NULL, "\r\n\x9clast callers:", "");
+
+	i=bbs_sysstats.caller_ptr+1;
+
+	if(i>=BBS_STATS_USRS){i=0;}
+
+	for(k=0;k<BBS_STATS_USRS;k++){
+		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[i++]);
+		if(i>=BBS_STATS_USRS){i=0;}
+	}
+
+	++bbs_sysstats.caller_ptr;
+	if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
+		bbs_sysstats.caller_ptr=0;
+	}
+
+	strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);
+
+	//**********************************************************************
+
+	
+	for(k=1; k<BBS_MAX_BOARDS; ++k){
+		total_msgs += bbs_config.msg_id[k];
+	}
+	for(k=1; k<BBS_MAX_BOARDS; ++k){
+		user_msgs += bbs_usrstats.current_msg[k];
+	}
+	unread_msgs = total_msgs-user_msgs;
+
+	sprintf(message,"\r\n\x9eunread msgs:\x05 %hu", unread_msgs);
 	shell_output_str(NULL, message, "");
 
-	sprintf(message,"1: %hu\n\r", bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr]);
-	shell_output_str(NULL, message, "");
+	//sprintf(message,"1: %hu\n\r", bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr]);
+	//shell_output_str(NULL, message, "");
 }
 /*---------------------------------------------------------------------------*/
 /*void bbs_log(char *message ){
@@ -387,7 +418,6 @@ void bbs_login()
 
   sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
 
-
   siRet = cbm_open(10, board.user_device, 10, file);
   if (! siRet) {
     //log_message("[debug] stats file: ", file);
@@ -399,25 +429,22 @@ void bbs_login()
        log_message("\x96stats file load error: ", file);
   }
 
-  //We need a debug msg here for log on time.
-  //update_time();
-  //sprintf(post_buffer,"\x1c\n\rFrom: \x05%s\x1e\n\rDate: \x05%d:%d %d/%d/%d\x9e\n\r", bbs_user.user_name, bbs_time.hour, bbs_time.minute, bbs_time.day, bbs_time.month, bbs_time.year , input->data1);
-  
+
   //**********************************************************************
 	process_exit(&bbs_timer_process);
 	bbs_status.status=STATUS_LOCK;
-	//log_message("[bbs] main prompt for ", bbs_user.user_name);
+
 
 	bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
-	//em_out(0);
-
-	shell_output_str(NULL, "\x9clast caller: \x9e", bbs_status.last_caller);
-	shell_output_str(NULL, "\r\n\x05? \x9fto list commands", "");
-	shell_output_str(NULL, "\x05s \x9eselect msg board\r\n", "");
 
 	display_stats();
 
-	strcpy(bbs_status.last_caller, bbs_user.user_name);
+
+	//**********************************************************************
+
+	shell_output_str(NULL, "\r\n\x05? \x9fto list commands", "");
+	shell_output_str(NULL, "\x05s \x9eselect msg board\r\n", "");
+
 	//Display the sub banner:
 	bbs_sub_banner();
 	set_prompt();
