@@ -25,7 +25,7 @@
 #define BBS_80_COL             	78
 #define BBS_40_COL	           	38
 #define BBS_22_COL	           	20
-#define TELNETD_CONF_LINELEN 	80
+#define TELNETD_CONF_LINELEN 	 200
 #define TELNETD_CONF_NUMLINES 	25
 
 #define BBS_BUFFER_SIZE    		1550

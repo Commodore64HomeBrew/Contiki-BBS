@@ -81,6 +81,8 @@ void bbs_defaults(void)
   bbs_status.width=BBS_40_COL;
   bbs_status.status=STATUS_UNLOCK;
   bbs_status.board_id=1;
+  sprintf(bbs_status.prompt, "");
+
 }
 /*---------------------------------------------------------------------------*/
 void set_prompt(void) 
@@ -336,7 +338,6 @@ void bbs_unlock(void)
   s.connected = 0;
   bbs_status.status=STATUS_UNLOCK;
   bbs_locked=0;
-  //bbs_defaults();
   process_exit(&bbs_timer_process);
   shell_exit();
 
@@ -738,18 +739,20 @@ PROCESS_THREAD(help_command_process, ev, data)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(shell_exit_process, ev, data)
 {
-  ST_FILE file;
-  char prefix[20];
+
+  unsigned char file[25];
+  unsigned char prefix[20];
 
   PROCESS_BEGIN();
 
-  //**********************************************************************
-  //This needs to go in a separate function...
-  //**********************************************************************
-  sprintf(file.szFileName, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
-  //log_message("[debug] user stats file: ", file.szFileName);
 
-  cbm_save (file.szFileName, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
+
+  sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
+  cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
+
+
+  sprintf(file, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
+  cbm_save (file, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
   //**********************************************************************
 
   if (bbs_status.encoding==0 && bbs_status.width > 22){
@@ -760,15 +763,15 @@ PROCESS_THREAD(shell_exit_process, ev, data)
     srand(clock_seconds());
 
     //Pick a random file:
-    sprintf(file.szFileName,"%d", ((rand() % 64)+1));
+    sprintf(file,"%d", ((rand() % 64)+1));
 
     //Send the file:
-    bbs_banner(prefix, file.szFileName, "", board.sys_device,0);
+    bbs_banner(prefix, file, "", board.sys_device,0);
 
   }
   else{
-    sprintf(file.szFileName,"%s", BBS_BANNER_LOGOUT);
-    bbs_banner(board.sys_prefix, file.szFileName, bbs_status.encoding_suffix, board.sys_device,0);
+    sprintf(file,"%s", BBS_BANNER_LOGOUT);
+    bbs_banner(board.sys_prefix, file, bbs_status.encoding_suffix, board.sys_device,0);
 
   }
 
@@ -782,7 +785,6 @@ PROCESS_THREAD(shell_exit_process, ev, data)
   //bbs_unlock();
   //log_message("[debug] *unlock2* ", "");
 
-  update_stats();
 
   PROCESS_END();
 }
