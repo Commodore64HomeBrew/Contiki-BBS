@@ -410,28 +410,30 @@ int bbs_save_user()
 void bbs_login()
 {
 
-  unsigned short fsize=0;
-  unsigned short siRet=0;
-  unsigned char file[25];
+	unsigned short fsize=0;
+	unsigned short siRet=0;
+	unsigned char file[25];
 
-  sprintf(file, "s-%s", bbs_user.user_name);
-  //log_message("[debug] user stats file: ", file);
+	sprintf(file, "s-%s", bbs_user.user_name);
+	//log_message("[debug] user stats file: ", file);
 
-  sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
+	sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
 
-  siRet = cbm_open(10, board.user_device, 10, file);
-  if (! siRet) {
-    //log_message("[debug] stats file: ", file);
-    cbm_read(10, &bbs_usrstats, 2);
-    cbm_read(10, &bbs_usrstats, sizeof(bbs_usrstats));
-    cbm_close(10);
-  }
-  else{
-       log_message("\x96stats file load error: ", file);
-  }
+	siRet = cbm_open(10, board.user_device, 10, file);
+	if (! siRet) {
+		//log_message("[debug] stats file: ", file);
+		cbm_read(10, &bbs_usrstats, 2);
+		cbm_read(10, &bbs_usrstats, sizeof(bbs_usrstats));
+		cbm_close(10);
+	}
+	else{
+		log_message("\x96stats file load error: ", file);
+		bbs_usrstats.num_calls=0;
+		bbs_usrstats.num_msgs=0;
+	}
+	++bbs_usrstats.num_calls;
 
-
-  //**********************************************************************
+ 	//**********************************************************************
 	process_exit(&bbs_timer_process);
 	bbs_status.status=STATUS_LOCK;
 
@@ -745,48 +747,39 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 
   PROCESS_BEGIN();
 
+	if (bbs_status.encoding==0 && bbs_status.width > 22){
+		//Set the directory:
+		sprintf(prefix,"%sq/4/", board.sys_prefix);
 
+		//Seed the random number generator with the system clock seconds:
+		srand(clock_seconds());
 
-  sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
-  cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
+		//Pick a random file:
+		sprintf(file,"%d", ((rand() % 64)+1));
 
+		//Send the file:
+		bbs_banner(prefix, file, "", board.sys_device,0);
 
-  sprintf(file, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
-  cbm_save (file, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
-  //**********************************************************************
+	}
+	else{
+		sprintf(file,"%s", BBS_BANNER_LOGOUT);
+		bbs_banner(board.sys_prefix, file, bbs_status.encoding_suffix, board.sys_device,0);
 
-  if (bbs_status.encoding==0 && bbs_status.width > 22){
-    //Set the directory:
-    sprintf(prefix,"%sq/4/", board.sys_prefix);
+	}
+	
+	//Save system stats:
+	sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
+	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
 
-    //Seed the random number generator with the system clock seconds:
-    srand(clock_seconds());
+	//Save user stats:
+	sprintf(file, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
+	cbm_save (file, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
 
-    //Pick a random file:
-    sprintf(file,"%d", ((rand() % 64)+1));
+	log_message("\x05logout: ", bbs_user.user_name);
 
-    //Send the file:
-    bbs_banner(prefix, file, "", board.sys_device,0);
+	shell_stop();
 
-  }
-  else{
-    sprintf(file,"%s", BBS_BANNER_LOGOUT);
-    bbs_banner(board.sys_prefix, file, bbs_status.encoding_suffix, board.sys_device,0);
-
-  }
-
-  log_message("\x05logout: ", bbs_user.user_name);
-
-
-  //sprintf(prefix,"%d:%d %d/%d/%d", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-  //log_message("\x9e", prefix);
-  
-  shell_stop();
-  //bbs_unlock();
-  //log_message("[debug] *unlock2* ", "");
-
-
-  PROCESS_END();
+	PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bbs_settime_process, ev, data)

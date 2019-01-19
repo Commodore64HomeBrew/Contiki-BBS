@@ -21,6 +21,7 @@ extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
 extern BBS_TIME_REC bbs_time;
+extern BBS_USER_STATS bbs_usrstats;
 //extern BBS_BUFFER bbs_buf;
 
 
@@ -158,6 +159,8 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 			cbm_save (file.szFileName, board.sys_device, &bbs_config, sizeof(bbs_config));
 
 			memset(post_buffer, 0, sizeof(post_buffer));
+
+			++bbs_usrstats.num_msgs;
 
 			//Clean things up:
 

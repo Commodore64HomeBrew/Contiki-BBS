@@ -14,9 +14,6 @@
 #define BBS_ENCODING_STRING "\n\rpetscii - 80col (8)\n\rpetscii - 40col (4)\n\rpetscii - 22col (2)\n\rascii w/ echo   (e)\n\rlinux or vt100  (l)\n\r\n\r>  "
 
 
-#define BBS_LOCKMODE_OFF        0
-#define BBS_LOCKMODE_ON         1
-
 #define BBS_MODE_SHELL          0
 #define BBS_MODE_CONSOLE        1
 
@@ -25,10 +22,10 @@
 #define BBS_80_COL             	78
 #define BBS_40_COL	           	38
 #define BBS_22_COL	           	20
-#define TELNETD_CONF_LINELEN 	 200
+#define TELNETD_CONF_LINELEN 	 160
 #define TELNETD_CONF_NUMLINES 	25
 
-#define BBS_BUFFER_SIZE    		1550
+#define BBS_BUFFER_SIZE    	2000
 
 #define BBS_SESSION_TIMEOUT (CLOCK_SECOND * 3600)
 #define BBS_LOGIN_TIMEOUT   (CLOCK_SECOND * 60)
@@ -121,7 +118,7 @@ typedef struct {
 
 typedef struct {
   unsigned short num_calls;
-  unsigned short last_call;
+  unsigned short num_msgs;
   unsigned short current_msg[BBS_MAX_BOARDS+1];
 } BBS_USER_STATS;
 
