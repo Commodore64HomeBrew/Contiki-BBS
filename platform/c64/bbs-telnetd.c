@@ -49,22 +49,13 @@ extern BBS_STATUS_REC bbs_status;
 PROCESS(telnetd_process, "Telnet server");
 
 AUTOSTART_PROCESSES(&telnetd_process);
-/*
-#ifndef TELNETD_CONF_LINELEN
-#define TELNETD_CONF_LINELEN 80
-#endif
-#ifndef TELNETD_CONF_NUMLINES
-#define TELNETD_CONF_NUMLINES 25
-#endif
-*/
+
 #ifdef TELNETD_CONF_REJECT
 extern char telnetd_reject_text[];
 #else
 static char telnetd_reject_text[] =
             "Too many connections, please try again later.";
 #endif
-
-
 
 
 
@@ -93,13 +84,7 @@ static char telnetd_reject_text[] =
 uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;
-/*
-struct telnetd_buf {
-  char bufmem[TELNETD_CONF_NUMLINES * TELNETD_CONF_LINELEN];
-  int ptr;
-  int size;
-};
-*/
+
 //static struct telnetd_buf buf;
 static struct timer silence_timer;
 
@@ -115,7 +100,6 @@ buf_init()
 {
   buf.ptr = 0;
   buf.size = BBS_BUFFER_SIZE;
-  //buf.size = TELNETD_CONF_NUMLINES * TELNETD_CONF_LINELEN;
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -268,10 +252,7 @@ get_char(uint8_t c)
 				--s.bufptr;
 				s.buf[(int)s.bufptr] = 0;
 				buf_append(&c, 1);
-
-				if(col_num>0){
-					--col_num;
-				}
+        		//uip_send(&c,1);
 			}
 			return;	
 		}
@@ -291,6 +272,8 @@ get_char(uint8_t c)
 					//jump to next line
 					buf_append(&c, 1);
 					buf_append(&cr, 1);
+          			//uip_send(&c,1);
+          			//uip_send(&cr,1);
 					col_num=0;
 				}
 				else
@@ -299,34 +282,38 @@ get_char(uint8_t c)
 					//Erase the word
 					while(s.buf[i]!=PETSCII_SPACE && i>0){
 						buf_append(&dl, 1);
+            			//uip_send(&dl,1);
 						--i;
 					}
 					++i;
 
 					//Jump to new line
 					buf_append(&cr, 1);
-
+          			//uip_send(&cr,1);
 					//Set the column number to match wrapped word
 					col_num=(int)s.bufptr-i;
 
 					//Rewrite the word
 					for(n=i;n<(int)s.bufptr;++n){
 						buf_append(&s.buf[n], 1);
-
+            			//uip_send(&s.buf[n],1);
 					}
 					//Add the new character to the word.
 					buf_append(&c, 1);
+          			//uip_send(&c,1);
 				}
 			}
 		}
 		else{	
 			buf_append(&c, 1);
+      		//uip_send(&c,1);
 			++col_num;
 		}
 	}
 	else if(bbs_status.echo==2){
 	  buf_append(&c, 1);
-	  //++col_num;
+	  //uip_send(&c,1);
+	  ++col_num;
 	}
 
 	if(c != ISO_nl){

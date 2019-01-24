@@ -851,7 +851,7 @@ PROCESS_THREAD(info_process, ev, data)
 {
   PROCESS_BEGIN();
 
-	bbs_banner(board.sys_prefix, BBS_BANNER_LOGIN, bbs_status.encoding_suffix, board.sys_device,0);
+	bbs_banner(board.sys_prefix, BBS_BANNER_INFO, bbs_status.encoding_suffix, board.sys_device,0);
 
   PROCESS_END();
 }

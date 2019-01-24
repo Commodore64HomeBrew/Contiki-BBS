@@ -22,7 +22,7 @@
 #define BBS_80_COL             	78
 #define BBS_40_COL	           	38
 #define BBS_22_COL	           	20
-#define TELNETD_CONF_LINELEN 	 160
+#define TELNETD_CONF_LINELEN 	 255
 #define TELNETD_CONF_NUMLINES 	25
 
 #define BBS_BUFFER_SIZE    	1600
@@ -47,6 +47,7 @@
 #define BBS_BANNER_LOGO        "logo"
 #define BBS_BANNER_MENU        "menu"
 #define BBS_BANNER_SUBS        "subs"
+#define BBS_BANNER_INFO        "info"
 
 
 #define BBS_STATS_DAYS			77
