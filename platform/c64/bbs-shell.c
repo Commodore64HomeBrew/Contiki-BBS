@@ -39,6 +39,7 @@ BBS_USER_STATS bbs_usrstats;
 BBS_SYSTEM_STATS bbs_sysstats;
 BBS_TIME_REC bbs_time;
 extern TELNETD_STATE s;
+extern BBS_BUFFER buf;
 
 unsigned short bbs_locked=0;
 unsigned short set_step=0;
@@ -46,30 +47,38 @@ unsigned short set_step=0;
 /*---------------------------------------------------------------------------*/
 PROCESS(shell_process, "Shell");
 PROCESS(shell_server_process, "Shell server");
-PROCESS(bbs_version_process, "version");
-SHELL_COMMAND(bbs_version_command, "v", "v : show version info", 
-              &bbs_version_process);
-PROCESS(help_command_process, "help");
-SHELL_COMMAND(help_command, "?", "? : shows this help",
-	      &help_command_process);
-PROCESS(shell_killall_process, "killall");
-SHELL_COMMAND(killall_command, "killall", "killall : stop all running commands",
-	      &shell_killall_process);
-PROCESS(shell_kill_process, "kill");
-SHELL_COMMAND(kill_command, "kill", "kill <command> : stop a specific command",
-	      &shell_kill_process);
-PROCESS(shell_exit_process, "exit");
-SHELL_COMMAND(quit_command, "q", "q : exit bbs",
-	      &shell_exit_process);
-PROCESS(bbs_login_process, "login");
-SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
 PROCESS(bbs_timer_process, "timer");
 
-PROCESS(bbs_settime_process, "settime");
-//SHELL_COMMAND(bbs_settime_command, "t", "t : set time", &bbs_settime_process);
-SHELL_COMMAND(bbs_settime_command, "t", "t : current time", &bbs_settime_process);
+PROCESS(bbs_login_process, "login");
+SHELL_COMMAND(bbs_login_command, "login", "login  : login proc", &bbs_login_process);
 
+PROCESS(shell_killall_process, "killall");
+SHELL_COMMAND(killall_command, "killall", "killall : stop all running commands", &shell_killall_process);
 
+PROCESS(shell_kill_process, "kill");
+SHELL_COMMAND(kill_command, "kill", "kill <command> : stop a specific command", &shell_kill_process);
+
+/*---------------------------------------------------------------------------*/
+PROCESS(version_process, "version");
+SHELL_COMMAND(version_command, "v", "v : magnetar version", &version_process);
+
+PROCESS(help_command_process, "help");
+SHELL_COMMAND(help_command, "?", "? : shows this help", &help_command_process);
+
+PROCESS(shell_exit_process, "exit");
+SHELL_COMMAND(quit_command, "q", "q : exit bbs", &shell_exit_process);
+
+PROCESS(settime_process, "settime");
+SHELL_COMMAND(settime_command, "t", "t : current time", &settime_process);
+
+PROCESS(sys_stats_process, "sysstats");
+SHELL_COMMAND(sys_stats_command, "x", "x : system stats", &sys_stats_process);
+
+PROCESS(usr_stats_process, "usrstats");
+SHELL_COMMAND(usr_stats_command, "y", "y : your stats", &usr_stats_process);
+
+PROCESS(info_process, "info");
+SHELL_COMMAND(info_command, "i", "i : bbs system info", &info_process);
 
 
 /*---------------------------------------------------------------------------*/
@@ -229,73 +238,122 @@ static void bbs_init(void)
   
 }
 /*---------------------------------------------------------------------------*/
-void 
-update_stats(void){
+void
+user_stats(void){
+	unsigned char message[40];
 
-	unsigned char file[25];
-	unsigned char s;
-	unsigned short new_total_msgs=0;	
+	sprintf(message,"\r\n\x9eyour msgs:\x05 %hu", bbs_usrstats.num_msgs);
+	shell_output_str(NULL, message, "");
 
-	++bbs_sysstats.day_ptr;
-	if(bbs_sysstats.day_ptr>BBS_STATS_DAYS){
-		bbs_sysstats.day_ptr=0;
-	}
+	sprintf(message,"\x9eyour calls:\x05 %hu", bbs_usrstats.num_calls);
+	shell_output_str(NULL, message, "");
 
-	for(s=1; s<BBS_MAX_BOARDS; ++s){
-		new_total_msgs += bbs_config.msg_id[s];
-	}
-
-
-	bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr] = new_total_msgs - bbs_sysstats.total_msgs;
-
-	bbs_sysstats.total_msgs = new_total_msgs;
-
- 	sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
-	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
 }
 /*---------------------------------------------------------------------------*/
-void
-display_stats(void){
-	unsigned char message[80];
-	unsigned char i,k;
-	unsigned short total_msgs=0, user_msgs=0, unread_msgs=0;
+void system_stats(void)
+{
+	unsigned short total_msgs=0;
+	unsigned char message[40];
+	unsigned char day_ptr, stats_days, day_offset;
+	unsigned char j,k,c,d;
+	//                              red   oran  yell  gree  cyan  ltbl  purp
+	unsigned char day_colour[7] = { 0x1c, 0x81, 0x9e, 0x99, 0x9f, 0x9a, 0x9c };
 
-	//**********************************************************************
-	shell_output_str(NULL, "\r\n\x9clast callers:", "");
+	stats_days = bbs_status.width-2;
 
-	i=bbs_sysstats.caller_ptr+1;
-
-	if(i>=BBS_STATS_USRS){i=0;}
-
-	for(k=0;k<BBS_STATS_USRS;k++){
-		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[i++]);
-		if(i>=BBS_STATS_USRS){i=0;}
-	}
-
-	++bbs_sysstats.caller_ptr;
-	if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
-		bbs_sysstats.caller_ptr=0;
-	}
-
-	strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);
-
-	//**********************************************************************
-
+	//Chart title:
+	shell_output_str(NULL,"\r\n\x0d\x9b         posts per day\x0d" , "");
 	
+	//buf.bufmem[buf.ptr++]=ISO_cr;
+	buf.bufmem[buf.ptr++]=0x05;//Set color for axis
+	
+	//Set y-axis max number:
+	c=0x39;//9
+
+	//Draw the y-axis:
+	for(k=0;k<9;k++){
+		buf.bufmem[buf.ptr++]=c--;
+		buf.bufmem[buf.ptr++]=0xab;//y-axis character
+		buf.bufmem[buf.ptr++]=ISO_cr;
+	}
+	//Draw the x-axis:
+	buf.bufmem[buf.ptr++]=PETSCII_RIGHT;
+	buf.bufmem[buf.ptr++]=0xed;//bottom left corner character
+	for(k=0;k<stats_days;k++){
+		buf.bufmem[buf.ptr++]=0xb1;//x-axis character
+	}
+
+
+	//Put the cursor in position to plot the bars:
+	buf.bufmem[buf.ptr++]=ISO_cr;
+	buf.bufmem[buf.ptr++]=PETSCII_UP;
+	buf.bufmem[buf.ptr++]=PETSCII_RIGHT;
+	buf.bufmem[buf.ptr++]=PETSCII_RIGHT;
+	buf.bufmem[buf.ptr++]=PETSCII_RIGHT;
+	buf.bufmem[buf.ptr++]=PETSCII_REVON;
+
+	//Set the day pointer:
+	day_offset = BBS_STATS_DAYS - stats_days + 1;
+	//day_offset = 1;
+
+	day_ptr = bbs_sysstats.day_ptr + day_offset;
+	if(day_ptr>=BBS_STATS_DAYS){
+		day_ptr = day_ptr - BBS_STATS_DAYS;
+	}
+
+	//printf("day_ptr1: %d day_ptr2: %d\r\n", bbs_sysstats.day_ptr, day_ptr);
+
+	d=0;
+	for(k=0;k<stats_days;k++){
+		//Set colour for day of week:
+		buf.bufmem[buf.ptr++]=day_colour[d++];
+		if(d>6){d=0;}
+		
+		//Write the msg count bar:
+		for(j=0;j<bbs_sysstats.daily_msgs[day_ptr];++j){
+			buf.bufmem[buf.ptr++]= PETSCII_UP;
+			buf.bufmem[buf.ptr++]= PETSCII_LEFT;
+			buf.bufmem[buf.ptr++]= 0xe3;//block
+		}
+
+		//Change colour to black and get ready for next bar:
+		buf.bufmem[buf.ptr++]=0x90;//black
+		for(j=0;j<bbs_sysstats.daily_msgs[day_ptr];++j){
+			buf.bufmem[buf.ptr++]=PETSCII_DOWN;
+		}
+		buf.bufmem[buf.ptr++]=PETSCII_RIGHT;
+
+		//Increment to next day:
+		++day_ptr;
+		if(day_ptr>=BBS_STATS_DAYS){day_ptr=0;}
+	}
+
+	//Clean up:
+	buf.bufmem[buf.ptr++]=PETSCII_REVOFF;
+	buf.bufmem[buf.ptr++]=ISO_cr;
+	buf.bufmem[buf.ptr]=0;
+
+
 	for(k=1; k<BBS_MAX_BOARDS; ++k){
 		total_msgs += bbs_config.msg_id[k];
 	}
-	for(k=1; k<BBS_MAX_BOARDS; ++k){
-		user_msgs += bbs_usrstats.current_msg[k];
-	}
-	unread_msgs = total_msgs-user_msgs;
 
-	sprintf(message,"\r\n\x9eunread msgs:\x05 %hu", unread_msgs);
+
+	sprintf(message,"\r\n\x9etotal msgs:\x05 %hu", total_msgs);
 	shell_output_str(NULL, message, "");
 
-	//sprintf(message,"1: %hu\n\r", bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr]);
-	//shell_output_str(NULL, message, "");
+
+
+	//THIS IS TESTING ONLY!!! REMOVE!!!
+	//Increment the stats day pointer:
+	/*++bbs_sysstats.day_ptr;
+	if(bbs_sysstats.day_ptr>=BBS_STATS_DAYS){
+		bbs_sysstats.day_ptr=0;
+	}
+	bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr]=0;
+	*/
 }
+
 /*---------------------------------------------------------------------------*/
 /*void bbs_log(char *message ){
 
@@ -307,7 +365,7 @@ void bbs_splash(unsigned short mode)
   if (mode==BBS_MODE_CONSOLE)
     log_message("\x05",BBS_COPYRIGHT_STRING);
   else
-    shell_output_str(&bbs_version_command,"",BBS_COPYRIGHT_STRING);
+    shell_output_str(&version_command,"",BBS_COPYRIGHT_STRING);
 }
 /*---------------------------------------------------------------------------*/
 void bbs_lock(void)
@@ -413,6 +471,13 @@ void bbs_login()
 	unsigned short fsize=0;
 	unsigned short siRet=0;
 	unsigned char file[25];
+	unsigned char message[80];
+	unsigned char i,k;
+	unsigned short total_msgs=0, user_msgs=0, unread_msgs=0;
+
+ 	//**********************************************************************
+	process_exit(&bbs_timer_process);
+	bbs_status.status=STATUS_LOCK;
 
 	sprintf(file, "s-%s", bbs_user.user_name);
 	//log_message("[debug] user stats file: ", file);
@@ -431,19 +496,47 @@ void bbs_login()
 		bbs_usrstats.num_calls=0;
 		bbs_usrstats.num_msgs=0;
 	}
+
+	//Increment the users calls total:
 	++bbs_usrstats.num_calls;
 
- 	//**********************************************************************
-	process_exit(&bbs_timer_process);
-	bbs_status.status=STATUS_LOCK;
+	//Increment the dialy calls total:
+	++bbs_sysstats.daily_calls[bbs_sysstats.day_ptr];
 
-
-	bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
-
-	display_stats();
 
 
 	//**********************************************************************
+	shell_output_str(NULL, "\r\n\x9clast callers:", "");
+
+	i=bbs_sysstats.caller_ptr+1;
+
+	if(i>=BBS_STATS_USRS){i=0;}
+
+	for(k=0;k<BBS_STATS_USRS;k++){
+		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[i++]);
+		if(i>=BBS_STATS_USRS){i=0;}
+	}
+
+	++bbs_sysstats.caller_ptr;
+	if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
+		bbs_sysstats.caller_ptr=0;
+	}
+
+	strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);
+
+	//**********************************************************************
+
+	for(k=1; k<BBS_MAX_BOARDS; ++k){
+		total_msgs += bbs_config.msg_id[k];
+	}
+	for(k=1; k<BBS_MAX_BOARDS; ++k){
+		user_msgs += bbs_usrstats.current_msg[k];
+	}
+	unread_msgs = total_msgs-user_msgs;
+
+	sprintf(message,"\r\n\x9eunread msgs:\x05 %hu", unread_msgs);
+	shell_output_str(NULL, message, "");
+
 
 	shell_output_str(NULL, "\r\n\x05? \x9fto list commands", "");
 	shell_output_str(NULL, "\x05s \x9eselect msg board\r\n", "");
@@ -576,9 +669,15 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
           case STATUS_PASSWD: {
             if(! strcmp(input->data1, bbs_user.user_pwd)) {
-            	bbs_login();
+				//Display the Centronian logo and system stats:
+				bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
+				system_stats();
+
+              	shell_output_str(NULL, "\r\nhit return to continue", "");
+				bbs_status.status=STATUS_STATS;
+
             } else {
-              shell_output_str(&bbs_login_command, "wrong password.", "");
+              shell_output_str(NULL, "wrong password.", "");
               //bbs_unlock();
               shell_stop();
               log_message("\x96", "wrong password");
@@ -604,6 +703,12 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             else{
               shell_prompt("\n\rhandle: ");
               bbs_status.status=STATUS_HANDLE;
+            }
+            break;
+          }
+          case STATUS_STATS: {
+            if(strlen(input->data1)>0) {
+            	bbs_login();
             }
             break;
           }
@@ -715,11 +820,38 @@ PROCESS_THREAD(shell_kill_process, ev, data)
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
-PROCESS_THREAD(bbs_version_process, ev, data)
+PROCESS_THREAD(version_process, ev, data)
 {
   PROCESS_BEGIN();
 
     bbs_splash(BBS_MODE_SHELL);
+
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(sys_stats_process, ev, data)
+{
+  PROCESS_BEGIN();
+
+	system_stats();
+
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(usr_stats_process, ev, data)
+{
+  PROCESS_BEGIN();
+
+    user_stats();
+
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(info_process, ev, data)
+{
+  PROCESS_BEGIN();
+
+	bbs_banner(board.sys_prefix, BBS_BANNER_LOGIN, bbs_status.encoding_suffix, board.sys_device,0);
 
   PROCESS_END();
 }
@@ -778,11 +910,11 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 	log_message("\x05logout: ", bbs_user.user_name);
 
 	shell_stop();
-
+	shell_stop();
 	PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
-PROCESS_THREAD(bbs_settime_process, ev, data)
+PROCESS_THREAD(settime_process, ev, data)
 {
   struct shell_input *input;
   unsigned long set_time;
@@ -1171,10 +1303,12 @@ shell_init(void)
   /* register BBS processes */
   list_init(commands);
   shell_register_command(&help_command);
+  shell_register_command(&version_command);
+  shell_register_command(&settime_command);
+  shell_register_command(&sys_stats_command);
+  shell_register_command(&usr_stats_command);
+  shell_register_command(&info_command);
   shell_register_command(&quit_command);
-  shell_register_command(&bbs_version_command);
-  shell_register_command(&bbs_settime_command);
-
 
   /* local console eye candy */
   clrscr();
@@ -1271,6 +1405,7 @@ shell_stop(void)
   log_message("\x9e", "shell stop");
   bbs_unlock();
   killall();
+  killall();
 }
 /*---------------------------------------------------------------------------*/
 void
@@ -1302,8 +1437,12 @@ update_time(void) {
 
   if (last_time > now_sec) {
 
-	//Run the midnight routine:
-	update_stats();
+	//Increment the stats day pointer:
+	++bbs_sysstats.day_ptr;
+	if(bbs_sysstats.day_ptr>=BBS_STATS_DAYS){
+		bbs_sysstats.day_ptr=0;
+	}
+	bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr]=0;
 
     if (bbs_time.day==month_days[bbs_time.month-1]){
 

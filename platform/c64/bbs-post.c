@@ -22,6 +22,7 @@ extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_REC bbs_user;
 extern BBS_TIME_REC bbs_time;
 extern BBS_USER_STATS bbs_usrstats;
+extern BBS_SYSTEM_STATS bbs_sysstats;
 //extern BBS_BUFFER bbs_buf;
 
 
@@ -131,7 +132,7 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 		else if (! strcmp(input->data1,"/s\x0a\x0d") || ! strcmp(input->data1,"/s\x0d\x0a")){// || linecount >= BBS_MAX_MSGLINES) {
 
-			/* write post */
+			//write post
 			++bbs_config.msg_id[bbs_status.board_id];
 
 			num = bbs_config.msg_id[bbs_status.board_id];
@@ -144,26 +145,23 @@ PROCESS_THREAD(bbs_post_process, ev, data)
 
 		    sprintf(file.szFileName, "%s:%d-%d", file_path(file.szFileName,num), bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
 
-		    //sprintf(file.szFileName, "%s:%d-%d", sub_num_prefix, bbs_status.board_id, bbs_config.msg_id[bbs_status.board_id]);
-
-			/* Save the post to file */
-		
+			//Save the post to file:
 			cbm_save (file.szFileName, board.subs_device, &post_buffer, bbs_status.msg_size);
 
-			//sprintf(post_buffer, "bu:%d ms:%d lb:%d", bytes_used, bbs_status.msg_size, sizeof(post_buffer));
-			//log_message("[debug] *bytes-used* ", post_buffer);
-
-
-			/* Save the msg count struct to disk */
+			//Save the msg count struct to disk
 			sprintf(file.szFileName, "@%s:%s", board.sys_prefix, BBS_CFG_FILE);
 			cbm_save (file.szFileName, board.sys_device, &bbs_config, sizeof(bbs_config));
 
+			//Clear the buffer:
 			memset(post_buffer, 0, sizeof(post_buffer));
 
+			//Increment the users msgs posted total:
 			++bbs_usrstats.num_msgs;
 
-			//Clean things up:
+			//Increment the dialy msgs posted total:
+			++bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr];
 
+			//Clean things up:
 			end_post();
 
 			PROCESS_EXIT();

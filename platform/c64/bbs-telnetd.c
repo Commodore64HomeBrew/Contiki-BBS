@@ -268,7 +268,10 @@ get_char(uint8_t c)
 				--s.bufptr;
 				s.buf[(int)s.bufptr] = 0;
 				buf_append(&c, 1);
-        		//uip_send(&c,1);
+
+				if(col_num>0){
+					--col_num;
+				}
 			}
 			return;	
 		}

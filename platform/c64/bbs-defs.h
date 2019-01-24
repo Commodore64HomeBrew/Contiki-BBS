@@ -25,7 +25,7 @@
 #define TELNETD_CONF_LINELEN 	 160
 #define TELNETD_CONF_NUMLINES 	25
 
-#define BBS_BUFFER_SIZE    	2000
+#define BBS_BUFFER_SIZE    	1600
 
 #define BBS_SESSION_TIMEOUT (CLOCK_SECOND * 3600)
 #define BBS_LOGIN_TIMEOUT   (CLOCK_SECOND * 60)
@@ -49,7 +49,7 @@
 #define BBS_BANNER_SUBS        "subs"
 
 
-#define BBS_STATS_DAYS			38
+#define BBS_STATS_DAYS			77
 #define BBS_STATS_USRS			5
 #define BBS_STATS_FILE         "bbs-stats"
 
@@ -70,10 +70,12 @@
 #define STATUS_PASSWD	2
 #define STATUS_NEWUSR	3
 #define STATUS_CONFUSR	4
-#define STATUS_LOCK		5
-#define STATUS_SUBJ		6
-#define STATUS_POST		7
-#define STATUS_READ		8
+#define STATUS_STATS	5
+
+#define STATUS_LOCK		6
+#define STATUS_SUBJ		7
+#define STATUS_POST		8
+#define STATUS_READ		9
 
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_WHITE           "\x05"
@@ -86,7 +88,11 @@
 #define PETSCII_RIGHT 	0x1d
 #define PETSCII_SPACE 	0x20
 #define PETSCII_CLRSCN  0x93
-#define PETSCII_HOME  0x13 
+#define PETSCII_HOME  	0x13 
+#define PETSCII_REVON	0x12
+#define PETSCII_REVOFF	0x92
+
+
 
 #define poke(A,X) (*(unsigned short *)A) = (X)
 #define peek(A) (*(unsigned short *)A)
