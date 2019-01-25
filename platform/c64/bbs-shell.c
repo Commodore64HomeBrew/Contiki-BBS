@@ -28,7 +28,8 @@ unsigned char month_days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 
 
 int shell_event_input;
 static struct process *front_process;
-static unsigned long timer_offset, clock_offset, last_time;
+static unsigned long timer_offset, clock_offset;
+static unsigned long last_time=0;
 /*static struct etimer bbs_login_timer;*/
 
 BBS_BOARD_REC board;
@@ -259,12 +260,32 @@ void system_stats(void)
 	//                              red   oran  yell  gree  cyan  ltbl  purp
 	unsigned char day_colour[7] = { 0x1c, 0x81, 0x9e, 0x99, 0x9f, 0x9a, 0x9c };
 
+
+	//**********************************************************************
+	shell_output_str(NULL, "\r\n\x9clast callers:\r\n\r\n", "");
+
+	k=bbs_sysstats.caller_ptr+1;
+
+	if(k>=BBS_STATS_USRS){k=0;}
+
+	for(k=0;k<BBS_STATS_USRS;k++){
+		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[k++]);
+		if(k>=BBS_STATS_USRS){k=0;}
+	}
+
+
+	//**********************************************************************
+
+
+	//(d+=m<3?y--:y-2,23*m/9+d+4+y/4-y/100+y/400)%7  
+
+
 	stats_days = bbs_status.width-2;
 
 	//Chart title:
-	shell_output_str(NULL,"\r\n\x0d\x9b         posts per day\x0d" , "");
+	shell_output_str(NULL,"\r\n\x0d\x9fposts per day:" , "");
 	
-	//buf.bufmem[buf.ptr++]=ISO_cr;
+	buf.bufmem[buf.ptr++]=ISO_cr;
 	buf.bufmem[buf.ptr++]=0x05;//Set color for axis
 	
 	//Set y-axis max number:
@@ -472,7 +493,7 @@ void bbs_login()
 	unsigned short siRet=0;
 	unsigned char file[25];
 	unsigned char message[80];
-	unsigned char i,k;
+	unsigned char k;
 	unsigned short total_msgs=0, user_msgs=0, unread_msgs=0;
 
  	//**********************************************************************
@@ -504,25 +525,8 @@ void bbs_login()
 	++bbs_sysstats.daily_calls[bbs_sysstats.day_ptr];
 
 
-
-	//**********************************************************************
-	shell_output_str(NULL, "\r\n\x9clast callers:", "");
-
-	i=bbs_sysstats.caller_ptr+1;
-
-	if(i>=BBS_STATS_USRS){i=0;}
-
-	for(k=0;k<BBS_STATS_USRS;k++){
-		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[i++]);
-		if(i>=BBS_STATS_USRS){i=0;}
-	}
-
-	++bbs_sysstats.caller_ptr;
-	if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
-		bbs_sysstats.caller_ptr=0;
-	}
-
-	strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);
+	//Display the Centronian logo and system stats:
+	bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
 
 	//**********************************************************************
 
@@ -669,9 +673,15 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
           case STATUS_PASSWD: {
             if(! strcmp(input->data1, bbs_user.user_pwd)) {
-				//Display the Centronian logo and system stats:
-				bbs_banner(board.sys_prefix, BBS_BANNER_LOGO, bbs_status.encoding_suffix, board.sys_device, 0);
+
 				system_stats();
+
+				//Add current caller to callers list:
+				++bbs_sysstats.caller_ptr;
+				if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
+					bbs_sysstats.caller_ptr=0;
+				}
+				strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);
 
               	shell_output_str(NULL, "\r\nhit return to continue", "");
 				bbs_status.status=STATUS_STATS;
