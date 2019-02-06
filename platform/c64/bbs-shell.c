@@ -265,10 +265,9 @@ void system_stats(void)
 	shell_output_str(NULL, "\r\n\x9clast callers:\r\n\r\n", "");
 
 	k=bbs_sysstats.caller_ptr+1;
-
 	if(k>=BBS_STATS_USRS){k=0;}
 
-	for(k=0;k<BBS_STATS_USRS;k++){
+	for(j=0;j<BBS_STATS_USRS;j++){
 		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[k++]);
 		if(k>=BBS_STATS_USRS){k=0;}
 	}
@@ -940,7 +939,7 @@ PROCESS_THREAD(settime_process, ev, data)
 
     shell_prompt("year:");
     set_step=1;
-
+	last_time=0;
     while(1) {
 
       PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
