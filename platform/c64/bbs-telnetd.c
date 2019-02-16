@@ -45,6 +45,9 @@
 
 extern BBS_BOARD_REC board;
 extern BBS_STATUS_REC bbs_status;
+extern BBS_USER_REC bbs_user;
+extern BBS_USER_STATS bbs_usrstats;
+extern BBS_SYSTEM_STATS bbs_sysstats;
 
 PROCESS(telnetd_process, "Telnet server");
 
@@ -94,6 +97,19 @@ BBS_BUFFER buf;
 
 //static uint8_t connected;
 
+/*---------------------------------------------------------------------------*/
+void save_stats(void)
+{
+	unsigned char file[25];
+
+	//Save system stats:
+	sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
+	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
+
+	//Save user stats:
+	sprintf(file, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
+	cbm_save (file, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
+}
 /*---------------------------------------------------------------------------*/
 static void
 buf_init()
@@ -464,6 +480,11 @@ telnetd_appcall(void *ts)
         uip_timedout()) {
       log_message("\x9e", "telnetd stop");
       update_time();
+
+	  if(bbs_status.login==1){
+		save_stats();
+		bbs_status.login==0;
+	  }
       shell_stop();
       //s.connected = 0;
     }

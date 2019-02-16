@@ -90,6 +90,7 @@ void bbs_defaults(void)
   bbs_status.wrap=0;
   bbs_status.width=BBS_40_COL;
   bbs_status.status=STATUS_UNLOCK;
+  bbs_status.login=0;
   bbs_status.board_id=1;
   sprintf(bbs_status.prompt, "");
 
@@ -354,7 +355,7 @@ void system_stats(void)
 	buf.bufmem[buf.ptr]=0;
 
 
-	for(k=1; k<BBS_MAX_BOARDS; ++k){
+	for(k=1; k<=BBS_MAX_BOARDS; ++k){
 		total_msgs += bbs_config.msg_id[k];
 	}
 
@@ -418,10 +419,6 @@ void bbs_unlock(void)
   bbs_locked=0;
   process_exit(&bbs_timer_process);
   shell_exit();
-
-  //update_time();
-  //sprintf(message,"%d:%d %d/%d/%d", bbs_time.hour ,bbs_time.minute, bbs_time.day,  bbs_time.month, bbs_time.year);
-  //log_message("\x1e", message);
 }
 /*---------------------------------------------------------------------------*/
 int bbs_get_user(char *data)
@@ -517,6 +514,9 @@ void bbs_login()
 		bbs_usrstats.num_msgs=0;
 	}
 
+	//Set the login flag to 1:
+	bbs_status.login=1;
+
 	//Increment the users calls total:
 	++bbs_usrstats.num_calls;
 
@@ -529,10 +529,10 @@ void bbs_login()
 
 	//**********************************************************************
 
-	for(k=1; k<BBS_MAX_BOARDS; ++k){
+	for(k=1; k<=BBS_MAX_BOARDS; ++k){
 		total_msgs += bbs_config.msg_id[k];
 	}
-	for(k=1; k<BBS_MAX_BOARDS; ++k){
+	for(k=1; k<=BBS_MAX_BOARDS; ++k){
 		user_msgs += bbs_usrstats.current_msg[k];
 	}
 	unread_msgs = total_msgs-user_msgs;
@@ -908,17 +908,8 @@ PROCESS_THREAD(shell_exit_process, ev, data)
 
 	}
 	
-	//Save system stats:
-	sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
-	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
-
-	//Save user stats:
-	sprintf(file, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
-	cbm_save (file, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
-
 	log_message("\x05logout: ", bbs_user.user_name);
 
-	shell_stop();
 	shell_stop();
 	PROCESS_END();
 }
@@ -1413,7 +1404,6 @@ shell_stop(void)
 {
   log_message("\x9e", "shell stop");
   bbs_unlock();
-  killall();
   killall();
 }
 /*---------------------------------------------------------------------------*/

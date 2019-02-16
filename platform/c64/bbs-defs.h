@@ -78,6 +78,8 @@
 #define STATUS_POST		8
 #define STATUS_READ		9
 
+
+
 #define PETSCII_LOWER           "\x0e"
 #define PETSCII_WHITE           "\x05"
 #define ISO_nl       	0x0a
@@ -141,6 +143,7 @@ typedef struct {
 
 typedef struct {
   unsigned char status;
+  unsigned char login;
   unsigned char board_id;
   unsigned char encoding;
   unsigned char echo;
