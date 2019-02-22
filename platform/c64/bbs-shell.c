@@ -663,8 +663,10 @@ PROCESS_THREAD(bbs_login_process, ev, data)
       			}
       			else {
       			  shell_output_str(&bbs_login_command, "login failed.", "");
+      			  shell_output_str(NULL, "\n\rcontact alterus@gmail.com with problems", "");
+
       			  //bbs_unlock();
-              shell_stop();
+              	  shell_stop();
       			  log_message("\x96", "login failed");
       			}
       			break;
@@ -687,6 +689,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
             } else {
               shell_output_str(NULL, "wrong password.", "");
+              shell_output_str(NULL, "\n\rcontact alterus@gmail.com with problems", "");
               //bbs_unlock();
               shell_stop();
               log_message("\x96", "wrong password");
