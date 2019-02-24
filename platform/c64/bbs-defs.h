@@ -110,6 +110,8 @@ typedef struct {
   unsigned char sys_prefix[10];
   unsigned char user_device;
   unsigned char user_prefix[10];
+  unsigned char userstats_device;
+  unsigned char userstats_prefix[10];
   unsigned char sub_names[9][20];
   unsigned char dir_boost; 
 } BBS_BOARD_REC;

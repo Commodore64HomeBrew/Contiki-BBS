@@ -142,8 +142,10 @@ static void bbs_init(void)
   sprintf(board.sys_prefix, "//x/");
 
   board.user_device = 8;
-  sprintf(board.user_prefix, "//u/");
+  sprintf(board.user_prefix, "//u/u/");
 
+  board.userstats_device = 8;
+  sprintf(board.userstats_prefix, "//u/s/");
 
   sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
 
@@ -499,9 +501,9 @@ void bbs_login()
 	sprintf(file, "s-%s", bbs_user.user_name);
 	//log_message("[debug] user stats file: ", file);
 
-	sprintf(file, "%s:s-%s", board.user_prefix, bbs_user.user_name);
+	sprintf(file, "%s:s-%s", board.userstats_prefix, bbs_user.user_name);
 
-	siRet = cbm_open(10, board.user_device, 10, file);
+	siRet = cbm_open(10, board.userstats_device, 10, file);
 	if (! siRet) {
 		//log_message("[debug] stats file: ", file);
 		cbm_read(10, &bbs_usrstats, 2);
@@ -679,7 +681,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
 				//Add current caller to callers list:
 				++bbs_sysstats.caller_ptr;
-				if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
+				if(bbs_sysstats.caller_ptr>BBS_STATS_USRS){
 					bbs_sysstats.caller_ptr=0;
 				}
 				strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);

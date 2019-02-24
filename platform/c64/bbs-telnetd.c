@@ -107,8 +107,10 @@ void save_stats(void)
 	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
 
 	//Save user stats:
-	sprintf(file, "@%s:s-%s", board.user_prefix, bbs_user.user_name);
-	cbm_save (file, board.user_device, &bbs_usrstats, sizeof(bbs_usrstats));
+	sprintf(file, "@%s:s-%s", board.userstats_prefix, bbs_user.user_name);
+	cbm_save (file, board.userstats_device, &bbs_usrstats, sizeof(bbs_usrstats));
+
+  log_message("\x96stats file saved for: ", bbs_user.user_name);
 }
 /*---------------------------------------------------------------------------*/
 static void
