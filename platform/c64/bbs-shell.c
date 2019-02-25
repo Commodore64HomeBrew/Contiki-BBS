@@ -246,6 +246,8 @@ void
 user_stats(void){
 	unsigned char message[40];
 
+	shell_output_str(NULL,"\r\n\x9estats for \x05" , bbs_user.user_name);
+
 	sprintf(message,"\r\n\x9eyour msgs:\x05 %hu", bbs_usrstats.num_msgs);
 	shell_output_str(NULL, message, "");
 
@@ -268,11 +270,11 @@ void system_stats(void)
 	shell_output_str(NULL, "\r\n\x9clast callers:\r\n\r\n", "");
 
 	k=bbs_sysstats.caller_ptr+1;
-	if(k>=BBS_STATS_USRS){k=0;}
+	if(k>BBS_STATS_USRS){k=0;}
 
 	for(j=0;j<BBS_STATS_USRS;j++){
 		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[k++]);
-		if(k>=BBS_STATS_USRS){k=0;}
+		if(k>BBS_STATS_USRS){k=0;}
 	}
 
 
@@ -475,6 +477,9 @@ int bbs_save_user()
   sprintf(file, "%s:u-%s",board.user_prefix, bbs_user.user_name);
 
   cbm_save (file, board.user_device, &bbs_user, sizeof(bbs_user));
+
+  bbs_usrstats.num_calls=0;
+  bbs_usrstats.num_msgs=0;
 
   for (i=0; i<=board.max_boards; i++) {
     bbs_usrstats.current_msg[i]=bbs_config.msg_id[i]-20;
@@ -680,7 +685,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 				system_stats();
 
 				//Add current caller to callers list:
-				++bbs_sysstats.caller_ptr;
+				bbs_sysstats.caller_ptr++;
 				if(bbs_sysstats.caller_ptr>BBS_STATS_USRS){
 					bbs_sysstats.caller_ptr=0;
 				}
@@ -699,7 +704,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
             break;
           }
           case STATUS_NEWUSR: {
-           		bbs_new_user(input->data1);
+           	  bbs_new_user(input->data1);
               
               shell_output_str(NULL,"\n\r\n\rhandle:   " , bbs_user.user_name);
               shell_output_str(NULL,"\n\rpassword: " , bbs_user.user_pwd);
@@ -712,7 +717,20 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
             if(! strcmp(input->data1, "y") || ! strcmp(input->data1, "Y")){
               bbs_save_user();
-              bbs_login();
+
+				system_stats();
+
+				//Add current caller to callers list:
+				bbs_sysstats.caller_ptr++;
+				if(bbs_sysstats.caller_ptr>BBS_STATS_USRS){
+					bbs_sysstats.caller_ptr=0;
+				}
+				strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);
+
+              	shell_output_str(NULL, "\r\nhit return to continue", "");
+				bbs_status.status=STATUS_STATS;
+
+              //bbs_login();
             }
             else{
               shell_prompt("\n\rhandle: ");
