@@ -1425,7 +1425,7 @@ shell_start(void)
 void
 shell_stop(void)
 {
-  log_message("\x9e", "shell stop");
+  //log_message("\x9e", "shell stop");
   bbs_unlock();
   killall();
 }
@@ -1433,7 +1433,7 @@ shell_stop(void)
 void
 shell_quit(void)
 {
-  log_message("\x9e", "shell quit");
+  //log_message("\x9e", "shell quit");
   process_exit(&bbs_login_process);
   process_exit(&bbs_timer_process);
   process_exit(&shell_process);
