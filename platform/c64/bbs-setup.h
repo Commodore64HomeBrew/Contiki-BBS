@@ -7,13 +7,29 @@
 
 #ifndef __BBS_SETUP_H__
 #define __BBS_SETUP_H__
+#include <conio.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cbm.h>
 
-#include "bbs-file.h"
+//#include "bbs-file.h"
 #include "bbs-defs.h"
+
+
+BBS_BOARD_REC board;
+BBS_CONFIG_REC bbs_config;
+BBS_USER_REC bbs_user;
+BBS_USER_STATS bbs_usrstats;
+BBS_SYSTEM_STATS bbs_sysstats;
+
+
+typedef struct
+{
+	char szFileName[16];
+	unsigned char ucDeviceNo;
+} ST_FILE;
 
 typedef struct {
    unsigned int   srvip[4];
@@ -25,11 +41,8 @@ typedef struct {
 } CTK_CFG_REC; 
 
 void mainMenu(void);
-void scrollScreen(void);
+void clearScreen(void);
 int nibbleIP(unsigned char *src, unsigned int *addr);
 int networkSetup(unsigned short drive);
-int baseSetup(void);
-int boardSetup(unsigned short drive);
-int userSetup(unsigned short drive);
-int enterUserData(BBS_USER_REC *rec, unsigned short *user_count);
+
 #endif /* __BBS_SETUP_H__ */

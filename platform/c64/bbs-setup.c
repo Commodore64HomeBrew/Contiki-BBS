@@ -15,7 +15,7 @@ int main(void) {
 
    do {
       /* a little effect */
-      scrollScreen();
+      clearScreen();
 
       mainMenu();
       input=getchar();
@@ -23,23 +23,23 @@ int main(void) {
       switch (input) {
 
          case '1':
-                   scrollScreen();
-                   drive=baseSetup();
+                   clearScreen();
+                   //drive=baseSetup();
                    break;
 
          case '2':
-                   scrollScreen();
-                   boardSetup(drive);
+                   clearScreen();
+                   //boardSetup(drive);
                    break;
 
          case '3':
-                   scrollScreen();
+                   clearScreen();
                    networkSetup(drive);
                    break;
  
          case '4':
-                   scrollScreen();
-                   userSetup(drive);
+                   clearScreen();
+                   //userSetup(drive);
                    break;
  
          default:
