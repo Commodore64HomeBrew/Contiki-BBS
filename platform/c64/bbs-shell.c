@@ -119,7 +119,21 @@ void set_prompt(void)
 		}
 	}	
 }
+/*---------------------------------------------------------------------------*/
+/*char load_struct(struct struct_name *,unsigned char *prefix, unsigned char *filename, unsigned char device)
+{
+	unsigned short fsize;
+	unsigned char file[25];
 
+	sprintf(file, "%s:%s",prefix, filename);
+
+	cbm_open(10, device, 10, file);
+	cbm_read(10, &struct_name, 2);
+	fsize = cbm_read(10, &struct_name, sizeof(struct_name));
+	cbm_close(10);
+
+	return fsize;
+}*/
 /*---------------------------------------------------------------------------*/
 static void bbs_init(void) 
 {
@@ -131,37 +145,55 @@ static void bbs_init(void)
   //unsigned char message[40];
 
 
-  sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
-  board.telnet_port = 6400;
-  board.max_boards = 8;
 
-  board.subs_device = 8;
-  sprintf(board.subs_prefix, "//s/");
+  sprintf(file, "//x/:%s", BBS_CFG_FILE);
 
-  board.sys_device = 8;
-  sprintf(board.sys_prefix, "//x/");
+  cbm_open(10, 8, 10, file);
+  cbm_read(10, &board, 2);
+  fsize = cbm_read(10, &board, sizeof(board));
+  cbm_close(10);
+  
+  if (fsize > 0) {
+    log_message("\x99", "setup loaded from file");
+  }
+  else{
 
-  board.user_device = 8;
-  sprintf(board.user_prefix, "//u/u/");
+    log_message("\x96", "setup file not found, using defaults");
 
-  board.userstats_device = 8;
-  sprintf(board.userstats_prefix, "//u/s/");
+	sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
+	board.telnet_port = 6400;
+	board.max_boards = 8;
 
-  sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
+	board.subs_device = 8;
+	sprintf(board.subs_prefix, "//s/");
 
-  /* read BBS base configuration */
+	board.sys_device = 8;
+	sprintf(board.sys_prefix, "//x/");
 
-  sprintf(board.sub_names[1], "the lounge     ");
-  sprintf(board.sub_names[2], "science & tech ");
-  sprintf(board.sub_names[3], "la musique     ");
-  sprintf(board.sub_names[4], "hardware corner");
-  sprintf(board.sub_names[5], "games & warez  ");
-  sprintf(board.sub_names[6], "vic64 news     ");
-  sprintf(board.sub_names[7], "great outdoors ");
-  sprintf(board.sub_names[8], "member intros  ");
+	board.user_device = 8;
+	sprintf(board.user_prefix, "//u/u/");
+
+	board.userstats_device = 8;
+	sprintf(board.userstats_prefix, "//u/s/");
+
+	sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
+
+	/* read BBS base configuration */
+
+	sprintf(board.sub_names[0], "magnetar bbs   ");
+	sprintf(board.sub_names[1], "the lounge     ");
+	sprintf(board.sub_names[2], "science & tech ");
+	sprintf(board.sub_names[3], "la musique     ");
+	sprintf(board.sub_names[4], "hardware corner");
+	sprintf(board.sub_names[5], "games & warez  ");
+	sprintf(board.sub_names[6], "vic64 news     ");
+	sprintf(board.sub_names[7], "great outdoors ");
+	sprintf(board.sub_names[8], "member intros  ");
+
+	board.dir_boost=1;
+  }
 
 
-  board.dir_boost=1;
 
 
   bbs_time.minute=0;
@@ -180,13 +212,16 @@ static void bbs_init(void)
   /* read BBS base configuration */
   //fsize=bbs_filesize(board.sys_prefix, BBS_CFG_FILE, board.sys_device);
 
+  //fsize = load_struct(&bbs_config, board.sys_prefix, BBS_CFG_FILE, board.sys_device);
+  
+  
   sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
 
   cbm_open(10, board.sys_device, 10, file);
   cbm_read(10, &bbs_config, 2);
   fsize = cbm_read(10, &bbs_config, sizeof(bbs_config));
   cbm_close(10);
-
+  
   if (fsize > 0) {
     log_message("\x99", "config loaded from file");
   }
@@ -194,6 +229,7 @@ static void bbs_init(void)
 
     log_message("\x96", "config file not found, using defaults");
     /* set sub msg counts */
+    /*bbs_config.msg_id[0]=0;
     bbs_config.msg_id[1]=1611;
     bbs_config.msg_id[2]=140;
     bbs_config.msg_id[3]=117;
@@ -202,10 +238,10 @@ static void bbs_init(void)
     bbs_config.msg_id[6]=139;
     bbs_config.msg_id[7]=160;
     bbs_config.msg_id[8]=29;
-
-    /*for (i=0; i<=board.max_boards; i++) {
-      bbs_config.msg_id[1]=0;
-    }*/
+	*/
+    for (i=0; i<=board.max_boards; i++) {
+      bbs_config.msg_id[i]=0;
+    }
   }
 
 
@@ -270,11 +306,11 @@ void system_stats(void)
 	shell_output_str(NULL, "\r\n\x9clast callers:\r\n\r\n", "");
 
 	k=bbs_sysstats.caller_ptr+1;
-	if(k>BBS_STATS_USRS){k=0;}
+	if(k>=BBS_STATS_USRS){k=0;}
 
 	for(j=0;j<BBS_STATS_USRS;j++){
 		shell_output_str(NULL, "\x99  -> \x05", bbs_sysstats.last_callers[k++]);
-		if(k>BBS_STATS_USRS){k=0;}
+		if(k>=BBS_STATS_USRS){k=0;}
 	}
 
 
@@ -686,7 +722,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
 				//Add current caller to callers list:
 				bbs_sysstats.caller_ptr++;
-				if(bbs_sysstats.caller_ptr>BBS_STATS_USRS){
+				if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
 					bbs_sysstats.caller_ptr=0;
 				}
 				strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);
@@ -722,7 +758,7 @@ PROCESS_THREAD(bbs_login_process, ev, data)
 
 				//Add current caller to callers list:
 				bbs_sysstats.caller_ptr++;
-				if(bbs_sysstats.caller_ptr>BBS_STATS_USRS){
+				if(bbs_sysstats.caller_ptr>=BBS_STATS_USRS){
 					bbs_sysstats.caller_ptr=0;
 				}
 				strcpy(bbs_sysstats.last_callers[bbs_sysstats.caller_ptr], bbs_user.user_name);

@@ -58,7 +58,7 @@
 
 #define BBS_EMD_FILE           "c64-ram.emd"
 #define BBS_CFG_FILE           "bbs-cfg"
-//#define BBS_BOARDCFG_FILE      "board-cfg"
+#define BBS_SETUP_FILE         "bbs-setup"
 
 //#define BBS_STRING_BOARDINFO "-id- -------board------- -acl- -msgs-"
 //#define BBS_STRING_LINEMAX "  enter message (max. 40 chars per line)"

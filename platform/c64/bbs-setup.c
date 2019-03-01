@@ -24,7 +24,7 @@ int main(void) {
 
          case '1':
                    clearScreen();
-                   //drive=baseSetup();
+                   bbs_setup();
                    break;
 
          case '2':

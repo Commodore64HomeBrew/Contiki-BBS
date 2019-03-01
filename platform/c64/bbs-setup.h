@@ -44,5 +44,6 @@ void mainMenu(void);
 void clearScreen(void);
 int nibbleIP(unsigned char *src, unsigned int *addr);
 int networkSetup(unsigned short drive);
+void bbs_setup();
 
 #endif /* __BBS_SETUP_H__ */

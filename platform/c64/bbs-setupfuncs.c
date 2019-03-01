@@ -135,6 +135,55 @@ int networkSetup(unsigned short drive)
 }
 
 
+void bbs_setup(){
+
+  	unsigned char file[25];
+
+	sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
+	board.telnet_port = 6400;
+	board.max_boards = 8;
+
+	board.subs_device = 8;
+	sprintf(board.subs_prefix, "//s/");
+
+	board.sys_device = 8;
+	sprintf(board.sys_prefix, "//x/");
+
+	board.user_device = 8;
+	//sprintf(board.user_prefix, "//u/u/");
+	sprintf(board.user_prefix, "//u/");
+
+	board.userstats_device = 8;
+	//sprintf(board.userstats_prefix, "//u/s/");
+	sprintf(board.userstats_prefix, "//u/");
+
+	sprintf(file, "%s:%s",board.sys_prefix, BBS_CFG_FILE);
+
+	/* read BBS base configuration */
+
+	sprintf(board.sub_names[0], "magnetar bbs   ");
+	sprintf(board.sub_names[1], "the lounge     ");
+	sprintf(board.sub_names[2], "science & tech ");
+	sprintf(board.sub_names[3], "la musique     ");
+	sprintf(board.sub_names[4], "hardware corner");
+	sprintf(board.sub_names[5], "games & warez  ");
+	sprintf(board.sub_names[6], "vic64 news     ");
+	sprintf(board.sub_names[7], "great outdoors ");
+	sprintf(board.sub_names[8], "member intros  ");
+
+
+	board.dir_boost=1;
+
+
+	//Save system stats:
+	sprintf(file, "@%s:%s",board.sys_prefix, BBS_SETUP_FILE);
+	cbm_save (file, board.sys_device, &board, sizeof(board));
+
+}
+
+
+
+
 void bbs_config(){
 
   unsigned short fsize=0;
