@@ -97,21 +97,7 @@ BBS_BUFFER buf;
 
 //static uint8_t connected;
 
-/*---------------------------------------------------------------------------*/
-void save_stats(void)
-{
-	unsigned char file[25];
 
-	//Save system stats:
-	sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
-	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
-
-	//Save user stats:
-	sprintf(file, "@%s:s-%s", board.userstats_prefix, bbs_user.user_name);
-	cbm_save (file, board.userstats_device, &bbs_usrstats, sizeof(bbs_usrstats));
-
-  log_message("\x96stats file saved for: ", bbs_user.user_name);
-}
 /*---------------------------------------------------------------------------*/
 static void
 buf_init()
@@ -483,10 +469,10 @@ telnetd_appcall(void *ts)
       log_message("\x9e", "telnetd stop");
       update_time();
 
-	  if(bbs_status.login==1){
-		save_stats();
-		bbs_status.login==0;
-	  }
+  	  if(bbs_status.login==1){
+  		save_stats();
+  		bbs_status.login==0;
+  	  }
       shell_stop();
       //s.connected = 0;
     }

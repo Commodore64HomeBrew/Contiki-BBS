@@ -86,6 +86,7 @@ struct shell_command {
   struct shell_command *child;
 };
 
+void save_stats(void);
 
 void update_time(void);
 

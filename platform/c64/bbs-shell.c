@@ -142,10 +142,11 @@ static void bbs_init(void)
   unsigned short siRet=0;
   unsigned long set_time;
   unsigned char file[25];
+  unsigned char i;
   //unsigned char message[40];
 
 
-
+/*
   sprintf(file, "//x/:%s", BBS_CFG_FILE);
 
   cbm_open(10, 8, 10, file);
@@ -159,7 +160,7 @@ static void bbs_init(void)
   else{
 
     log_message("\x96", "setup file not found, using defaults");
-
+*/
 	sprintf(board.board_name, "\n\r     CENTRONIAN BBS\n\r");
 	board.telnet_port = 6400;
 	board.max_boards = 8;
@@ -191,7 +192,7 @@ static void bbs_init(void)
 	sprintf(board.sub_names[8], "member intros  ");
 
 	board.dir_boost=1;
-  }
+//  }
 
 
 
@@ -414,7 +415,21 @@ void system_stats(void)
 	bbs_sysstats.daily_msgs[bbs_sysstats.day_ptr]=0;
 	*/
 }
+/*---------------------------------------------------------------------------*/
+void save_stats(void)
+{
+	unsigned char file[25];
 
+	//Save system stats:
+	sprintf(file, "@%s:%s",board.sys_prefix, BBS_STATS_FILE);
+	cbm_save (file, board.sys_device, &bbs_sysstats, sizeof(bbs_sysstats));
+
+	//Save user stats:
+	sprintf(file, "@%s:s-%s", board.userstats_prefix, bbs_user.user_name);
+	cbm_save (file, board.userstats_device, &bbs_usrstats, sizeof(bbs_usrstats));
+
+  log_message("\x96stats file saved for: ", bbs_user.user_name);
+}
 /*---------------------------------------------------------------------------*/
 /*void bbs_log(char *message ){
 
@@ -438,7 +453,10 @@ void bbs_lock(void)
   bordercolor(2);
   //Blank the screen to speed things up
   //poke(0xd011, peek(0xd011) & 0xef);
-  
+  if(bbs_status.login==1){
+    save_stats();
+    bbs_status.login==0;
+  }
   bbs_locked=1;
   bbs_defaults();
   process_start(&bbs_timer_process, NULL);
