@@ -455,7 +455,7 @@ void bbs_lock(void)
   //poke(0xd011, peek(0xd011) & 0xef);
   if(bbs_status.login==1){
     save_stats();
-    bbs_status.login==0;
+    //bbs_status.login=0;
   }
   bbs_locked=1;
   bbs_defaults();

@@ -186,7 +186,7 @@ shell_default_output(char *str1, int len1,char *str2, int len2)
 void
 shell_exit(void)
 {
-  log_message("\x9e", "shell exit");
+  //log_message("\x9e", "shell exit");
   s.state = STATE_CLOSE;
 }
 /*---------------------------------------------------------------------------*/
@@ -471,7 +471,7 @@ telnetd_appcall(void *ts)
 
   	  if(bbs_status.login==1){
   		save_stats();
-  		bbs_status.login==0;
+  		bbs_status.login=0;
   	  }
       shell_stop();
       //s.connected = 0;
