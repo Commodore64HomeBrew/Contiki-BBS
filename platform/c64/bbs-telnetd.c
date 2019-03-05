@@ -265,6 +265,8 @@ get_char(uint8_t c)
 			return;
 		}
 
+    //if (c > 0x1F && c < 0x80) || (c > 0x9F)
+
 
 		if(col_num>=bbs_status.width){
 
@@ -276,8 +278,7 @@ get_char(uint8_t c)
 					//jump to next line
 					buf_append(&c, 1);
 					buf_append(&cr, 1);
-          			//uip_send(&c,1);
-          			//uip_send(&cr,1);
+
 					col_num=0;
 				}
 				else
@@ -286,37 +287,35 @@ get_char(uint8_t c)
 					//Erase the word
 					while(s.buf[i]!=PETSCII_SPACE && i>0){
 						buf_append(&dl, 1);
-            			//uip_send(&dl,1);
 						--i;
 					}
 					++i;
 
 					//Jump to new line
 					buf_append(&cr, 1);
-          			//uip_send(&cr,1);
+
 					//Set the column number to match wrapped word
 					col_num=(int)s.bufptr-i;
 
 					//Rewrite the word
 					for(n=i;n<(int)s.bufptr;++n){
 						buf_append(&s.buf[n], 1);
-            			//uip_send(&s.buf[n],1);
 					}
 					//Add the new character to the word.
 					buf_append(&c, 1);
-          			//uip_send(&c,1);
 				}
 			}
 		}
 		else{	
 			buf_append(&c, 1);
-      		//uip_send(&c,1);
-			++col_num;
+      //Only advance column counter if char is alphanumeric
+      if ((c > 0x1F && c < 0x80) || (c > 0x9F)){
+        ++col_num;
+      }
 		}
 	}
 	else if(bbs_status.echo==2){
 	  buf_append(&c, 1);
-	  //uip_send(&c,1);
 	  ++col_num;
 	}
 
