@@ -33,6 +33,8 @@ typedef struct
 //short bbs_filesize(char *prefix, char *filename, unsigned char device);
 void bbs_banner(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned char wordWrap);
 
+void stream_file(void);
+
 const char * file_path(char *file, unsigned short num);
 
 //void em_load(unsigned char filePrefix[10], unsigned char szBannerFile[12], unsigned char fileSuffix[3], unsigned char device, unsigned short file_num);

@@ -77,6 +77,7 @@
 #define STATUS_SUBJ		7
 #define STATUS_POST		8
 #define STATUS_READ		9
+#define STATUS_STREAM  10
 
 
 

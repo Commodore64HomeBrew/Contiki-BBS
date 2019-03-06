@@ -937,8 +937,8 @@ PROCESS_THREAD(info_process, ev, data)
 {
   PROCESS_BEGIN();
 
-	bbs_banner(board.sys_prefix, BBS_BANNER_INFO, bbs_status.encoding_suffix, board.sys_device,0);
-
+	//bbs_banner(board.sys_prefix, BBS_BANNER_INFO, bbs_status.encoding_suffix, board.sys_device,0);
+  	stream_file();
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
@@ -1059,7 +1059,7 @@ PROCESS_THREAD(settime_process, ev, data)
 
 
 /*---------------------------------------------------------------------------*/
-static void
+/*static void
 replace_braces(char *commandline)
 {
   char *ptr;
@@ -1078,9 +1078,9 @@ replace_braces(char *commandline)
       }
     }
   }
-}
+}*/
 /*---------------------------------------------------------------------------*/
-static char *
+/*static char *
 find_pipe(char *commandline)
 {
   char *ptr;
@@ -1098,12 +1098,13 @@ find_pipe(char *commandline)
     }
   }
   return NULL;
-}
+}*/
 /*---------------------------------------------------------------------------*/
 static struct shell_command *
 start_command(char *commandline, struct shell_command *child)
 {
-  char *next, *args;
+  //char *next;
+  char *args;
   int command_len;
   struct shell_command *c;
 
@@ -1113,14 +1114,14 @@ start_command(char *commandline, struct shell_command *child)
   }
 
   /* Find the next command in a pipeline and start it. */
-  next = find_pipe(commandline);
+  /*next = find_pipe(commandline);
   if(next != NULL) {
     *next = 0;
     child = start_command(next + 1, child);
-  }
+  }*/
 
   /* Separate the command arguments, and remove braces. */
-  replace_braces(commandline);
+  //replace_braces(commandline);
   args = strchr(commandline, ' ');
   if(args != NULL) {
     args++;

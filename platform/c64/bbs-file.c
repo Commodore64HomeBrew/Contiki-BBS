@@ -24,6 +24,7 @@ extern BBS_BOARD_REC board;
 extern BBS_BUFFER buf;
 //extern telnetd_buf buf;
 //static telnetd_buf buf;
+extern TELNETD_STATE s;
 
 /*---------------------------------------------------------------------------*/
 /*short bbs_filesize(char *prefix, char *filename, unsigned char device)
@@ -200,6 +201,78 @@ const char * file_path(char *file, unsigned short num)
     return sub_num_prefix;
 }
 
+
+
+
+void stream_file(){
+
+  unsigned char c;
+  //char ret=1;
+
+  //sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
+
+  cbm_open(10, 8, 10, "//m/:terror");
+
+  bbs_status.status = STATUS_STREAM;
+
+}
+
+
+
+
+//uip_send(&c,1);
+
+
+//m/terror.prg
+//m/tmnt.prg
+
+/*---------------------------------------------------------------------------*/
+/*PROCESS_THREAD(bbs_read_file, ev, data)
+{
+  struct shell_input *input;
+  int return_code;
+
+  PROCESS_BEGIN();
+
+  while(1) {
+
+    PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input || ev == PROCESS_EVENT_TIMER);
+
+    if (ev == PROCESS_EVENT_TIMER) {
+       shell_stop();
+       log_message("\x9a","event timer");
+    }
+    if (ev == shell_event_input) {
+      input = data;
+      switch (bbs_status.status) {
+
+          case STATUS_CONFUSR: {
+
+            if(! strcmp(input->data1, "y") || ! strcmp(input->data1, "Y")){
+
+              shell_output_str(NULL, "\r\nhit return to continue", "");
+              bbs_status.status=STATUS_STATS;
+
+            }
+            else{
+              shell_prompt("\n\rhandle: ");
+              bbs_status.status=STATUS_HANDLE;
+            }
+            break;
+          }
+          case STATUS_STATS: {
+            if(strlen(input->data1)>0) {
+              bbs_login();
+            }
+            break;
+          }
+
+       }
+    }
+  }
+
+  PROCESS_END();
+}*/
 
 /*---------------------------------------------------------------------------*/
 /*

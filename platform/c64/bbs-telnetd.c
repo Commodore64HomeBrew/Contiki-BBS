@@ -230,11 +230,30 @@ static void
 senddata(void)
 {
   int len;
-  len = MIN(buf.ptr, uip_mss());
-  //PRINTF("senddata len %d\n", len);
-  buf_copyto(uip_appdata, len);
-  uip_send(uip_appdata, len);
-  s.numsent = len;
+  unsigned char c;
+
+
+  if(bbs_status.status == STATUS_STREAM){
+
+    len = cbm_read(10, &c, 1);
+    if(len>0){
+      //putchar(c);
+      uip_send(&c,1);
+      s.numsent = 1;
+    }
+    else{
+      bbs_status.status = STATUS_LOCK;
+      s.numsent = 0;
+      cbm_close(10);
+    }
+  }
+  else{
+    len = MIN(buf.ptr, uip_mss());
+    //PRINTF("senddata len %d\n", len);
+    buf_copyto(uip_appdata, len);
+    uip_send(uip_appdata, len);
+    s.numsent = len;
+  }
 }
 /*---------------------------------------------------------------------------*/
 static void
@@ -256,7 +275,8 @@ get_char(uint8_t c)
 				--s.bufptr;
 				s.buf[(int)s.bufptr] = 0;
 				buf_append(&c, 1);
-        		//uip_send(&c,1);
+
+        if(col_num>0){--col_num;}
 			}
 			return;	
 		}
@@ -469,11 +489,10 @@ telnetd_appcall(void *ts)
       update_time();
 
   	  if(bbs_status.login==1){
-  		save_stats();
-  		bbs_status.login=0;
+    		save_stats();
+    		bbs_status.login=0;
   	  }
       shell_stop();
-      //s.connected = 0;
     }
     if(uip_acked()) {
       timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
