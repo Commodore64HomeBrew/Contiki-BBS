@@ -87,8 +87,8 @@ static char telnetd_reject_text[] =
 uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;
-unsigned char sd_c[10], sd_len;
-unsigned char sd_speed=2;
+unsigned char sd_c[MAX_STREAM_SPEED], sd_len;
+
 
 //static struct telnetd_buf buf;
 static struct timer silence_timer;
@@ -190,10 +190,10 @@ shell_exit(void)
 /*---------------------------------------------------------------------------*/
 void stream_data(void){
 
-    sd_len = cbm_read(10, &sd_c, sd_speed);
+    sd_len = cbm_read(10, &sd_c, bbs_status.speed);
     if(sd_len>0){
-      uip_send(&sd_c,sd_speed);
-      s.numsent = sd_speed;
+      uip_send(&sd_c,bbs_status.speed);
+      s.numsent = bbs_status.speed;
     }
     else{
       bbs_status.status = STATUS_LOCK;

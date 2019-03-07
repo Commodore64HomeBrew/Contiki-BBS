@@ -947,11 +947,65 @@ PROCESS_THREAD(info_process, ev, data)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(movie_process, ev, data)
 {
-  PROCESS_BEGIN();
+	struct shell_input *input;
 
-  	stream_file();
+	PROCESS_BEGIN();
 
-  PROCESS_END();
+  	//shell_output_str(NULL, "\x93", "");
+
+	bbs_status.speed = 1;
+
+    shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
+
+  	shell_prompt("hit return to begin\n\r");
+	PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+
+	//stream_file();
+
+	bordercolor(7);
+
+	//Blank the screen to speed things up
+	poke(0xd011, peek(0xd011) & 0xef);
+
+	cbm_open(10, 8, 10, "//m/:terror");
+
+	bbs_status.status = STATUS_STREAM;
+
+
+	while(1) {
+
+		PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+
+		if (ev == shell_event_input) {
+			input = data;
+
+            if(! strcmp(input->data1, "+")){
+            	if(bbs_status.speed<MAX_STREAM_SPEED){
+            		bbs_status.speed++;
+            	}
+            }
+            else if(! strcmp(input->data1, "-")){
+            	if(bbs_status.speed>1){
+            		bbs_status.speed--;
+            	}
+            }
+            else if(! strcmp(input->data1, "q")){
+				bbs_status.status = STATUS_LOCK;
+				s.numsent = 0;
+				cbm_close(10);
+				//Change boarder back to red
+				bordercolor(2);
+				//Turn on the screen again
+				poke(0xd011, peek(0xd011) | 0x10);
+
+				PROCESS_EXIT();
+            }
+
+		}
+	}
+
+	PROCESS_END();
+
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(help_command_process, ev, data)

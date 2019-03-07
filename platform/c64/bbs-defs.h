@@ -25,6 +25,8 @@
 #define TELNETD_CONF_LINELEN 	 255
 #define TELNETD_CONF_NUMLINES 	25
 
+#define MAX_STREAM_SPEED        20
+
 #define BBS_BUFFER_SIZE    	1550
 
 #define BBS_SESSION_TIMEOUT (CLOCK_SECOND * 3600)
@@ -153,6 +155,7 @@ typedef struct {
   unsigned char wrap;
   unsigned char width;
   unsigned char lines;
+  unsigned char speed;
   unsigned short msg_size;
   unsigned char prompt[40];
   unsigned char encoding_suffix[3];
