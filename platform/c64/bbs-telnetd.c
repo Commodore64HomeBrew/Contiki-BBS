@@ -87,6 +87,7 @@ static char telnetd_reject_text[] =
 uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;
+unsigned char sd_c, sd_len;
 
 //static struct telnetd_buf buf;
 static struct timer silence_timer;
@@ -190,6 +191,24 @@ shell_exit(void)
   s.state = STATE_CLOSE;
 }
 /*---------------------------------------------------------------------------*/
+void stream_data(void){
+
+    sd_len = cbm_read(10, &sd_c, 1);
+    if(sd_len>0){
+      uip_send(&sd_c,1);
+      s.numsent = 1;
+    }
+    else{
+      bbs_status.status = STATUS_LOCK;
+      s.numsent = 0;
+      cbm_close(10);
+      //Change boarder back to red
+      bordercolor(2);
+      //Turn on the screen again
+      poke(0xd011, peek(0xd011) | 0x10);
+    }
+}
+/*---------------------------------------------------------------------------*/
 PROCESS_THREAD(telnetd_process, ev, data)
 {
   PROCESS_BEGIN();
@@ -206,6 +225,7 @@ PROCESS_THREAD(telnetd_process, ev, data)
 
   while(1) {
     PROCESS_WAIT_EVENT();
+
     if(ev == tcpip_event) {
       telnetd_appcall(data);
     } else if(ev == PROCESS_EVENT_EXIT) {
@@ -230,30 +250,11 @@ static void
 senddata(void)
 {
   int len;
-  unsigned char c;
-
-
-  if(bbs_status.status == STATUS_STREAM){
-
-    len = cbm_read(10, &c, 1);
-    if(len>0){
-      //putchar(c);
-      uip_send(&c,1);
-      s.numsent = 1;
-    }
-    else{
-      bbs_status.status = STATUS_LOCK;
-      s.numsent = 0;
-      cbm_close(10);
-    }
-  }
-  else{
-    len = MIN(buf.ptr, uip_mss());
-    //PRINTF("senddata len %d\n", len);
-    buf_copyto(uip_appdata, len);
-    uip_send(uip_appdata, len);
-    s.numsent = len;
-  }
+  len = MIN(buf.ptr, uip_mss());
+  //PRINTF("senddata len %d\n", len);
+  buf_copyto(uip_appdata, len);
+  uip_send(uip_appdata, len);
+  s.numsent = len;
 }
 /*---------------------------------------------------------------------------*/
 static void
@@ -507,9 +508,14 @@ telnetd_appcall(void *ts)
         uip_acked() ||
         uip_connected() ||
         uip_poll()) {
-      senddata();
+      if(bbs_status.status == STATUS_STREAM){
+        stream_data();
+      }
+      else{
+        senddata();
+      }
       if(s.numsent > 0) {
-	timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
+        timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       }
     }
     if(uip_poll()) {

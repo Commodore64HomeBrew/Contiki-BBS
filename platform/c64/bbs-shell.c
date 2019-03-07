@@ -81,6 +81,9 @@ SHELL_COMMAND(usr_stats_command, "y", "y : your stats", &usr_stats_process);
 PROCESS(info_process, "info");
 SHELL_COMMAND(info_command, "i", "i : bbs system info", &info_process);
 
+PROCESS(movie_process, "movies");
+SHELL_COMMAND(movie_command, "m", "m : petscii movies", &movie_process);
+
 
 /*---------------------------------------------------------------------------*/
 void bbs_defaults(void)
@@ -937,8 +940,17 @@ PROCESS_THREAD(info_process, ev, data)
 {
   PROCESS_BEGIN();
 
-	//bbs_banner(board.sys_prefix, BBS_BANNER_INFO, bbs_status.encoding_suffix, board.sys_device,0);
+	bbs_banner(board.sys_prefix, BBS_BANNER_INFO, bbs_status.encoding_suffix, board.sys_device,0);
+
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(movie_process, ev, data)
+{
+  PROCESS_BEGIN();
+
   	stream_file();
+
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
@@ -1386,6 +1398,7 @@ shell_init(void)
   shell_register_command(&sys_stats_command);
   shell_register_command(&usr_stats_command);
   shell_register_command(&info_command);
+  shell_register_command(&movie_command);
   shell_register_command(&quit_command);
 
   /* local console eye candy */

@@ -206,12 +206,12 @@ const char * file_path(char *file, unsigned short num)
 
 void stream_file(){
 
-  unsigned char c;
-  //char ret=1;
+  bordercolor(7);
 
-  //sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
+  //Blank the screen to speed things up
+  poke(0xd011, peek(0xd011) & 0xef);
 
-  cbm_open(10, 8, 10, "//m/:terror");
+  cbm_open(10, 8, 10, "//m/:tmnt");
 
   bbs_status.status = STATUS_STREAM;
 
