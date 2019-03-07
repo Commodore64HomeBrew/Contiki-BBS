@@ -211,7 +211,7 @@ void stream_file(){
   //Blank the screen to speed things up
   poke(0xd011, peek(0xd011) & 0xef);
 
-  cbm_open(10, 8, 10, "//m/:tmnt");
+  cbm_open(10, 8, 10, "//m/:terror");
 
   bbs_status.status = STATUS_STREAM;
 

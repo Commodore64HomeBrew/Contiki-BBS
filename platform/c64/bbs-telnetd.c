@@ -87,7 +87,8 @@ static char telnetd_reject_text[] =
 uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;
-unsigned char sd_c, sd_len;
+unsigned char sd_c[10], sd_len;
+unsigned char sd_speed=2;
 
 //static struct telnetd_buf buf;
 static struct timer silence_timer;
@@ -144,9 +145,7 @@ void
 telnetd_quit(void)
 {
   shell_quit();
-#if TELNETD_CONF_GUI
-  telnetd_gui_quit();
-#endif /* TELNETD_CONF_GUI */
+
   process_exit(&telnetd_process);
   LOADER_UNLOAD();
 }
@@ -176,9 +175,7 @@ shell_default_output(char *str1, int len1,char *str2, int len2)
 
   /*  //PRINTF("shell_default_output: %.*s %.*s\n", len1, str1, len2, str2);*/
   
-#if TELNETD_CONF_GUI
-  telnetd_gui_output(str1, len1, str2, len2);
-#endif /* TELNETD_CONF_GUI */
+
   buf_append(str1, len1);
   buf_append(str2, len2);
   buf_append(crnl, sizeof(crnl));
@@ -193,10 +190,10 @@ shell_exit(void)
 /*---------------------------------------------------------------------------*/
 void stream_data(void){
 
-    sd_len = cbm_read(10, &sd_c, 1);
+    sd_len = cbm_read(10, &sd_c, sd_speed);
     if(sd_len>0){
-      uip_send(&sd_c,1);
-      s.numsent = 1;
+      uip_send(&sd_c,sd_speed);
+      s.numsent = sd_speed;
     }
     else{
       bbs_status.status = STATUS_LOCK;
@@ -215,10 +212,6 @@ PROCESS_THREAD(telnetd_process, ev, data)
   
   shell_init();
 
-#if TELNETD_CONF_GUI
-  telnetd_gui_init();
-#endif /* TELNETD_CONF_GUI */
-
   if(bbs_status.encoding==1){petscii_to_ascii(telnetd_reject_text, strlen(telnetd_reject_text));}
 
   tcp_listen(UIP_HTONS(board.telnet_port));
@@ -230,10 +223,6 @@ PROCESS_THREAD(telnetd_process, ev, data)
       telnetd_appcall(data);
     } else if(ev == PROCESS_EVENT_EXIT) {
       telnetd_quit();
-    } else {
-#if TELNETD_CONF_GUI
-      telnetd_gui_eventhandler(ev, data);
-#endif /* TELNETD_CONF_GUI */
     }
   }
   
