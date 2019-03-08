@@ -25,6 +25,7 @@ extern BBS_BUFFER buf;
 //extern telnetd_buf buf;
 //static telnetd_buf buf;
 extern TELNETD_STATE s;
+PROCESS(file_read_process, "file");
 
 /*---------------------------------------------------------------------------*/
 /*short bbs_filesize(char *prefix, char *filename, unsigned char device)
@@ -56,32 +57,41 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
   //unsigned char *file_buffer;
   //char file_buffer[BBS_BUFFER_SIZE];
 
-  unsigned short fsize;
-  unsigned short siRet=0, len=0;
-  unsigned short i=0, j=0;
-  unsigned short line=0;
+  //unsigned short fsize;
+  //unsigned short siRet=0, len=0;
+  //unsigned short i=0, j=0;
+  //unsigned short line=0;
   unsigned short col, preCol;
-  unsigned short width;
+  //unsigned short width;
   unsigned char file[25];
-  unsigned short ptr;
-  unsigned char c;
+  //unsigned short ptr;
+  //unsigned char c;
 
   //Blank the screen to speed things up
   poke(0xd011, peek(0xd011) & 0xef);
+
+
+  bbs_status.wrap = wordWrap;
+
 
   sprintf(file, "%s%s",szBannerFile, fileSuffix);
   log_message("\x9fread: ", file);
 
   //log_message("[debug] ", file);
-  ptr = buf.ptr;
+  //ptr = buf.ptr;
 
-  fsize = BBS_BUFFER_SIZE-ptr;
+  //fsize = BBS_BUFFER_SIZE-ptr;
 
 
 
   sprintf(file, "%s:%s%s",filePrefix, szBannerFile, fileSuffix);
 
   cbm_open(10, device, 10, file);
+
+
+  process_start(&file_read_process, NULL);
+
+  /*
 
   if (bbs_status.status == STATUS_READ){
     buf.ptr += cbm_read(10, &buf.bufmem[ptr] , fsize);
@@ -172,6 +182,7 @@ void bbs_banner(unsigned char filePrefix[20], unsigned char szBannerFile[12], un
 
   //Turn on the screen again
   poke(0xd011, peek(0xd011) | 0x10);
+  */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -203,20 +214,129 @@ const char * file_path(char *file, unsigned short num)
 
 
 
+PROCESS_THREAD(file_read_process, ev, data)
+{
+  struct shell_input *input;
 
-void stream_file(){
+  unsigned short fsize;
+  unsigned short siRet=0, len=0;
+  unsigned short i=0, j=0;
+  unsigned short line=0;
+  unsigned short col, preCol;
+  unsigned short width;
+  unsigned short ptr;
+  unsigned char c;
 
-  bordercolor(7);
+  ptr = buf.ptr;
 
-  //Blank the screen to speed things up
-  poke(0xd011, peek(0xd011) & 0xef);
+  fsize = BBS_BUFFER_SIZE-ptr;
 
-  cbm_open(10, 8, 10, "//m/:terror");
+  PROCESS_BEGIN();
+  
+  
 
-  bbs_status.status = STATUS_STREAM;
 
+
+      if (bbs_status.status == STATUS_READ){
+          buf.ptr += cbm_read(10, &buf.bufmem[ptr] , fsize);
+          
+          if(bbs_status.encoding==1){
+            petscii_to_ascii(&buf.bufmem[ptr], buf.ptr-ptr);
+          }
+
+          buf.bufmem[buf.ptr++]= ISO_cr;
+          buf.bufmem[buf.ptr]= ISO_nl;
+
+        }
+        else{
+          buf.ptr += cbm_read(10, &buf.bufmem[ptr+2] , fsize) + 2;
+        }
+
+        buf.bufmem[ptr]= ISO_cr;
+        buf.bufmem[ptr+1]= ISO_nl;
+
+        
+        cbm_close(10);
+
+
+        if (bbs_status.wrap==1){
+
+          width = bbs_status.width;
+          col=0;
+          preCol=0;
+          //for (i=ptr; i<buf.ptr; i++) {
+          while(line<24 && i<buf.ptr) {
+            c=buf.bufmem[i];
+
+            if (col == width){
+
+              //We're at the end of the row. Walk back until you find a space and then insert a CR:
+              j=i;
+              while(buf.bufmem[j] != PETSCII_SPACE && j>preCol){
+                --j;
+              }
+              //Space is found; insert CR:
+              if(bbs_status.encoding==1){
+                buf.bufmem[j] = ISO_nl;
+              }
+              else{
+                buf.bufmem[j] = ISO_cr;
+              }
+              //Record counter position of previous line:
+              preCol=j;
+              //Set the new column counter, taking into account the wrapped word:
+              col=i-j;
+              ++line;
+
+            }
+            else if (c == ISO_cr || c == ISO_nl){
+              col=0;
+              ++line;
+            }
+            else if (c==0x05 || c==0x1c || c==0x1e || c==0x1f|| c==0x81 || c==0x90 || c==0x95 || c==0x96 || c==0x97 || c==0x98 || c==0x99 || c==0x9a || c==0x9b || c==0x9c || c==0x9e || c==0x9f){
+              //nothing
+            }
+            else if(c==PETSCII_UP || c==PETSCII_DOWN || c==PETSCII_LEFT || c==PETSCII_RIGHT || c==PETSCII_CLRSCN || c==PETSCII_HOME){
+
+
+              if(c==PETSCII_LEFT){
+                if(col>0){--col;}
+              }
+              else if(c==PETSCII_RIGHT){
+                ++col;
+              }
+              else if(c==PETSCII_UP){
+                if(line>0){--line;}
+                col=0;
+              }
+              else if(c==PETSCII_DOWN){
+                ++line;
+                col=0;
+              }
+              else if(c==PETSCII_HOME || c==PETSCII_CLRSCN){
+                col=0;
+                line=0;
+              }
+            }
+            else{
+              ++col;
+            }
+          }
+        }
+
+        //Turn on the screen again
+        poke(0xd011, peek(0xd011) | 0x10);
+
+  //shell_prompt("\n\rhit return to continue\n\r");
+/*
+  while(1) {
+    PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+
+    line=0;
+  }
+*/ 
+  PROCESS_END();
 }
-
 
 
 
