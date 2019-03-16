@@ -500,9 +500,14 @@ telnetd_appcall(void *ts)
       if(bbs_status.status == STATUS_STREAM){
         stream_data();
       }
-      else{
+      else{ //if (bbs_status.status < STATUS_READ){
         senddata();
       }
+      //else if (bbs_status.status == STATUS_DONE){
+       // bbs_status.status = STATUS_LOCK;
+        //set_prompt();
+
+      //}
       if(s.numsent > 0) {
         timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       }

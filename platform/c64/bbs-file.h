@@ -22,7 +22,6 @@
 #define FILE_MODE_WRITE  0
 #define FILE_MODE_APPEND 1
 
-#define PAGE_SIZE       128                     /* Size in words */
 #define BUF_SIZE        (PAGE_SIZE + PAGE_SIZE/2)
 
 typedef struct

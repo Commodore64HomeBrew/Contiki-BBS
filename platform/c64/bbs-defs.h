@@ -22,12 +22,12 @@
 #define BBS_80_COL             	78
 #define BBS_40_COL	           	38
 #define BBS_22_COL	           	20
-#define TELNETD_CONF_LINELEN 	 255
+#define TELNETD_CONF_LINELEN 	  255
 #define TELNETD_CONF_NUMLINES 	25
 
 #define MAX_STREAM_SPEED        20
-
-#define BBS_BUFFER_SIZE    	1550
+#define PAGE_SIZE               256
+#define BBS_BUFFER_SIZE    	    1550
 
 #define BBS_SESSION_TIMEOUT (CLOCK_SECOND * 3600)
 #define BBS_LOGIN_TIMEOUT   (CLOCK_SECOND * 60)
@@ -79,7 +79,8 @@
 #define STATUS_SUBJ		7
 #define STATUS_POST		8
 #define STATUS_READ		9
-#define STATUS_STREAM  10
+#define STATUS_DONE   10
+#define STATUS_STREAM  11
 
 
 
