@@ -57,7 +57,7 @@ int read_msg()
 
 
 
-  unsigned short fsize, bytes_read;
+  unsigned short fsize, bytes_read, bytes_left;
   unsigned short i=0, j=0;
   unsigned short line=0;
   unsigned short col, preCol;
@@ -89,7 +89,7 @@ int read_msg()
       //buf_append(&buf, em_buf, PageCount);
       bytes_read = cbm_read(10, em_use(I) , PAGE_SIZE);
       fsize += bytes_read;
-      em_commit ();
+      em_commit();
       ++I;
 
       // Get the buffer and compare it
@@ -110,12 +110,13 @@ int read_msg()
   }*/
 
   ptr=0;
-  I=1;
+  I=0;
   j=0;
   em_buf = em_map(I);
+  bytes_left=fsize;
   while(ptr<fsize){
-      ++ptr;
-      ++j;
+      //++ptr;
+      /*++j;
       if(j==PAGE_SIZE)
       {
           ++I;
@@ -123,12 +124,25 @@ int read_msg()
           em_buf = em_map(I);
 
       }
+      */
+
       //putchar(*em_buf);
-      buf.bufmem[buf.ptr++]=*em_buf;
-      //memcpy(&buf.bufmem[++buf.ptr],em_buf , 1);
+      //buf.bufmem[buf.ptr++] = *em_buf;
+      em_buf = em_map(++I);
+      if(bytes_left>PAGE_SIZE){
+          bytes_left -= PAGE_SIZE;
+          bytes_read = PAGE_SIZE;
+      }
+      else{
+          bytes_read=bytes_left;
+      }
+
+      memcpy(&buf.bufmem[buf.ptr],em_buf , bytes_read);
+      buf.ptr+=bytes_read;
+      ptr+=bytes_read;
 
 
-      ++em_buf;
+      //++em_buf;
 
       //memcpy(&buf.bufmem[buf.ptr],em_buf , PAGE_SIZE);
       //buf.ptr+=PAGE_SIZE;
