@@ -65,10 +65,11 @@ int read_msg()
   unsigned short ptr;
   unsigned char c;
   //int *p = (void *)0xe000;
+  //unsigned int *p;
 
   unsigned I;
-  unsigned PageCount;
-  register const unsigned* em_buf;
+  //unsigned PageCount;
+  register const unsigned char* em_buf;
 
   //ptr = buf.ptr;
 
@@ -110,24 +111,23 @@ int read_msg()
   }*/
 
   ptr=0;
-  I=0;
+  I=1;
   j=0;
   em_buf = em_map(I);
   bytes_left=fsize;
   while(ptr<fsize){
-      //++ptr;
-      /*++j;
+      ptr++;
+      j++;
       if(j==PAGE_SIZE)
       {
-          ++I;
           j=0;
-          em_buf = em_map(I);
-
+          em_buf = em_map(++I);
       }
-      */
 
-      //putchar(*em_buf);
-      //buf.bufmem[buf.ptr++] = *em_buf;
+      buf.bufmem[buf.ptr++] = *em_buf++;
+      //++em_buf;
+
+      /*
       em_buf = em_map(++I);
       if(bytes_left>PAGE_SIZE){
           bytes_left -= PAGE_SIZE;
@@ -140,27 +140,9 @@ int read_msg()
       memcpy(&buf.bufmem[buf.ptr],em_buf , bytes_read);
       buf.ptr+=bytes_read;
       ptr+=bytes_read;
-
-
-      //++em_buf;
-
-      //memcpy(&buf.bufmem[buf.ptr],em_buf , PAGE_SIZE);
-      //buf.ptr+=PAGE_SIZE;
-
-      //buf_append(&buf, em_buf, PageCount);
-
-     // for (i = 0; i < PAGE_SIZE; ++i, ++em_buf) {
-        //buffer[n] = *em_buf;
-       // buf.bufmem[buf.ptr++] = *em_buf;
-        //putchar(*em_buf);
-      //}
-
-      // Get the buffer and compare it
-      //cmp (I, em_map (I), PAGE_SIZE, I);
+      */
 
   }
-
-
 
 
 
@@ -177,10 +159,10 @@ int read_msg()
   //poke(0x0001,0x0035);
 
 
+
+//  buf.ptr += bytes_read;
+
 /*
-  buf.ptr += bytes_read;
-
-
   if(bbs_status.encoding==1){
     petscii_to_ascii(&buf.bufmem[ptr], bytes_read);
   }
@@ -190,7 +172,7 @@ int read_msg()
     buf.bufmem[ptr+1]= ISO_nl;
   //}
 
-
+  
   if (bbs_status.wrap==1){
 
     width = bbs_status.width;
@@ -261,9 +243,8 @@ int read_msg()
       }
     }
   }
-  */
+*/
   //**********************************************
-  
 
   //memcpy(uip_appdata, &buf.bufmem[ptr], bytes_read);
   //memcpy(uip_appdata, p, bytes_read);
