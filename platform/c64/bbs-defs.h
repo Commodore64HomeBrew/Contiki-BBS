@@ -170,11 +170,12 @@ typedef struct {
   unsigned char minute;
 } BBS_TIME_REC;
 
-
 typedef struct {
-  unsigned short file[10][2];
+  unsigned char read;
+  unsigned char page;
+  unsigned char byte;
+  unsigned short length;
 } BBS_EM_REC;
-
 
 typedef struct {
   unsigned char bufmem[BBS_BUFFER_SIZE];
@@ -189,5 +190,6 @@ typedef struct {
   unsigned long numsent;
   unsigned short state;
 } TELNETD_STATE;
+
 
 #endif /* __BBSDEFS_H_ */

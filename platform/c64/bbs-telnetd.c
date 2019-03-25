@@ -96,6 +96,7 @@ static struct timer silence_timer;
 TELNETD_STATE s;
 
 BBS_BUFFER buf;
+BBS_EM_REC em;
 
 //static uint8_t connected;
 
@@ -244,6 +245,42 @@ senddata(void)
   buf_copyto(uip_appdata, len);
   uip_send(uip_appdata, len);
   s.numsent = len;
+}
+/*---------------------------------------------------------------------------*/
+static void
+sendem(void)
+{
+  	unsigned short bytes_read, bytes_left;
+	register const unsigned char* em_buf;
+ 	unsigned char P,b;
+    uint8_t *uip_ptr;
+
+	P=em.page;
+	b=em.byte;
+	bytes_left = em.length;
+
+	while(bytes_left>0){
+		em_buf = em_map(P++);
+		em_buf += b;
+		b=0;
+		if(bytes_left>EM_PAGE_SIZE){
+			bytes_left -= EM_PAGE_SIZE;
+			bytes_read = EM_PAGE_SIZE;
+		}
+		else{
+			bytes_read=bytes_left;
+			bytes_left=0;
+		}
+		memcpy(uip_appdata,em_buf , bytes_read);
+	}
+
+  	uip_ptr = uip_appdata;
+	uip_ptr += em.length;
+
+	buf_copyto(uip_ptr, buf.ptr);
+	
+	uip_send(uip_appdata, em.length+buf.ptr);
+	s.numsent = em.length+buf.ptr;
 }
 /*---------------------------------------------------------------------------*/
 static void
@@ -500,14 +537,17 @@ telnetd_appcall(void *ts)
       if(bbs_status.status == STATUS_STREAM){
         stream_data();
       }
-      else{ //if (bbs_status.status < STATUS_READ){
-        senddata();
+      else if (em.read == 1){
+		sendem();
+		//bbs_status.status = STATUS_LOCK;
       }
-      //else if (bbs_status.status == STATUS_DONE){
-       // bbs_status.status = STATUS_LOCK;
-        //set_prompt();
+      /*else if (bbs_status.status == STATUS_DONE){
+        bbs_status.status = STATUS_LOCK;
+      }*/
+	  else{
+        senddata();
+	  }
 
-      //}
       if(s.numsent > 0) {
         timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       }

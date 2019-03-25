@@ -24,6 +24,7 @@ extern BBS_CONFIG_REC bbs_config;
 extern BBS_STATUS_REC bbs_status;
 extern BBS_USER_STATS bbs_usrstats;
 extern BBS_BUFFER buf;
+extern BBS_EM_REC em;
 extern TELNETD_STATE s;
 
 /*---------------------------------------------------------------------------*/
@@ -58,20 +59,20 @@ int read_msg()
 
 
   unsigned short fsize, bytes_read, bytes_left;
-  unsigned short i=0, j=0;
+  unsigned short i=0, j=0, k=0;
   unsigned short line=0;
   unsigned short col, preCol;
   unsigned short width;
   unsigned short ptr;
   unsigned char c;
-  //int *p = (void *)0xe000;
-  //unsigned int *p;
+  uint8_t *p;
 
   unsigned I;
   //unsigned PageCount;
   register const unsigned char* em_buf;
 
-  //ptr = buf.ptr;
+
+  buf.ptr=0;
 
   //fsize = BBS_BUFFER_SIZE-ptr;
 
@@ -85,38 +86,30 @@ int read_msg()
   I=1;
   bytes_read=PAGE_SIZE;
   while (bytes_read==PAGE_SIZE){
-      //em_buf = em_map(I);
 
-      //buf_append(&buf, em_buf, PageCount);
       bytes_read = cbm_read(10, em_use(I) , PAGE_SIZE);
       fsize += bytes_read;
       em_commit();
       ++I;
 
-      // Get the buffer and compare it
-      //cmp (I, em_map (I), PAGE_SIZE, I);
   }
+  em.length = fsize;
+  em.page = 1;
+  em.byte = 0;
+  em.read = 1;
 
+  cbm_close(10);
+/*
+  ptr = buf.ptr;
 
-
-  //PageCount = em_pagecount ();
-
-  // Check all pages
-/*  for (I = 0; I < 3; ++I) {
-
-      em_buf = em_map(I);
-
-      memcpy(&buf.bufmem[buf.ptr],em_buf , PAGE_SIZE);
-      buf.ptr+=PAGE_SIZE;
-  }*/
-
-  ptr=0;
+  p=uip_appdata;
+  k=0;
   I=1;
   j=0;
   em_buf = em_map(I);
   bytes_left=fsize;
-  while(ptr<fsize){
-      ptr++;
+  while(k<fsize){
+      k++;
       j++;
       if(j==PAGE_SIZE)
       {
@@ -124,47 +117,37 @@ int read_msg()
           em_buf = em_map(++I);
       }
 
-      buf.bufmem[buf.ptr++] = *em_buf++;
-      //++em_buf;
+      //buf.bufmem[buf.ptr++] = *em_buf++;
+      //memcpy(p, em_buf, 1);
+      *p = *em_buf;
+      p++;
+      em_buf++;
 
-      /*
-      em_buf = em_map(++I);
-      if(bytes_left>PAGE_SIZE){
-          bytes_left -= PAGE_SIZE;
-          bytes_read = PAGE_SIZE;
-      }
-      else{
-          bytes_read=bytes_left;
-      }
+      
+      //em_buf = em_map(++I);
+      //if(bytes_left>PAGE_SIZE){
+      //    bytes_left -= PAGE_SIZE;
+      //    bytes_read = PAGE_SIZE;
+      //}
+      //else{
+      //    bytes_read=bytes_left;
+      //}
 
       memcpy(&buf.bufmem[buf.ptr],em_buf , bytes_read);
       buf.ptr+=bytes_read;
       ptr+=bytes_read;
-      */
+ 
 
   }
 
-
-
-
-
-
-
-
-
-  //ram_setting = peek(0x0001);
-  //printf("setting: %d\n",ram_setting);
-
-  //Swap in RAM under Kernal:
-  //poke(0x0001,0x0035);
-
-
-
-//  buf.ptr += bytes_read;
+*/
+  //uip_send(uip_appdata, fsize);
+  //s.numsent = fsize;
 
 /*
+
   if(bbs_status.encoding==1){
-    petscii_to_ascii(&buf.bufmem[ptr], bytes_read);
+    petscii_to_ascii(&buf.bufmem[ptr], fsize);
   }
 
   //if(more==2){
@@ -265,12 +248,6 @@ int read_msg()
   if the file is not fully read into the buffer (fsize==bytes_read), read more on next round.
 */
 
-  //Swap in RAM under Kernal:
-  //poke(0x0001,ram_setting);
-  //ram_setting = peek(0x0001);
-  //printf("setting2: %d\n",ram_setting);
-
-  //poke(0x0001,0x0036);
 
   return fsize-bytes_read;
 
@@ -280,10 +257,10 @@ int read_msg()
 
 void close_msg()
 {
-  cbm_close(10);
+  //cbm_close(10);
 
-  bbs_status.status=STATUS_DONE;
-
+  bbs_status.status=STATUS_LOCK;
+  set_prompt();
   //Turn on the screen again
   poke(0xd011, peek(0xd011) | 0x10);
 }
@@ -321,12 +298,12 @@ PROCESS_THREAD(bbs_read_process, ev, data)
       PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
     }*/
 
-
-
+	//PROCESS_YIELD();
     close_msg();
+
   }
 
-  PROCESS_EXIT();
+  //PROCESS_EXIT();
 
   PROCESS_END();
 }
@@ -352,10 +329,12 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
     shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
     open_msg(num);
     read_msg();
+	//PROCESS_YIELD();
     close_msg();
+
   }
 
-  PROCESS_EXIT();
+  //PROCESS_EXIT();
    
   PROCESS_END();
 }
