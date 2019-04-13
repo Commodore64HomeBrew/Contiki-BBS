@@ -29,30 +29,22 @@ int read_msg(unsigned short num)
     char sub_num_prefix[20];
     ST_FILE file;
 
-    //level_1 = num;
-
-    /* Remove last digit from number till only one digit is left */
-    /*while(level_1 >= 10)
-    {
-        level_1 = level_1 / 10;
-    }*/
-
+    shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
 
     sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
     
     set_prompt();
-    bbs_status.status=STATUS_READ;
+    //bbs_status.status=STATUS_READ;
 
     strcpy(sub_num_prefix, file_path(file.szFileName, num));
     bbs_banner(sub_num_prefix, file.szFileName, "", board.subs_device, bbs_status.wrap);
 
-    //log_message("[debug] msg prefix: ", sub_num_prefix);
-    //log_message("[debug] msg name: ", file.szFileName);
 
-    bbs_status.status=STATUS_LOCK;
+    //bbs_status.status=STATUS_LOCK;
 
     return 0;
 }
+
 
 
 /*---------------------------------------------------------------------------*/
@@ -103,10 +95,9 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
 
   num = bbs_usrstats.current_msg[bbs_status.board_id]+1;
 
-  if(num>0 && num <= bbs_config.msg_id[bbs_status.board_id]){
+  if(num <= bbs_config.msg_id[bbs_status.board_id]){
     ++bbs_usrstats.current_msg[bbs_status.board_id];
     
-    shell_output_str(NULL,PETSCII_LOWER, PETSCII_WHITE);
     read_msg(num);
   }
 
@@ -116,11 +107,39 @@ PROCESS_THREAD(bbs_nextmsg_process, ev, data)
 }
 
 /*---------------------------------------------------------------------------*/
+PROCESS(bbs_prevmsg_process, "prevmsg");
+SHELL_COMMAND(bbs_prevmsg_command, "r", "r : read last message", &bbs_prevmsg_process);
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(bbs_prevmsg_process, ev, data)
+{
+  unsigned short num;
+
+  PROCESS_BEGIN();
+
+  num = bbs_usrstats.current_msg[bbs_status.board_id]-1;
+
+  if(num>0){
+    --bbs_usrstats.current_msg[bbs_status.board_id];
+    
+    read_msg(num);
+  }
+
+  PROCESS_EXIT();
+   
+  PROCESS_END();
+
+}
+
+
+
+/*---------------------------------------------------------------------------*/
 void
 bbs_read_init(void)
 {
   shell_register_command(&bbs_read_command);
   shell_register_command(&bbs_nextmsg1_command);
   shell_register_command(&bbs_nextmsg2_command);
+  shell_register_command(&bbs_prevmsg_command);
+
 }
 

@@ -264,7 +264,8 @@ get_char(uint8_t c)
 			if(s.bufptr>0){
 				--s.bufptr;
 				s.buf[(int)s.bufptr] = 0;
-				buf_append(&c, 1);
+        
+        buf.bufmem[buf.ptr++]=c;
 
         if(col_num>0){--col_num;}
 			}
@@ -286,8 +287,8 @@ get_char(uint8_t c)
 				if(c==PETSCII_SPACE)
       			{
 					//jump to next line
-					buf_append(&c, 1);
-					buf_append(&cr, 1);
+          buf.bufmem[buf.ptr++]=c;
+          buf.bufmem[buf.ptr++]=cr;
 
 					col_num=0;
 				}
@@ -296,28 +297,27 @@ get_char(uint8_t c)
 					i=(int)s.bufptr;
 					//Erase the word
 					while(s.buf[i]!=PETSCII_SPACE && i>0){
-						buf_append(&dl, 1);
+            buf.bufmem[buf.ptr++]=dl;
 						--i;
 					}
 					++i;
 
 					//Jump to new line
-					buf_append(&cr, 1);
-
+          buf.bufmem[buf.ptr++]=cr;
 					//Set the column number to match wrapped word
 					col_num=(int)s.bufptr-i;
 
 					//Rewrite the word
 					for(n=i;n<(int)s.bufptr;++n){
-						buf_append(&s.buf[n], 1);
+            buf.bufmem[buf.ptr++]=s.buf[n];
 					}
 					//Add the new character to the word.
-					buf_append(&c, 1);
+          buf.bufmem[buf.ptr++]=c;
 				}
 			}
 		}
 		else{	
-			buf_append(&c, 1);
+      buf.bufmem[buf.ptr++]=c;
       //Only advance column counter if char is alphanumeric
       if ((c > 0x1F && c < 0x80) || (c > 0x9F)){
         ++col_num;
@@ -325,7 +325,7 @@ get_char(uint8_t c)
 		}
 	}
 	else if(bbs_status.echo==2){
-	  buf_append(&c, 1);
+    buf.bufmem[buf.ptr++]=c;
 	  ++col_num;
 	}
 

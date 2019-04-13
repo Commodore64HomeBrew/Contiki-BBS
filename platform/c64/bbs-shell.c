@@ -953,7 +953,7 @@ PROCESS_THREAD(movie_process, ev, data)
 
   	//shell_output_str(NULL, "\x93", "");
 
-	bbs_status.speed = 1;
+	bbs_status.speed = 8;
 
     shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
 
