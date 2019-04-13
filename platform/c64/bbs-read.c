@@ -34,13 +34,13 @@ int read_msg(unsigned short num)
     sprintf(file.szFileName, "%d-%d", bbs_status.board_id, num);
     
     set_prompt();
-    //bbs_status.status=STATUS_READ;
+    bbs_status.status=STATUS_READ;
 
     strcpy(sub_num_prefix, file_path(file.szFileName, num));
     bbs_banner(sub_num_prefix, file.szFileName, "", board.subs_device, bbs_status.wrap);
 
 
-    //bbs_status.status=STATUS_LOCK;
+    bbs_status.status=STATUS_LOCK;
 
     return 0;
 }
