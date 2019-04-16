@@ -972,7 +972,7 @@ PROCESS_THREAD(movie_process, ev, data)
 	bbs_status.status = STATUS_STREAM;
 
 
-	while(1) {
+	while(bbs_status.status == STATUS_STREAM) {
 
 		PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 
@@ -997,13 +997,15 @@ PROCESS_THREAD(movie_process, ev, data)
 				bordercolor(2);
 				//Turn on the screen again
 				poke(0xd011, peek(0xd011) | 0x10);
-
-				PROCESS_EXIT();
             }
 
 		}
 	}
 
+	set_prompt();
+	shell_prompt(bbs_status.prompt);
+
+	PROCESS_EXIT();
 	PROCESS_END();
 
 }
