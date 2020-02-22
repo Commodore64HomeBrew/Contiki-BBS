@@ -1336,11 +1336,11 @@ shell_output(struct shell_command *c,
   }
 }*/
 /*---------------------------------------------------------------------------*/
-void
+/*void
 shell_unregister_command(struct shell_command *c)
 {
   list_remove(commands, c);
-}
+}*/
 /*---------------------------------------------------------------------------*/
 void
 shell_register_command(struct shell_command *c)

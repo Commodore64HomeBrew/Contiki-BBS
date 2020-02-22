@@ -39,7 +39,7 @@
 
 PROCESS_NAME(telnetd_process);
 
-void telnetd_init(void);
+//void telnetd_init(void);
 
 void telnetd_gui_eventhandler(process_event_t ev, process_data_t data);
 void telnetd_appcall(void *data);
