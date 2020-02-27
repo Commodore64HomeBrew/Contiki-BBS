@@ -28,7 +28,8 @@ unsigned char month_days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 
 
 int shell_event_input;
 static struct process *front_process;
-static unsigned long timer_offset, clock_offset;
+//static unsigned long timer_offset; 
+static unsigned long clock_offset;
 static unsigned long last_time=0;
 /*static struct etimer bbs_login_timer;*/
 
@@ -1436,7 +1437,7 @@ PROCESS_THREAD(shell_server_process, ev, data)
       }
     } else if(ev == PROCESS_EVENT_TIMER) {
       etimer_reset(&session_timer);
-      shell_set_time(shell_time());
+      //shell_set_time(shell_time());
     }
   }
   
@@ -1509,17 +1510,17 @@ shell_strtolong(const char *str, const char **retstr)
   return num;
 }*/
 /*---------------------------------------------------------------------------*/
-unsigned long
+/*unsigned long
 shell_time(void)
 {
   return clock_seconds() + timer_offset;
-}
+}*/
 /*---------------------------------------------------------------------------*/
-void
+/*void
 shell_set_time(unsigned long seconds)
 {
   timer_offset = seconds - clock_seconds();
-}
+}*/
 /*---------------------------------------------------------------------------*/
 void
 shell_start(void)
