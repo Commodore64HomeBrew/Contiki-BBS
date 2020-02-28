@@ -123,11 +123,11 @@ buf_append(const char *data, int len)
   return copylen;
 }
 /*---------------------------------------------------------------------------*/
-static void
+/*static void
 buf_copyto(char *to, int len)
 {
   memcpy(to, &buf.bufmem[0], len);
-}
+}*/
 /*---------------------------------------------------------------------------*/
 static void
 buf_pop(int len)
@@ -229,11 +229,11 @@ PROCESS_THREAD(telnetd_process, ev, data)
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
-static void
+/*static void
 acked(void)
 {
   buf_pop(s.numsent);
-}
+}*/
 /*---------------------------------------------------------------------------*/
 static void
 senddata(void)
@@ -241,7 +241,15 @@ senddata(void)
   int len;
   len = MIN(buf.ptr, uip_mss());
   //PRINTF("senddata len %d\n", len);
-  buf_copyto(uip_appdata, len);
+  //buf_copyto(uip_appdata, len);
+  /*
+	static void
+	buf_copyto(char *to, int len)
+	{
+	  memcpy(to, &buf.bufmem[0], len);
+	}
+  */
+  memcpy(uip_appdata, &buf.bufmem[0], len);
   uip_send(uip_appdata, len);
   s.numsent = len;
 }
@@ -486,7 +494,8 @@ telnetd_appcall(void *ts)
     }
     if(uip_acked()) {
       timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
-      acked();
+      //acked();
+      buf_pop(s.numsent); //Moved from acked function... seemed redundent
     }
     if(uip_newdata()) {
       timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
