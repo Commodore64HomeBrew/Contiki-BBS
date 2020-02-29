@@ -1319,21 +1319,16 @@ shell_output_str(struct shell_command *c, char *text1, char *text2)
 {
 
 	static const char crnl[2] = {ISO_cr, ISO_nl};
-	unsigned int len1,len2;
+	//unsigned int len1,len2;
 
-	len1 = (int)strlen(text1);
-	len2 = (int)strlen(text2);
+	unsigned int len1 = (int)strlen(text1);
+	unsigned int len2 = (int)strlen(text2);
 
 	if(c != NULL && c->child != NULL) {
 		input_to_child_command(c->child, text1, len1, text2, len2);
 	} 
 	else {
-    
 
-
-    	//shell_default_output(text1, (int)strlen(text1), text2, (int)strlen(text2));
-
-	  
 	  if(len1 > 0 && text1[len1 - 1] == '\n') {
 	    --len1;
 	  }
@@ -1343,28 +1338,8 @@ shell_output_str(struct shell_command *c, char *text1, char *text2)
 
 	  buf_append(text1, len1);
 	  buf_append(text2, len2);
-	  buf_append(crnl, sizeof(crnl));
-
-	/*
-	void
-	shell_default_output(char *str1, int len1,char *str2, int len2)
-	{
-	  static const char crnl[2] = {ISO_cr, ISO_nl};
-	  
-	  if(len1 > 0 && str1[len1 - 1] == '\n') {
-	    --len1;
-	  }
-	  if(len2 > 0 && str2[len2 - 1] == '\n') {
-	    --len2;
-	  }  
-
-	  buf_append(str1, len1);
-	  buf_append(str2, len2);
-	  buf_append(crnl, sizeof(crnl));
+	  buf_append(crnl, 2);
 	}
-	*/
-
-  }
 }
 /*---------------------------------------------------------------------------*/
 /*void
