@@ -156,15 +156,15 @@ shell_prompt(char *str)
   buf_append(str, (int)strlen(str));
 }
 /*---------------------------------------------------------------------------*/
-void
+/*void
 shell_default_output(char *str1, int len1,char *str2, int len2)
 {
   static const char crnl[2] = {ISO_cr, ISO_nl};
   
-  /*if(bbs_status.encoding==1){
-    petscii_to_ascii(&str1[0], len1);
-  	petscii_to_ascii(&str2[0], len2);
-  }*/
+  //if(bbs_status.encoding==1){
+    //petscii_to_ascii(&str1[0], len1);
+  	//petscii_to_ascii(&str2[0], len2);
+  //}
 
   if(len1 > 0 && str1[len1 - 1] == '\n') {
     --len1;
@@ -173,13 +173,13 @@ shell_default_output(char *str1, int len1,char *str2, int len2)
     --len2;
   }
 
-  /*  //PRINTF("shell_default_output: %.*s %.*s\n", len1, str1, len2, str2);*/
+  //PRINTF("shell_default_output: %.*s %.*s\n", len1, str1, len2, str2);
   
 
   buf_append(str1, len1);
   buf_append(str2, len2);
   buf_append(crnl, sizeof(crnl));
-}
+}*/
 /*---------------------------------------------------------------------------*/
 void
 shell_exit(void)
