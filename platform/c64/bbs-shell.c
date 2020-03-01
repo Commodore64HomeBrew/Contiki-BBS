@@ -991,8 +991,8 @@ PROCESS_THREAD(movie_process, ev, data)
 		if (ev == shell_event_input) {
 
 			//temporary break...
-			break;
 			bbs_status.status = STATUS_LOCK;
+			break;
 
 			/*
 			input = data;
@@ -1018,9 +1018,9 @@ PROCESS_THREAD(movie_process, ev, data)
 	s.numsent = 0;
 	cbm_close(10);
 	//Change boarder back to red
-	//bordercolor(2);
+	bordercolor(2);
 	//Turn on the screen again
-	//poke(0xd011, peek(0xd011) | 0x10);
+	poke(0xd011, peek(0xd011) | 0x10);
 	
 	set_prompt();
 	shell_prompt(bbs_status.prompt);
