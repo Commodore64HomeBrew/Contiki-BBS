@@ -965,8 +965,9 @@ PROCESS_THREAD(movie_process, ev, data)
 	bbs_status.speed = 8;
 
     shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
+    //shell_output_str(NULL, "hit return to stop stream once playing\n\r", "");
 
-  	shell_prompt("hit return to begin\n\r");
+  	shell_prompt("hit return to start\n\r");
 	PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 
 	//stream_file();
@@ -1000,6 +1001,7 @@ PROCESS_THREAD(movie_process, ev, data)
             }
             else if(! strcmp(input->data1, "q")){
 				bbs_status.status = STATUS_LOCK;
+				break;
 				/*
 				s.numsent = 0;
 				cbm_close(10);
