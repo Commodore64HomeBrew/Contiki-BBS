@@ -265,6 +265,9 @@ get_char(uint8_t c)
 		return;
 	}
 
+	if(bbs_status.status == STATUS_STREAM) {
+		return;
+	}
 
 	if(bbs_status.echo==1){
 
