@@ -992,6 +992,8 @@ PROCESS_THREAD(movie_process, ev, data)
 
 			//temporary break...
 			break;
+			bbs_status.status = STATUS_LOCK;
+
 			/*
 			input = data;
 
