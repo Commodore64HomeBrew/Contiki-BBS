@@ -475,7 +475,14 @@ void bbs_unlock(void)
   //Change border colour to black
   bordercolor(0);
   //Turn on the screen again
-  //poke(0xd011, peek(0xd011) | 0x10);
+  poke(0xd011, peek(0xd011) | 0x10);
+
+  //Clean up any open files
+  s.numsent = 0;	
+  cbm_close(10);
+
+
+
   
   s.connected = 0;
   bbs_status.status=STATUS_UNLOCK;
