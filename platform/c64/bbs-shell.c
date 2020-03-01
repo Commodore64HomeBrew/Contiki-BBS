@@ -186,7 +186,7 @@ static void bbs_init(void)
 
 	/* read BBS base configuration */
 
-	sprintf(board.sub_names[0], "magnetar bbs   ");
+	sprintf(board.sub_names[0], "devlog & issues");
 	sprintf(board.sub_names[1], "the lounge     ");
 	sprintf(board.sub_names[2], "science & tech ");
 	sprintf(board.sub_names[3], "la musique     ");
@@ -993,16 +993,25 @@ PROCESS_THREAD(movie_process, ev, data)
             }
             else if(! strcmp(input->data1, "q")){
 				bbs_status.status = STATUS_LOCK;
+				/*
 				s.numsent = 0;
 				cbm_close(10);
 				//Change boarder back to red
 				bordercolor(2);
 				//Turn on the screen again
 				poke(0xd011, peek(0xd011) | 0x10);
+				*/
             }
 
 		}
 	}
+
+	s.numsent = 0;
+	cbm_close(10);
+	//Change boarder back to red
+	bordercolor(2);
+	//Turn on the screen again
+	poke(0xd011, peek(0xd011) | 0x10);
 
 	set_prompt();
 	shell_prompt(bbs_status.prompt);
