@@ -986,10 +986,13 @@ PROCESS_THREAD(movie_process, ev, data)
 
 		PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 		
-		//temporary break...
-		break;
-		/*
+
+		
 		if (ev == shell_event_input) {
+
+			//temporary break...
+			break;
+			/*
 			input = data;
 
             if(! strcmp(input->data1, "+")){
@@ -1006,9 +1009,8 @@ PROCESS_THREAD(movie_process, ev, data)
             	break;
 				//bbs_status.status = STATUS_LOCK;
             }
-
+			*/
 		}
-		*/
 	}
 
 	s.numsent = 0;
