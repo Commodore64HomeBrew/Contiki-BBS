@@ -967,7 +967,7 @@ PROCESS_THREAD(movie_process, ev, data)
     //shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
     //shell_output_str(NULL, "hit return to stop stream once playing\n\r", "");
 
-  	shell_prompt("hit return to start, return again to abort\n\r");
+  	shell_prompt("hit return to start\n\r hit return again to abort\n\r");
 	PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 
 	//stream_file();
