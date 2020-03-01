@@ -197,12 +197,12 @@ void stream_data(void){
     }
     else{
       bbs_status.status = STATUS_LOCK;
-      s.numsent = 0;
-      cbm_close(10);
+      //s.numsent = 0;
+      //cbm_close(10);
       //Change boarder back to red
-      bordercolor(2);
+      //bordercolor(2);
       //Turn on the screen again
-      poke(0xd011, peek(0xd011) | 0x10);
+      //poke(0xd011, peek(0xd011) | 0x10);
     }
 }
 /*---------------------------------------------------------------------------*/

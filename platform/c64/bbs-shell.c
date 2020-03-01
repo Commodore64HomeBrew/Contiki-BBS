@@ -956,7 +956,7 @@ PROCESS_THREAD(info_process, ev, data)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(movie_process, ev, data)
 {
-	struct shell_input *input;
+	//struct shell_input *input;
 
 	PROCESS_BEGIN();
 
@@ -964,10 +964,10 @@ PROCESS_THREAD(movie_process, ev, data)
 
 	bbs_status.speed = 8;
 
-    shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
+    //shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
     //shell_output_str(NULL, "hit return to stop stream once playing\n\r", "");
 
-  	shell_prompt("hit return to start\n\r");
+  	shell_prompt("hit return to start, return again to abort\n\r");
 	PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 
 	//stream_file();
@@ -985,7 +985,10 @@ PROCESS_THREAD(movie_process, ev, data)
 	while(bbs_status.status == STATUS_STREAM) {
 
 		PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
-
+		
+		//temporary break...
+		break;
+		/*
 		if (ev == shell_event_input) {
 			input = data;
 
@@ -1000,19 +1003,12 @@ PROCESS_THREAD(movie_process, ev, data)
             	}
             }
             else if(! strcmp(input->data1, "q")){
-				bbs_status.status = STATUS_LOCK;
-				break;
-				/*
-				s.numsent = 0;
-				cbm_close(10);
-				//Change boarder back to red
-				bordercolor(2);
-				//Turn on the screen again
-				poke(0xd011, peek(0xd011) | 0x10);
-				*/
+            	break;
+				//bbs_status.status = STATUS_LOCK;
             }
 
 		}
+		*/
 	}
 
 	s.numsent = 0;
