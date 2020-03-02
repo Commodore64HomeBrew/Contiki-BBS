@@ -489,6 +489,10 @@ telnetd_appcall(void *ts)
       //acked();
       buf_pop(s.numsent); //Moved from acked function... seemed redundent
     }
+    if(uip_newdata()) {
+      timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
+      newdata();
+    }
     if(uip_rexmit() ||
         uip_newdata() ||
         uip_acked() ||
@@ -516,10 +520,6 @@ telnetd_appcall(void *ts)
       if(s.numsent > 0) {
         timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       }
-    }
-    if(uip_newdata()) {
-      timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
-      newdata();
     }
     if(uip_poll()) {
       if(timer_expired(&silence_timer)) {
