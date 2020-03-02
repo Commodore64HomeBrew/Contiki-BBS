@@ -393,8 +393,10 @@ newdata(void)
     switch(s.state) {
     case STATE_IAC:
       if(c == TELNET_IAC) {
-	get_char(c);
-	s.state = STATE_NORMAL;
+      	if(bbs_status.status != STATUS_STREAM){
+			get_char(c);
+		}
+		s.state = STATE_NORMAL;
       } else {
 	switch(c) {
 	case TELNET_WILL:
