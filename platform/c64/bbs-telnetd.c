@@ -88,6 +88,7 @@ uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;
 unsigned char sd_c[MAX_STREAM_SPEED], sd_len;
+unsigned int len;
 
 
 //static struct telnetd_buf buf;
@@ -235,24 +236,15 @@ acked(void)
   buf_pop(s.numsent);
 }*/
 /*---------------------------------------------------------------------------*/
-static void
+/*static void
 senddata(void)
 {
   int len;
   len = MIN(buf.ptr, uip_mss());
-  //PRINTF("senddata len %d\n", len);
-  //buf_copyto(uip_appdata, len);
-  /*
-	static void
-	buf_copyto(char *to, int len)
-	{
-	  memcpy(to, &buf.bufmem[0], len);
-	}
-  */
   memcpy(uip_appdata, &buf.bufmem[0], len);
   uip_send(uip_appdata, len);
   s.numsent = len;
-}
+}*/
 /*---------------------------------------------------------------------------*/
 static void
 get_char(uint8_t c)
@@ -508,7 +500,7 @@ telnetd_appcall(void *ts)
         uip_poll()) {
       if(bbs_status.status == STATUS_STREAM){
 
-		//stream_data();
+		//File streaming code
 	    sd_len = cbm_read(10, &sd_c, bbs_status.speed);
 	    if(sd_len>0){
 	      uip_send(&sd_c,bbs_status.speed);
@@ -519,7 +511,11 @@ telnetd_appcall(void *ts)
 	    }
       }
       else{
-        senddata();
+        //senddata();
+		len = MIN(buf.ptr, uip_mss());
+		memcpy(uip_appdata, &buf.bufmem[0], len);
+		uip_send(uip_appdata, len);
+		s.numsent = len;
       }
       if(s.numsent > 0) {
         timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
