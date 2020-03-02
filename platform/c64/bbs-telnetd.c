@@ -188,7 +188,7 @@ shell_exit(void)
   s.state = STATE_CLOSE;
 }
 /*---------------------------------------------------------------------------*/
-void stream_data(void){
+/*void stream_data(void){
 
     sd_len = cbm_read(10, &sd_c, bbs_status.speed);
     if(sd_len>0){
@@ -204,7 +204,7 @@ void stream_data(void){
       //Turn on the screen again
       //poke(0xd011, peek(0xd011) | 0x10);
     }
-}
+}*/
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(telnetd_process, ev, data)
 {
@@ -507,7 +507,16 @@ telnetd_appcall(void *ts)
         uip_connected() ||
         uip_poll()) {
       if(bbs_status.status == STATUS_STREAM){
-        stream_data();
+
+		//stream_data();
+	    sd_len = cbm_read(10, &sd_c, bbs_status.speed);
+	    if(sd_len>0){
+	      uip_send(&sd_c,bbs_status.speed);
+	      s.numsent = bbs_status.speed;
+	    }
+	    else{
+	      bbs_status.status = STATUS_LOCK;
+	    }
       }
       else{
         senddata();
