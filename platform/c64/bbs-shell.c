@@ -956,6 +956,11 @@ PROCESS_THREAD(info_process, ev, data)
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(movie_process, ev, data)
 {
+
+	unsigned short num;
+	struct shell_input *input;
+	unsigned char file[12];
+
 	//struct shell_input *input;
 
 	PROCESS_BEGIN();
@@ -964,57 +969,71 @@ PROCESS_THREAD(movie_process, ev, data)
 
 	bbs_status.speed = 8;
 
-    //shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
-    //shell_output_str(NULL, "hit return to stop stream once playing\n\r", "");
+	//shell_output_str(NULL,"", PETSCII_WHITE);
+	shell_prompt("\x05\n\rselect movie (1-10):");
 
-  	shell_prompt("hit return to start\n\r hit return again to abort\n\r");
 	PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+	input = data;
+	num = atoi(input->data1);
+	sprintf(file,"//m/:%d", num);
 
-	//stream_file();
+	if(num>0 && num <=10){
 
-	bordercolor(7);
+	    //shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
+	    //shell_output_str(NULL, "hit return to stop stream once playing\n\r", "");
 
-	//Blank the screen to speed things up
-	poke(0xd011, peek(0xd011) & 0xef);
-
-	cbm_open(10, 8, 10, "//m/:terror");
-
-	bbs_status.status = STATUS_STREAM;
-
-
-	while(bbs_status.status == STATUS_STREAM) {
-
+	  	shell_prompt("hit return to start\n\r hit return again to abort\n\r");
 		PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
-		
 
-		
-		if (ev == shell_event_input) {
+		//stream_file();
 
-			//temporary break...
-			bbs_status.status = STATUS_LOCK;
-			break;
+		bordercolor(7);
 
-			/*
-			input = data;
+		//Blank the screen to speed things up
+		poke(0xd011, peek(0xd011) & 0xef);
 
-            if(! strcmp(input->data1, "+")){
-            	if(bbs_status.speed<MAX_STREAM_SPEED){
-            		bbs_status.speed++;
-            	}
-            }
-            else if(! strcmp(input->data1, "-")){
-            	if(bbs_status.speed>1){
-            		bbs_status.speed--;
-            	}
-            }
-            else if(! strcmp(input->data1, "q")){
-            	break;
-				//bbs_status.status = STATUS_LOCK;
-            }
-			*/
+
+
+		//cbm_open(10, 8, 10, "//m/:1");
+		cbm_open(10, 8, 10, file);
+
+		bbs_status.status = STATUS_STREAM;
+
+
+		while(bbs_status.status == STATUS_STREAM) {
+
+			PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+			
+
+			
+			if (ev == shell_event_input) {
+
+				//temporary break...
+				bbs_status.status = STATUS_LOCK;
+				break;
+
+				/*
+				input = data;
+
+	            if(! strcmp(input->data1, "+")){
+	            	if(bbs_status.speed<MAX_STREAM_SPEED){
+	            		bbs_status.speed++;
+	            	}
+	            }
+	            else if(! strcmp(input->data1, "-")){
+	            	if(bbs_status.speed>1){
+	            		bbs_status.speed--;
+	            	}
+	            }
+	            else if(! strcmp(input->data1, "q")){
+	            	break;
+					//bbs_status.status = STATUS_LOCK;
+	            }
+				*/
+			}
 		}
 	}
-	
+
 	s.numsent = 0;
 	cbm_close(10);
 	//Change boarder back to red
