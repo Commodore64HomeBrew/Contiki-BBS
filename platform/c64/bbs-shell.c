@@ -967,17 +967,17 @@ PROCESS_THREAD(movie_process, ev, data)
 
   	//shell_output_str(NULL, "\x93", "");
 
-	bbs_status.speed = 8;
+	bbs_status.speed = 6;
 
 	//shell_output_str(NULL,"", PETSCII_WHITE);
-	shell_prompt("\x05\n\rselect movie (1-10):");
+	shell_prompt("\x05\n\rselect movie (1-20):");
 
 	PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
 	input = data;
 	num = atoi(input->data1);
 	sprintf(file,"//m/:%d", num);
 
-	if(num>0 && num <=10){
+	if(num>0 && num <=20){
 
 	    //shell_output_str(NULL, "\n\r+ -> increase speed\n\r- -> decrease speed\n\rq -> quit movie\n\r", "");
 	    //shell_output_str(NULL, "hit return to stop stream once playing\n\r", "");
