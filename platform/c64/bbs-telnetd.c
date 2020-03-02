@@ -393,9 +393,7 @@ newdata(void)
     switch(s.state) {
     case STATE_IAC:
       if(c == TELNET_IAC) {
-      	if(bbs_status.status != STATUS_STREAM){
-			get_char(c);
-		}
+		get_char(c);
 		s.state = STATE_NORMAL;
       } else {
 	switch(c) {
@@ -491,10 +489,6 @@ telnetd_appcall(void *ts)
       //acked();
       buf_pop(s.numsent); //Moved from acked function... seemed redundent
     }
-    if(uip_newdata()) {
-      timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
-      newdata();
-    }
     if(uip_rexmit() ||
         uip_newdata() ||
         uip_acked() ||
@@ -522,6 +516,10 @@ telnetd_appcall(void *ts)
       if(s.numsent > 0) {
         timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
       }
+    }
+    if(uip_newdata()) {
+      timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
+      newdata();
     }
     if(uip_poll()) {
       if(timer_expired(&silence_timer)) {
