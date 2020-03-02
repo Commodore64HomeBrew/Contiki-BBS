@@ -87,8 +87,8 @@ static char telnetd_reject_text[] =
 uint8_t cr=0x0d;
 uint8_t dl=0x14;
 uint8_t col_num=0;
-unsigned char sd_c[MAX_STREAM_SPEED], sd_len;
-unsigned int len;
+unsigned char sd_c[MAX_STREAM_SPEED];
+unsigned int sd_len;
 
 
 //static struct telnetd_buf buf;
@@ -396,23 +396,23 @@ newdata(void)
 		get_char(c);
 		s.state = STATE_NORMAL;
       } else {
-	switch(c) {
-	case TELNET_WILL:
-	  s.state = STATE_WILL;
-	  break;
-	case TELNET_WONT:
-	  s.state = STATE_WONT;
-	  break;
-	case TELNET_DO:
-	  s.state = STATE_DO;
-	  break;
-	case TELNET_DONT:
-	  s.state = STATE_DONT;
-	  break;
-	default:
-	  s.state = STATE_NORMAL;
-	  break;
-	}
+			switch(c) {
+			case TELNET_WILL:
+			  s.state = STATE_WILL;
+			  break;
+			case TELNET_WONT:
+			  s.state = STATE_WONT;
+			  break;
+			case TELNET_DO:
+			  s.state = STATE_DO;
+			  break;
+			case TELNET_DONT:
+			  s.state = STATE_DONT;
+			  break;
+			default:
+			  s.state = STATE_NORMAL;
+			  break;
+			}
       }
       break;
     case STATE_WILL:
@@ -511,11 +511,11 @@ telnetd_appcall(void *ts)
 	    }
       }
       else{
-        //senddata();
-		len = MIN(buf.ptr, uip_mss());
-		memcpy(uip_appdata, &buf.bufmem[0], len);
-		uip_send(uip_appdata, len);
-		s.numsent = len;
+        //Normal data send
+		sd_len = MIN(buf.ptr, uip_mss());
+		memcpy(uip_appdata, &buf.bufmem[0], sd_len);
+		uip_send(uip_appdata, sd_len);
+		s.numsent = sd_len;
       }
       if(s.numsent > 0) {
         timer_set(&silence_timer, BBS_IDLE_TIMEOUT);
