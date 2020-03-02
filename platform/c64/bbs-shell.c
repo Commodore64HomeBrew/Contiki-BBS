@@ -1002,7 +1002,7 @@ PROCESS_THREAD(movie_process, ev, data)
 
 		while(bbs_status.status == STATUS_STREAM) {
 
-			PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input);
+			PROCESS_WAIT_EVENT_UNTIL(ev == shell_event_input || bbs_status.status != STATUS_STREAM);
 			
 
 			
